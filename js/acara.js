@@ -1,4 +1,5 @@
 function saveAcara(){
+  $("#LoadingImage").attr('style','display:block');
   $.ajax({
     type:'POST',
     data : {
@@ -15,16 +16,32 @@ function saveAcara(){
       success: function(data) {
       var resp = eval('(' + data + ')');
         if(resp.err==''){
-          refreshList();
+          // suksesAlert("Data Tersimpan");
+          swal({
+            position: 'top-right',
+            type: 'success',
+            title: 'Data Tersimpan',
+            showConfirmButton: true,
+            timer: 5000
+          });
+          $("#LoadingImage").hide();
         }else{
-          alert(resp.err);
+          // errorAlert(resp.err);
+          swal({
+            position: 'top-right',
+            type: 'warning',
+            title: (resp.err),
+            showConfirmButton: true,
+            timer: 5000
+          });
+          $("#LoadingImage").hide();
         }
       }
   });
 }
 
 function refreshList(){
-    window.location.reload();
+    window.location = "pages.php?page=acara";
 }
 
 function loadTable(){
@@ -59,19 +76,30 @@ function loadTable(){
 
 
 function deleteAcara(id){
-  $.ajax({
-    type:'POST',
-    data : {id : id},
-    url: url+'&tipe=deleteAcara',
-      success: function(data) {
-      var resp = eval('(' + data + ')');
-        if(resp.err==''){
-          refreshList();
-        }else{
-          alert(resp.err);
-        }
-      }
-  });
+  swal({
+      title: "Yakin Hapus Data",
+      type: "warning",
+      showCancelButton: true,
+      confirmButtonColor: '#DD6B55',
+      confirmButtonText: 'Ya',
+      cancelButtonText: "Tidak"
+   }).then(
+         function () {
+           $.ajax({
+             type:'POST',
+             data : {id:id},
+             url: url+'&tipe=deleteAcara',
+               success: function(data) {
+               var resp = eval('(' + data + ')');
+                 if(resp.err==''){
+                   suksesAlert("Data Terhapus");
+                 }else{
+                   errorAlert(resp.err);
+                 }
+               }
+           });
+         },
+         function () { return false; });
 }
 
 function baruAcara(){
@@ -83,35 +111,42 @@ function baruAcara(){
 
 }
 function updateAcara(id){
-  $.ajax({
-    type:'POST',
-    data : {id : id},
-    url: url+'&tipe=updateAcara',
-      success: function(data) {
-      var resp = eval('(' + data + ')');
-        if(resp.err==''){
-            $("#data2").text("Edit");
-            $("#data2").click();
-            $("#submitAcara").attr("onclick","saveEditAcara("+id+")");
-            $("#namaAcara").val(resp.content.namaAcara);
-            $("#tanggalAcara").val(resp.content.tanggalAcara);
-            $("#waktuAcara").val(resp.content.waktuAcara);
-            //$("#lokasi").val(resp.content.lokasi);
-            $("#kapasitasAcara").val(resp.content.kapasitasAcara);
-            $("#summernote").code(resp.content.deskripsiAcara);
-            getAlamat(resp.content.kordinatLocation);
-            deleteMarkers();
-            var lastLocation = new google.maps.LatLng(resp.content.lat,resp.content.lng);
-            addMarker(lastLocation);
-        }else{
-          alert(resp.err);
-        }
-      }
-  });
+  // $.ajax({
+  //   type:'POST',
+  //   data : {id : id},
+  //   url: url+'&tipe=updateAcara',
+  //     success: function(data) {
+  //     var resp = eval('(' + data + ')');
+  //       if(resp.err==''){
+  //           $("#data2").text("Edit");
+  //           $("#data2").click();
+  //           $("#submitAcara").attr("onclick","saveEditAcara("+id+")");
+  //           $("#namaAcara").val(resp.content.namaAcara);
+  //           $("#tanggalAcara").val(resp.content.tanggalAcara);
+  //           $("#waktuAcara").val(resp.content.waktuAcara);
+  //           //$("#lokasi").val(resp.content.lokasi);
+  //           $("#kapasitasAcara").val(resp.content.kapasitasAcara);
+  //           $("#summernote").code(resp.content.deskripsiAcara);
+  //           getAlamat(resp.content.kordinatLocation);
+  //           deleteMarkers();
+  //           var lastLocation = new google.maps.LatLng(resp.content.lat,resp.content.lng);
+  //           addMarker(lastLocation);
+  //       }else{
+  //         alert(resp.err);
+  //       }
+  //     }
+  // });
+  // getAlamat(<?php echo $getDataEdit['koordinat'] ?>);
+  // deleteMarkers();
+  // var lastLocation = new google.maps.LatLng(<?php echo $explodeKoordinat[0] ?>,<?php echo $explodeKoordinat[1] ?>);
+  // addMarker(lastLocation);
+window.location = "pages.php?page=acara&action=edit&id="+id;
+
 }
 
 
 function saveEditAcara(idEdit){
+  $("#LoadingImage").attr('style','display:block');
   $.ajax({
     type:'POST',
     data : {
@@ -129,9 +164,25 @@ function saveEditAcara(idEdit){
       success: function(data) {
       var resp = eval('(' + data + ')');
         if(resp.err==''){
-          refreshList();
+         // suksesAlert("Data Tersimpan");
+         swal({
+            position: 'top-right',
+            type: 'success',
+            title: 'Data Tersimpan',
+            showConfirmButton: true,
+            timer: 5000
+          });
+          $("#LoadingImage").hide();
         }else{
-          alert(resp.err);
+          // errorAlert(resp.err);
+          swal({
+            position: 'top-right',
+            type: 'warning',
+            title: (resp.err),
+            showConfirmButton: true,
+            timer: 5000
+          });
+          $("#LoadingImage").hide();
         }
       }
   });

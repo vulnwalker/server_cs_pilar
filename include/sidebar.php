@@ -47,14 +47,16 @@
                         $settingActive = "active";
                     }elseif ($page == "chating") {
                         $chatingActive = "active";
+                    }elseif ($page == "lowonganKerja") {
+                        $lowonganKerjaActive = "active";
                     }else{
-                        $dashboardActive = "active";
+                        $userManagement = "active";
                     }
 
-                        echo "<li class='$dashboardActive'>
-                                  <a href='?page='>
+                        echo "<li class='$userManagement'>
+                                  <a href='?page=userManagement'>
                                       <i class='material-icons'>dashboard</i>
-                                      <p>Dashboard</p>
+                                      <p>User Management</p>
                                   </a>
                               </li>
 
@@ -80,6 +82,12 @@
                                   <a href='?page=slider'>
                                       <i class='material-icons'>burst_mode</i>
                                       <p>Slider</p>
+                                  </a>
+                              </li>
+                              <li class='$lowonganKerjaActive'>
+                                  <a href='?page=lowonganKerja'>
+                                      <i class='material-icons'>person_add</i>
+                                      <p>Lowongan Kerja</p>
                                   </a>
                               </li>
                               <li class='$settingActive'>

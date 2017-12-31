@@ -295,6 +295,17 @@ switch($tipe){
                                               <!--  end card  -->
                                           </div>
                                         </div>
+                                        <div class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="LoadingImage" style="display: none;">
+                                                <div class="modal-dialog modal-notice">
+                                                    <div class="modal-content" style="background-color: transparent; border: unset; box-shadow: unset;">
+                                                        <div class="modal-body">
+                                                            <!-- <div id="LoadingImage"> -->
+                                                              <img src="img/unnamed.gif" style="width: 30%; height: 30%; display: block; margin: auto;">
+                                                            <!-- </div> -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                        </div>
                                         <div class="tab-pane" id="produkBaru">
                                             <div class="row">
                                               <div class="col-lg-3 col-md-6 col-sm-3">

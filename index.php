@@ -6,6 +6,7 @@
 	    header("location:pages.php");
 	}
 	?>
+    <script type="text/javascript" src="js/login.js"></script>
 </head>
 <body class="off-canvas-sidebar">
     <nav class="navbar navbar-primary navbar-transparent navbar-absolute">
@@ -41,7 +42,7 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-md-4 col-sm-6 col-md-offset-4 col-sm-offset-3">
-                            <form method="post" action="login.php" onsubmit="return validasi()">
+                            <!-- <form method="post" action="login.php" onsubmit="return validasi()"> -->
                                 <div class="card card-login card-hidden">
                                     <div class="card-header text-center" data-background-color="rose">
                                         <h4 class="card-title">Login</h4>
@@ -90,10 +91,10 @@
                                         </div>
                                     </div>
                                     <div class="footer text-center">
-                                        <input type="submit" name="submit" id="submit" value="Login" class="btn btn-rose">
+                                        <input type="submit" name="submit" id="submit" onclick="check_login();" value="Login" class="btn btn-rose">
                                     </div>
                                 </div>
-                            </form>
+                            <!-- </form> -->
                         </div>
                     </div>
                 </div>

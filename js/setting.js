@@ -1,4 +1,5 @@
 function saveSetting(){
+  $("#LoadingImage").attr('style','display:block');
   $.ajax({
     type:'POST',
     data : {
@@ -14,14 +15,41 @@ function saveSetting(){
               informasiPosisi : $("#informasiPosisi").val(),
               produkPosisi : $("#produkPosisi").val(),
               acaraPosisi : $("#acaraPosisi").val(),
+              namaPerusahaan : $("#namaPerusahaan").val(),
+              alamatPerusahaan : $("#alamatPerusahaan").val(),
+              emailPerusahaan : $("#emailPerusahaan").val(),
+              teleponPerusahaan : $("#teleponPerusahaan").val(),
+              facebookPerusahaan : $("#facebookPerusahaan").val(),
+              twiterPerusahaan : $("#twiterPerusahaan").val(),
+              instagramPerusahaan : $("#instagramPerusahaan").val(),
+              linePerusahaan : $("#linePerusahaan").val(),
+              waPerusahaan : $("#waPerusahaan").val(),
+              bbmPerusahaan : $("#bbmPerusahaan").val(),
+              tentang : $("#tentang").val(),
             },
     url: url+'&tipe=saveSetting',
       success: function(data) {
       var resp = eval('(' + data + ')');
         if(resp.err==''){
-          refreshList();
+          // suksesAlert("Data Tersimpan");
+          swal({
+            position: 'top-right',
+            type: 'success',
+            title: 'Data Tersimpan',
+            showConfirmButton: true,
+            timer: 5000
+          });
+          $("#LoadingImage").hide();
         }else{
-          alert(resp.err);
+          // alert(resp.err);
+          swal({
+            position: 'top-right',
+            type: 'warning',
+            title: (resp.err),
+            showConfirmButton: true,
+            timer: 5000
+          });
+          $("#LoadingImage").hide();
         }
       }
   });
@@ -87,6 +115,7 @@ function baruSetting(){
 
 }
 function updateSetting(id){
+  $("#LoadingImage").attr('style','display:block');
   $.ajax({
     type:'POST',
     data : {id : id},
@@ -94,6 +123,7 @@ function updateSetting(id){
       success: function(data) {
       var resp = eval('(' + data + ')');
         if(resp.err==''){
+          $("#LoadingImage").hide();
             $("#data2").text("Edit");
             $("#data2").click();
             $("#submitSetting").attr("onclick","saveEditSetting("+id+")");
@@ -108,7 +138,15 @@ function updateSetting(id){
             var lastLocation = new google.maps.LatLng(resp.content.lat,resp.content.lng);
             addMarker(lastLocation);
         }else{
-          alert(resp.err);
+          // alert(resp.err);
+          swal({
+            position: 'top-right',
+            type: 'warning',
+            title: (resp.err),
+            showConfirmButton: true,
+            timer: 5000
+          });
+          $("#LoadingImage").hide();
         }
       }
   });
@@ -116,6 +154,7 @@ function updateSetting(id){
 
 
 function saveEditSetting(idEdit){
+  $("#LoadingImage").attr('style','display:block');
   $.ajax({
     type:'POST',
     data : {
@@ -133,9 +172,18 @@ function saveEditSetting(idEdit){
       success: function(data) {
       var resp = eval('(' + data + ')');
         if(resp.err==''){
+          $("#LoadingImage").hide();
           refreshList();
         }else{
-          alert(resp.err);
+          // alert(resp.err);
+          swal({
+            position: 'top-right',
+            type: 'warning',
+            title: (resp.err),
+            showConfirmButton: true,
+            timer: 5000
+          });
+          $("#LoadingImage").hide();
         }
       }
   });

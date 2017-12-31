@@ -5,11 +5,13 @@ if ($_SESSION['status'] != "login") {
     header("location:index.php");
 }
  ?>
-<!DOCTYPE html>
 <html lang="id">
 <head>
-    <?php include "head.php"; ?>
+	<?php include "head.php"; ?>
     <style type="text/css">
+        /*.modal-dialog{
+            width: 800px;
+        }*/
         .form-group.label-floating label.control-label, .form-group.label-placeholder label.control-label{
             left: 0;
         }
@@ -66,8 +68,10 @@ if ($page == "informasi") {
     include 'pages/setting.php';
 }elseif ($page == "chating") {
     include 'pages/chating.php';
-}elseif ($page == "") {
-    include 'pages/beranda.php';
+}elseif ($page == "userManagement") {
+    include 'pages/userManagement.php';
+}elseif ($page == "lowonganKerja") {
+    include 'pages/lowonganKerja.php';
 }else{
 echo " 404 ! halaman tidak di temukan ";
 }
@@ -100,6 +104,22 @@ if($page == "acara"){?>
 
 
 <script type="text/javascript">
+    function suksesAlert(pesan){
+        swal({
+        title: pesan,
+        type: "success"
+        }).then(function() {
+          refreshList();
+        });
+    }
+
+    function errorAlert(pesan){
+        swal({
+        title: pesan,
+        type: "warning"
+        }).then(function() {
+        });
+    }
     $(document).ready(function() {
 
 

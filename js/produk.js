@@ -1,4 +1,5 @@
 function saveProduk(){
+  $("#LoadingImage").attr('style','display:block');
   $.ajax({
     type:'POST',
     data : {
@@ -11,9 +12,18 @@ function saveProduk(){
       success: function(data) {
       var resp = eval('(' + data + ')');
         if(resp.err==''){
+          $("#LoadingImage").hide();
          refreshList();
         }else{
-          alert(resp.err);
+          // alert(resp.err);
+          swal({
+            position: 'top-right',
+            type: 'warning',
+            title: (resp.err),
+            showConfirmButton: true,
+            timer: 5000
+          });
+          $("#LoadingImage").hide();
         }
       }
   });
@@ -124,6 +134,7 @@ function clearTemp(){
   $("#data2").click();
 }
 function updateProduk(id){
+  $("#LoadingImage").attr('style','display:block');
   $.ajax({
     type:'POST',
     data : {id : id},
@@ -131,6 +142,7 @@ function updateProduk(id){
       success: function(data) {
       var resp = eval('(' + data + ')');
         if(resp.err==''){
+          $("#LoadingImage").hide();
           $("#data2").text("Edit");
           $("#data2").click();
           $("#namaProduk").val(resp.content.namaProduk);
@@ -161,7 +173,15 @@ function updateProduk(id){
           }
           // $("#isiProduk").val(resp.content.isiProduk);
         }else{
-          alert(resp.err);
+          // alert(resp.err);
+          swal({
+            position: 'top-right',
+            type: 'warning',
+            title: (resp.err),
+            showConfirmButton: true,
+            timer: 5000
+          });
+          $("#LoadingImage").hide();
         }
       }
   });
@@ -169,6 +189,7 @@ function updateProduk(id){
 
 
 function saveEditProduk(idEdit){
+  $("#LoadingImage").attr('style','display:block');
   $.ajax({
     type:'POST',
     data : {
@@ -182,9 +203,18 @@ function saveEditProduk(idEdit){
       success: function(data) {
       var resp = eval('(' + data + ')');
         if(resp.err==''){
+          $("#LoadingImage").hide();
           refreshList();
         }else{
-          alert(resp.err);
+          // alert(resp.err);
+          swal({
+            position: 'top-right',
+            type: 'warning',
+            title: (resp.err),
+            showConfirmButton: true,
+            timer: 5000
+          });
+          $("#LoadingImage").hide();
         }
       }
   });

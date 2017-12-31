@@ -190,6 +190,17 @@ switch($tipe){
                         </div>
                         <!--  end card  -->
                     </div>
+                    <div class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="LoadingImage" style="display: none;">
+                                                <div class="modal-dialog modal-notice">
+                                                    <div class="modal-content" style="background-color: transparent; border: unset; box-shadow: unset;">
+                                                        <div class="modal-body">
+                                                            <!-- <div id="LoadingImage"> -->
+                                                              <img src="img/unnamed.gif" style="width: 30%; height: 30%; display: block; margin: auto;">
+                                                            <!-- </div> -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                        </div>
                     <!-- end col-md-12 -->
                 </div>
                 <!-- end row -->

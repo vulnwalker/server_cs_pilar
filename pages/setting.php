@@ -43,6 +43,23 @@ switch($tipe){
         );
         sqlQuery(sqlUpdate("general_setting",$dataAcaraBackground,"option_name = 'acara_background'"));
 
+        $dataKontak = array(
+                                'nama_perusahaan' => $namaPerusahaan,
+                                'alamat' => $alamatPerusahaan,
+                                'telepon' => $teleponPerusahaan,
+                                'email' => $emailPerusahaan,
+                                'tentang' => $tentang,
+                                'media_sosial' => json_encode(array(
+                                                                'facebook' => $facebookPerusahaan,
+                                                                'twiter' => $twiterPerusahaan,
+                                                                'instagram' => $instagramPerusahaan,
+                                                                'line' => $linePerusahaan,
+                                                                'bbm' => $bbmPerusahaan,
+                                                                'whatsapp' => $waPerusahaan,
+                                                              )),
+                            );
+        sqlQuery(sqlUpdate("kontak_web",$dataKontak,"1=1"));
+
 
       }
 
@@ -179,6 +196,7 @@ switch($tipe){
     }
 
      default:{
+        $getDataKontak = sqlArray(sqlQuery("select * from kontak_web"));
         ?>
         <script>
         var url = "http://"+window.location.hostname+"/api.php?page=setting";
@@ -353,10 +371,92 @@ switch($tipe){
                                                           </div>
                                                       </div>
                                                     </div>
+                                                    <div class="row">
+                                                      <div class="col-md-3 col-sm-3">
+                                                          <div class="form-group label-floating">
+                                                              <label class="control-label">Nama Perusahaan</label>
+                                                              <input type="text" id='namaPerusahaan' class='form-control' value='<?php echo $getDataKontak['nama_perusahaan'] ?>' >
+                                                          </div>
+                                                      </div>
+                                                      <div class="col-md-5 col-sm-5">
+                                                          <div class="form-group label-floating">
+                                                              <label class="control-label">Alamat</label>
+                                                              <input type="text" id='alamatPerusahaan' class='form-control' value='<?php echo $getDataKontak['alamat'] ?>' >
+                                                          </div>
+                                                      </div>
+                                                      <div class="col-md-2 col-sm-2">
+                                                          <div class="form-group label-floating">
+                                                              <label class="control-label">Email</label>
+                                                              <input type="text" id='emailPerusahaan' class='form-control' value='<?php echo $getDataKontak['email'] ?>' >
+                                                          </div>
+                                                      </div>
+                                                      <div class="col-md-2 col-sm-2">
+                                                          <div class="form-group label-floating">
+                                                              <label class="control-label">Telepon</label>
+                                                              <input type="text" id='teleponPerusahaan' class='form-control' value='<?php echo $getDataKontak['telepon'] ?>' >
+                                                          </div>
+                                                      </div>
+                                                    </div>
+                                                    <div class="row">
+                                                      <?php
+                                                          $dataSosmed = json_decode($getDataKontak['media_sosial']);
+                                                          $facebookPerusahaan = $dataSosmed->facebook;
+                                                          $twiterPerusahaan = $dataSosmed->twiter;
+                                                          $instagramPerusahaan = $dataSosmed->instagram;
+                                                          $linePerusahaan = $dataSosmed->line;
+                                                          $waPerusahaan = $dataSosmed->whatsapp;
+                                                          $bbmPerusahaan = $dataSosmed->bbm;
+                                                       ?>
+                                                      <div class="col-md-2 col-sm-2">
+                                                          <div class="form-group label-floating">
+                                                              <label class="control-label">Facebook</label>
+                                                              <input type="text" id='facebookPerusahaan' class='form-control' value='<?php echo $facebookPerusahaan ?>' >
+                                                          </div>
+                                                      </div>
+                                                      <div class="col-md-2 col-sm-2">
+                                                          <div class="form-group label-floating">
+                                                              <label class="control-label">Twiter</label>
+                                                              <input type="text" id='twiterPerusahaan' class='form-control' value='<?php echo $twiterPerusahaan ?>' >
+                                                          </div>
+                                                      </div>
+                                                      <div class="col-md-2 col-sm-2">
+                                                          <div class="form-group label-floating">
+                                                              <label class="control-label">Instagram</label>
+                                                              <input type="text" id='instagramPerusahaan' class='form-control' value='<?php echo $instagramPerusahaan ?>' >
+                                                          </div>
+                                                      </div>
+                                                      <div class="col-md-2 col-sm-2">
+                                                          <div class="form-group label-floating">
+                                                              <label class="control-label">Line</label>
+                                                              <input type="text" id='linePerusahaan' class='form-control' value='<?php echo $linePerusahaan ?>' >
+                                                          </div>
+                                                      </div>
+                                                      <div class="col-md-2 col-sm-2">
+                                                          <div class="form-group label-floating">
+                                                              <label class="control-label">Whats App</label>
+                                                              <input type="text" id='waPerusahaan' class='form-control' value='<?php echo $waPerusahaan ?>' >
+                                                          </div>
+                                                      </div>
+                                                      <div class="col-md-2 col-sm-2">
+                                                          <div class="form-group label-floating">
+                                                              <label class="control-label">BBM</label>
+                                                              <input type="text" id='bbmPerusahaan' class='form-control' value='<?php echo $bbmPerusahaan ?>' >
+                                                          </div>
+                                                      </div>
+                                                    </div>
+                                                    <div class="row">
+                                                      <div class="col-md-12 col-sm-12">
+                                                          <div class="form-group label-floating">
+                                                              <label class="control-label">Tentang</label>
+                                                              <textarea  id='tentang' class='form-control' ><?php echo $getDataKontak['tentang'] ?></textarea>
+                                                          </div>
+                                                      </div>
+
+                                                    </div>
                                                       <div class="row">
                                                           <div class="col-md-4 col-sm-4">
                                                               <div class="form-group label-floating">
-                                                                  <input type='button' id='submitSetting' value='SIMPAN' class='waves-effect waves-light btn btn-primary' onclick="saveSetting();" >
+                                                                  <input type='button' id='submitSetting' value='SIMPAN' class='btn btn-primary' onclick="saveSetting();" >
                                                               </div>
                                                           </div>
 

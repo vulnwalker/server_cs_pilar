@@ -1,0 +1,83 @@
+<script src="js/dropzone/dropzone.js"></script>
+<link rel="stylesheet" href="js/dropzone/dropzone.css">
+<script src="assets/js/jquery-3.2.1.min.js" type="text/javascript"></script>
+<form action="upload.php" id='dropzone' class="dropzone dz-clickable">
+  <div class="dz-default dz-message" ><span>Drop files here to upload</span>
+  </div>
+</form>
+<input type="file" multiple="multiple"  accept='image/x-png,image/gif,image/jpeg' class="dz-hidden-input" style="visibility: hidden; position: absolute; top: 0px; left: 0px; height: 0px; width: 0px;">
+<script>
+Dropzone.autoDiscover = false;
+        var myDropzone = new Dropzone("#dropzone", {
+            url: "upload.php",
+            maxFileSize: 50,
+            acceptedFiles: ".png",
+            addRemoveLinks: true,
+            //more dropzone options here
+        });
+
+        //Add existing files into dropzone
+        var existingFiles = [
+            { name: "gblk.png",
+              size: 7683,
+              type: 'image/jpeg',
+              imageLocation : 'temp/gblk.png',
+              status: Dropzone.ADDED,
+            },
+            { name: "temp/chaki.png",
+              size: 7683,
+              type: 'image/jpeg',
+              imageLocation : 'temp/chaki.png',
+              status: Dropzone.ADDED,
+            },
+        ];
+
+        for (i = 0; i < existingFiles.length; i++) {
+            myDropzone.emit("addedfile", existingFiles[i]);
+            myDropzone.emit("thumbnail", existingFiles[i], existingFiles[i].imageLocation);
+            myDropzone.emit("complete", existingFiles[i]);
+        }
+
+//         Dropzone.options.imageDropzone = {
+//     paramName: 'NewImages',
+//     autoProcessQueue: false,
+//     uploadMultiple: true,
+//     parallelUploads: 100,
+//     maxFiles: 100,
+//     init: function () {
+//         var myDropzone = this;
+//
+//         //Populate any existing thumbnails
+//         if (thumbnailUrls) {
+//             for (var i = 0; i < thumbnailUrls.length; i++) {
+//                 var mockFile = {
+//                     name: "temp/gblk.png",
+//                     size: 12345,
+//                     type: 'image/jpeg',
+//                     status: Dropzone.ADDED,
+//                     url: thumbnailUrls[i]
+//                 };
+//
+//                 // Call the default addedfile event handler
+//                 myDropzone.emit("addedfile", mockFile);
+//
+//                 // And optionally show the thumbnail of the file:
+//                 myDropzone.emit("thumbnail", mockFile, thumbnailUrls[i]);
+//
+//                 myDropzone.files.push(mockFile);
+//             }
+//         }
+//
+//         this.on("removedfile", function (file) {
+//             // Only files that have been programmatically added should
+//             // have a url property.
+//             if (file.url && file.url.trim().length > 0) {
+//                 $("<input type='hidden'>").attr({
+//                     id: 'DeletedImageUrls',
+//                     name: 'DeletedImageUrls'
+//                 }).val(file.url).appendTo('#image-form');
+//             }
+//         });
+//     }
+// });
+</script>

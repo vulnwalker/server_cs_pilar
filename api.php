@@ -22,6 +22,18 @@ switch($page){
     include 'pages/setting.php';
     break;
   }
+  case 'chating':{
+    include 'pages/chating.php';
+    break;
+  }
+  case 'userManagement':{
+    include 'pages/userManagement.php';
+    break;
+  }
+  case 'lowonganKerja':{
+    include 'pages/lowonganKerja.php';
+    break;
+  }
 
   default:{
 

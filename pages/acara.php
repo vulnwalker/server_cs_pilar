@@ -48,7 +48,6 @@ switch($tipe){
                 'nama_acara' => $namaAcara,
                 'tanggal' => generateDate($tanggalAcara),
                 'jam' => $waktuAcara,
-                'kapasitas' => $kapasitasAcara,
                 'lokasi' => $lokasi,
                 'deskripsi' =>  $deskripsiAcara,
                 'koordinat' => $kordinatLocation
@@ -84,7 +83,6 @@ switch($tipe){
                 'nama_acara' => $namaAcara,
                 'tanggal' => generateDate($tanggalAcara),
                 'jam' => $waktuAcara,
-                'kapasitas' => $kapasitasAcara,
                 'lokasi' => $lokasi,
                 'deskripsi' =>  $deskripsiAcara,
                 'koordinat' => $kordinatLocation
@@ -199,385 +197,736 @@ switch($tipe){
 
         <script src="js/acara.js"></script>
 
-        <div class="content">
-            <div class="container-fluid">
-                <div class="row">
-                    <!-- Start Modal -->
+        <?php
+            if(!isset($_GET['action'])){
+                ?>
+                <div class="content">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <!-- Start Modal -->
 
-                    <div class="col-md-12">
-                      <div class="card">
-                                <div class="card-header">
-                                    <h4 class="card-title">Acara
-                                    </h4>
-                                </div>
-                                <div class="card-content">
-                                    <ul class="nav nav-pills nav-pills-primary">
-                                        <li class="active">
-                                            <a href="#dataAcara" id='data1' data-toggle="tab" aria-expanded="true" onclick="clearTemp();">Acara</a>
-                                        </li>
-                                        <li class="">
-                                            <a href="#acaraBaru" id='data2' data-toggle="tab" aria-expanded="false" onclick="activeAction();">Baru</a>
-                                        </li>
-                                    </ul>
-                                    <div class="tab-content">
-                                        <div class="tab-pane active" id="dataAcara">
-                                          <div class="col-md-12" id='tableAcara'>
-                                              <div class="card">
-                                                  <div class="card-header card-header-icon" data-background-color="purple">
-                                                      <i class="material-icons">assignment</i>
-                                                  </div>
-                                                  <div class="card-content">
-                                                      <h4 class="card-title">Data acara</h4>
-                                                      <div class="toolbar">
-                                                          <!--        Here you can write extra buttons/actions for the toolbar              -->
-                                                      </div>
-                                                      <div class="material-datatables">
-                                                          <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
-                                                              <thead>
-                                                                  <tr>
-                                                                      <th>Judul</th>
-                                                                      <th>Posisi</th>
-                                                                      <th>Tanggal</th>
-                                                                      <th>Penulis</th>
-                                                                      <th>Status</th>
-                                                                      <th class="disabled-sorting text-right">Actions</th>
-                                                                  </tr>
-                                                              </thead>
-                                                              <tbody>
-                                                              </tbody>
-                                                          </table>
-                                                      </div>
-                                                  </div>
-                                              </div>
-                                          </div>
+                            <div class="col-md-12">
+                              <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Acara
+                                            </h4>
                                         </div>
-
-
-
-                                        <div class="tab-pane" id="acaraBaru">
-                                          <div class="row">
-                                              <div class="col-md-12 col-sm-12">
-                                                  <div class="form-group label-floating">
-                                                      <label class="control-label">Nama Acara</label>
-                                                      <input type="text" id='namaAcara' >
+                                        <div class="card-content">
+                                            <ul class="nav nav-pills nav-pills-primary">
+                                              <li class="active" >
+                                                  <a href="pages.php?page=acara" >Acara</a>
+                                              </li>
+                                              <li >
+                                                  <a href="pages.php?page=acara&action=new" >Baru</a>
+                                              </li>
+                                            </ul>
+                                            <div class="tab-content">
+                                                <div class="tab-pane active" id="dataAcara">
+                                                  <div class="col-md-12" id='tableAcara'>
+                                                      <div class="card">
+                                                          <div class="card-header card-header-icon" data-background-color="purple">
+                                                              <i class="material-icons">assignment</i>
+                                                          </div>
+                                                          <div class="card-content">
+                                                              <h4 class="card-title">Data acara</h4>
+                                                              <div class="toolbar">
+                                                                  <!--        Here you can write extra buttons/actions for the toolbar              -->
+                                                              </div>
+                                                              <div class="material-datatables">
+                                                                  <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
+                                                                      <thead>
+                                                                          <tr>
+                                                                              <th>Judul</th>
+                                                                              <th>Posisi</th>
+                                                                              <th>Tanggal</th>
+                                                                              <th>Penulis</th>
+                                                                              <th>Status</th>
+                                                                              <th class="disabled-sorting text-right">Actions</th>
+                                                                          </tr>
+                                                                      </thead>
+                                                                      <tbody>
+                                                                      </tbody>
+                                                                  </table>
+                                                              </div>
+                                                          </div>
+                                                      </div>
                                                   </div>
-                                              </div>
-                                          </div>
-                                          <div class="row">
-                                              <div class="col-md-4 col-sm-4">
-                                                  <div class="form-group label-floating">
-                                                      <label class="control-label">Tanggal Acara</label>
-                                                      <input type="text" id='tanggalAcara' class="datepicker ">
-                                                  </div>
-                                              </div>
-                                              <div class="col-md-4 col-sm-4">
-                                                  <div class="form-group label-floating">
-                                                      <label class="control-label">Waktu Acara</label>
-                                                      <input type="text" id='waktuAcara' class="timepicker ">
-                                                  </div>
-                                              </div>
-                                              <div class="col-md-4 col-sm-4">
-                                                  <div class="form-group label-floating">
-                                                      <label class="control-label">Kapasitas</label>
-                                                      <input type="text" id='kapasitasAcara' >
-                                                  </div>
-                                              </div>
-                                          </div>
-                                          <div class="row">
-                                                <div class="input-field col s12">
-                                                  <textarea id="lokasi" class="materialize-textarea"></textarea>
-                                                  <label for="lokasi">Lokasi</label>
-                                                  <input type="hidden" id='kordinatX' class="">
-                                                  <input type="hidden" id='kordinatY' class="">
-                                                  <input type="hidden" id='tempKordinat' class="">
                                                 </div>
-                                          </div>
-
-                                            <div class="card">
-                                              Deskripsi Acara
-                                                <div class="card-body no-padding">
-                                                    <div id="summernote">
-                                                    </div>
-                                                </div><!--end .card-body -->
                                             </div>
+                                        </div>
+                                        <div class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="LoadingImage" style="display: none;">
+                                                <div class="modal-dialog modal-notice">
+                                                    <div class="modal-content" style="background-color: transparent; border: unset; box-shadow: unset;">
+                                                        <div class="modal-body">
+                                                            <!-- <div id="LoadingImage"> -->
+                                                              <img src="img/unnamed.gif" style="width: 30%; height: 30%; display: block; margin: auto;">
+                                                            <!-- </div> -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php
+            }else{
+                if($_GET['action']=='new'){
+                  ?>
+                  <style>
+                      #map {
+                      height: 100%;
+                      }
 
-                                          <div class="row">
-                                          <style>
-                                          /* Always set the map height explicitly to define the size of the div
-  * element that contains the map. */
- #map {
-   height: 100%;
- }
- /* Optional: Makes the sample page fill the window. */
+                      .controls {
+                      margin-top: 10px;
+                      border: 1px solid transparent;
+                      border-radius: 2px 0 0 2px;
+                      box-sizing: border-box;
+                      -moz-box-sizing: border-box;
+                      height: 32px;
+                      outline: none;
+                      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                      }
 
- .controls {
-   margin-top: 10px;
-   border: 1px solid transparent;
-   border-radius: 2px 0 0 2px;
-   box-sizing: border-box;
-   -moz-box-sizing: border-box;
-   height: 32px;
-   outline: none;
-   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
- }
+                      #pac-input {
+                      background-color: #fff;
+                      font-family: Roboto;
+                      font-size: 15px;
+                      font-weight: 300;
+                      margin-left: 12px;
+                      padding: 0 11px 0 13px;
+                      text-overflow: ellipsis;
+                      width: 300px;
+                      }
 
- #pac-input {
-   background-color: #fff;
-   font-family: Roboto;
-   font-size: 15px;
-   font-weight: 300;
-   margin-left: 12px;
-   padding: 0 11px 0 13px;
-   text-overflow: ellipsis;
-   width: 300px;
- }
+                      #pac-input:focus {
+                      border-color: #4d90fe;
+                      }
 
- #pac-input:focus {
-   border-color: #4d90fe;
- }
+                      .pac-container {
+                      font-family: Roboto;
+                      }
 
- .pac-container {
-   font-family: Roboto;
- }
+                      #type-selector {
+                      color: #fff;
+                      background-color: #4d90fe;
+                      padding: 5px 11px 0px 11px;
+                      }
 
- #type-selector {
-   color: #fff;
-   background-color: #4d90fe;
-   padding: 5px 11px 0px 11px;
- }
+                      #type-selector label {
+                      font-family: Roboto;
+                      font-size: 13px;
+                      font-weight: 300;
+                      }
+                  </style>
+                  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJNf9tt4XIkzl5mAaAA0aehyVrdaS6awU&libraries=places&callback=initMap"
+                  async ></script>
+                          <script>
+                          var markers = [];
+                          var map;
+                          function initMap() {
+                          var origin = {lat: -6.9066217615554235, lng: 107.6347303390503};
 
- #type-selector label {
-   font-family: Roboto;
-   font-size: 13px;
-   font-weight: 300;
- }
-                                          </style>
-  <input id="pac-input" class="controls" type="text"
-      placeholder="Enter a location">
-  <div id="type-selector" class="controls">
-    <input type="radio" name="type" id="changetype-all" checked="checked">
-    <!-- <label for="changetype-all">All</label>
+                           map = new google.maps.Map(document.getElementById('map'), {
+                            zoom: 18,
+                            center: origin
+                          });
+                          var clickHandler = new ClickEventHandler(map, origin);
 
-    <input type="radio" name="type" id="changetype-establishment">
-    <label for="changetype-establishment">Establishments</label>
+                          var input = /** @type {!HTMLInputElement} */(
+                            document.getElementById('pac-input'));
 
-    <input type="radio" name="type" id="changetype-address">
-    <label for="changetype-address">Addresses</label>
+                          var types = document.getElementById('type-selector');
+                          map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+                          map.controls[google.maps.ControlPosition.TOP_LEFT].push(types);
 
-    <input type="radio" name="type" id="changetype-geocode">
-    <label for="changetype-geocode">Geocodes</label> -->
-  </div>
-  <div id="map"></div>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJNf9tt4XIkzl5mAaAA0aehyVrdaS6awU&libraries=places&callback=initMap"
-      async ></script>
-  <script>
-    var markers = [];
-    var map;
-    function initMap() {
-      var origin = {lat: -6.9066217615554235, lng: 107.6347303390503};
+                          var autocomplete = new google.maps.places.Autocomplete(input);
+                          autocomplete.bindTo('bounds', map);
 
-         map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 18,
-          center: origin
-        });
-        var clickHandler = new ClickEventHandler(map, origin);
+                          var infowindow = new google.maps.InfoWindow();
+                          var marker = new google.maps.Marker({
+                          map: map,
+                          anchorPoint: new google.maps.Point(0, -29)
+                          });
+                          google.maps.event.addListener(map, "click", function (e) {
+                            //lat and lng is available in e object
+                            var latLng = e.latLng;
 
-      var input = /** @type {!HTMLInputElement} */(
-          document.getElementById('pac-input'));
+                            getAlamat(latLng);
+                            deleteMarkers();
+                            addMarker(latLng);
+                          });
 
-      var types = document.getElementById('type-selector');
-      map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-      map.controls[google.maps.ControlPosition.TOP_LEFT].push(types);
+                          autocomplete.addListener('place_changed', function() {
+                          infowindow.close();
+                          marker.setVisible(false);
+                          var place = autocomplete.getPlace();
+                          if (!place.geometry) {
+                            // User entered the name of a Place that was not suggested and
+                            // pressed the Enter key, or the Place Details request failed.
+                            window.alert("No details available for input: '" + place.name + "'");
+                            return;
+                          }
 
-      var autocomplete = new google.maps.places.Autocomplete(input);
-      autocomplete.bindTo('bounds', map);
+                          // If the place has a geometry, then present it on a map.
+                          if (place.geometry.viewport) {
+                            map.fitBounds(place.geometry.viewport);
+                          } else {
+                            map.setCenter(place.geometry.location);
+                            map.setZoom(17);  // Why 17? Because it looks good.
+                          }
+                          marker.setIcon(/** @type {google.maps.Icon} */({
+                            url: place.icon,
+                            size: new google.maps.Size(71, 71),
+                            origin: new google.maps.Point(0, 0),
+                            anchor: new google.maps.Point(17, 34),
+                            scaledSize: new google.maps.Size(35, 35)
+                          }));
+                          marker.setPosition(place.geometry.location);
+                          marker.setVisible(true);
 
-      var infowindow = new google.maps.InfoWindow();
-      var marker = new google.maps.Marker({
-        map: map,
-        anchorPoint: new google.maps.Point(0, -29)
-      });
-      google.maps.event.addListener(map, "click", function (e) {
-          //lat and lng is available in e object
-          var latLng = e.latLng;
+                          var address = '';
+                          if (place.address_components) {
+                            address = [
+                              (place.address_components[0] && place.address_components[0].short_name || ''),
+                              (place.address_components[1] && place.address_components[1].short_name || ''),
+                              (place.address_components[2] && place.address_components[2].short_name || '')
+                            ].join(' ');
+                          }
 
-          getAlamat(latLng);
-          deleteMarkers();
-          addMarker(latLng);
-      });
+                          infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
+                          infowindow.open(map, marker);
+                          });
 
-      autocomplete.addListener('place_changed', function() {
-        infowindow.close();
-        marker.setVisible(false);
-        var place = autocomplete.getPlace();
-        if (!place.geometry) {
-          // User entered the name of a Place that was not suggested and
-          // pressed the Enter key, or the Place Details request failed.
-          window.alert("No details available for input: '" + place.name + "'");
-          return;
-        }
+                          // Sets a listener on a radio button to change the filter type on Places
+                          // Autocomplete.
+                          function setupClickListener(id, types) {
+                          var radioButton = document.getElementById(id);
+                          radioButton.addEventListener('click', function() {
+                            autocomplete.setTypes(types);
+                          });
+                          }
 
-        // If the place has a geometry, then present it on a map.
-        if (place.geometry.viewport) {
-          map.fitBounds(place.geometry.viewport);
-        } else {
-          map.setCenter(place.geometry.location);
-          map.setZoom(17);  // Why 17? Because it looks good.
-        }
-        marker.setIcon(/** @type {google.maps.Icon} */({
-          url: place.icon,
-          size: new google.maps.Size(71, 71),
-          origin: new google.maps.Point(0, 0),
-          anchor: new google.maps.Point(17, 34),
-          scaledSize: new google.maps.Size(35, 35)
-        }));
-        marker.setPosition(place.geometry.location);
-        marker.setVisible(true);
+                          setupClickListener('changetype-all', []);
+                          setupClickListener('changetype-address', ['address']);
+                          setupClickListener('changetype-establishment', ['establishment']);
+                          setupClickListener('changetype-geocode', ['geocode']);
+                          }
 
-        var address = '';
-        if (place.address_components) {
-          address = [
-            (place.address_components[0] && place.address_components[0].short_name || ''),
-            (place.address_components[1] && place.address_components[1].short_name || ''),
-            (place.address_components[2] && place.address_components[2].short_name || '')
-          ].join(' ');
-        }
+                          function deleteMarkers() {
+                          clearMarkers();
+                          markers = [];
+                          }
+                          function setMapOnAll(map) {
+                          for (var i = 0; i < markers.length; i++) {
+                           markers[i].setMap(map);
+                          }
+                          }
 
-        infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
-        infowindow.open(map, marker);
-      });
+                          // Removes the markers from the map, but keeps them in the array.
+                          function clearMarkers() {
+                          setMapOnAll(null);
+                          }
 
-      // Sets a listener on a radio button to change the filter type on Places
-      // Autocomplete.
-      function setupClickListener(id, types) {
-        var radioButton = document.getElementById(id);
-        radioButton.addEventListener('click', function() {
-          autocomplete.setTypes(types);
-        });
-      }
-
-      setupClickListener('changetype-all', []);
-      setupClickListener('changetype-address', ['address']);
-      setupClickListener('changetype-establishment', ['establishment']);
-      setupClickListener('changetype-geocode', ['geocode']);
-    }
-
-    function deleteMarkers() {
-        clearMarkers();
-        markers = [];
-    }
-    function setMapOnAll(map) {
-       for (var i = 0; i < markers.length; i++) {
-         markers[i].setMap(map);
-       }
-     }
-
-     // Removes the markers from the map, but keeps them in the array.
-    function clearMarkers() {
-       setMapOnAll(null);
-    }
-
-    function addMarker(location) {
-          var marker = new google.maps.Marker({
-          position: location,
-          map: map,
-          title: 'Lokasi'
-        });
-        markers.push(marker);
-        map.setCenter(marker.getPosition())
-      }
+                          function addMarker(location) {
+                            var marker = new google.maps.Marker({
+                            position: location,
+                            map: map,
+                            title: 'Lokasi'
+                          });
+                          markers.push(marker);
+                          map.setCenter(marker.getPosition())
+                          }
 
 
-    var ClickEventHandler = function(map, origin) {
-  this.origin = origin;
-  this.map = map;
-  this.directionsService = new google.maps.DirectionsService;
-  this.directionsDisplay = new google.maps.DirectionsRenderer;
-  this.directionsDisplay.setMap(map);
-  this.placesService = new google.maps.places.PlacesService(map);
-  this.infowindow = new google.maps.InfoWindow;
-  this.infowindowContent = document.getElementById('infowindow-content');
-  this.infowindow.setContent(this.infowindowContent);
+                          var ClickEventHandler = function(map, origin) {
+                          this.origin = origin;
+                          this.map = map;
+                          this.directionsService = new google.maps.DirectionsService;
+                          this.directionsDisplay = new google.maps.DirectionsRenderer;
+                          this.directionsDisplay.setMap(map);
+                          this.placesService = new google.maps.places.PlacesService(map);
+                          this.infowindow = new google.maps.InfoWindow;
+                          this.infowindowContent = document.getElementById('infowindow-content');
+                          this.infowindow.setContent(this.infowindowContent);
 
-  // Listen for clicks on the map.
-  this.map.addListener('click', this.handleClick.bind(this));
-};
+                          // Listen for clicks on the map.
+                          this.map.addListener('click', this.handleClick.bind(this));
+                          };
 
-ClickEventHandler.prototype.handleClick = function(event) {
-  console.log('You clicked on: ' + event.latLng);
-  // If the event has a placeId, use it.
-  if (event.placeId) {
-    console.log('You clicked on place:' + event.placeId);
+                          ClickEventHandler.prototype.handleClick = function(event) {
+                          console.log('You clicked on: ' + event.latLng);
+                          // If the event has a placeId, use it.
+                          if (event.placeId) {
+                          console.log('You clicked on place:' + event.placeId);
 
-    // Calling e.stop() on the event prevents the default info window from
-    // showing.
-    // If you call stop here when there is no placeId you will prevent some
-    // other map click event handlers from receiving the event.
-    event.stop();
-    this.calculateAndDisplayRoute(event.placeId);
-    this.getPlaceInformation(event.placeId);
-  }
-};
+                          // Calling e.stop() on the event prevents the default info window from
+                          // showing.
+                          // If you call stop here when there is no placeId you will prevent some
+                          // other map click event handlers from receiving the event.
+                          event.stop();
+                          this.calculateAndDisplayRoute(event.placeId);
+                          this.getPlaceInformation(event.placeId);
+                          }
+                          };
 
-ClickEventHandler.prototype.calculateAndDisplayRoute = function(placeId) {
-  var me = this;
-  this.directionsService.route({
-    origin: this.origin,
-    destination: {placeId: placeId},
-    travelMode: 'WALKING'
-  }, function(response, status) {
-    if (status === 'OK') {
-      me.directionsDisplay.setDirections(response);
-    } else {
-      window.alert('Directions request failed due to ' + status);
-    }
-  });
-};
+                          ClickEventHandler.prototype.calculateAndDisplayRoute = function(placeId) {
+                          var me = this;
+                          this.directionsService.route({
+                          origin: this.origin,
+                          destination: {placeId: placeId},
+                          travelMode: 'WALKING'
+                          }, function(response, status) {
+                          if (status === 'OK') {
+                          me.directionsDisplay.setDirections(response);
+                          } else {
+                          window.alert('Directions request failed due to ' + status);
+                          }
+                          });
+                          };
 
-ClickEventHandler.prototype.getPlaceInformation = function(placeId) {
-  var me = this;
-  this.placesService.getDetails({placeId: placeId}, function(place, status) {
-    if (status === 'OK') {
-      me.infowindow.close();
-      me.infowindow.setPosition(place.geometry.location);
-      me.infowindowContent.children['place-icon'].src = place.icon;
-      me.infowindowContent.children['place-name'].textContent = place.name;
-      me.infowindowContent.children['place-id'].textContent = place.place_id;
-      me.infowindowContent.children['place-address'].textContent =
-          place.formatted_address;
-      me.infowindow.open(me.map);
-    }
-  });
-};
-  </script>
+                          ClickEventHandler.prototype.getPlaceInformation = function(placeId) {
+                          var me = this;
+                          this.placesService.getDetails({placeId: placeId}, function(place, status) {
+                          if (status === 'OK') {
+                          me.infowindow.close();
+                          me.infowindow.setPosition(place.geometry.location);
+                          me.infowindowContent.children['place-icon'].src = place.icon;
+                          me.infowindowContent.children['place-name'].textContent = place.name;
+                          me.infowindowContent.children['place-id'].textContent = place.place_id;
+                          me.infowindowContent.children['place-address'].textContent =
+                            place.formatted_address;
+                          me.infowindow.open(me.map);
+                          }
+                          });
+                          };
+                          </script>
+                  <div class="content">
+                      <div class="container-fluid">
+                          <div class="row">
+                              <!-- Start Modal -->
 
+                              <div class="col-md-12">
+                                <div class="card">
+                                          <div class="card-header">
+                                              <h4 class="card-title">Acara
+                                              </h4>
                                           </div>
-                                          <div class="row">
-                                              <div class="col-md-12 col-sm-12">
-                                                  <div class="form-group label-floating">
-                                                      <input type='button' id='submitAcara' value='SIMPAN' class='waves-effect waves-light btn' onclick="saveAcara();" >
+                                          <div class="card-content">
+                                              <ul class="nav nav-pills nav-pills-primary">
+                                                  <li >
+                                                      <a href="pages.php?page=acara"  >Acara</a>
+                                                  </li>
+                                                  <li class="active">
+                                                      <a href="pages.php?page=acara&action=new"  >Baru</a>
+                                                  </li>
+                                              </ul>
+                                              <div class="tab-content">
+                                                <div class="tab-pane active" id="acaraBaru">
+                                                  <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <div class="form-group label-floating" >
+                                                            <label class="control-label">Acara</label>
+                                                            <input type="text" id='namaAcara' name='namaAcara' class="form-control">
+                                                        </div>
+                                                    </div>
                                                   </div>
+                                                  <div class="row">
+                                                      <div class="col-md-6 col-sm-4">
+                                                          <div class="form-group label-floating">
+                                                              <label class="control-label">Tanggal Acara</label>
+                                                              <input type="text" id='tanggalAcara' class="form-control datepicker ">
+                                                          </div>
+                                                      </div>
+                                                      <div class="col-md-6 col-sm-6">
+                                                          <div class="form-group label-floating">
+                                                              <label class="control-label">Waktu Acara</label>
+                                                              <input type="text" id='waktuAcara' class="form-control timepicker ">
+                                                          </div>
+                                                      </div>
+                                                  </div>
+                                                  <div class="row">
+                                                    <div class="col-md-12 col-sm-12">
+                                                      <div class="form-group label-floating">
+                                                          <label class="control-label">Lokasi</label>
+                                                          <textarea id="lokasi" class="form-control"></textarea>
+                                                          <input type="hidden" id='kordinatX' class="">
+                                                          <input type="hidden" id='kordinatY' class="">
+                                                          <input type="hidden" id='tempKordinat' class="">
+                                                      </div>
+                                                    </div>
+                                                  </div>
+
+                                                    <div class="card">
+                                                      Deskripsi Acara
+                                                        <div class="card-body no-padding">
+                                                            <div id="summernote">
+                                                            </div>
+                                                        </div><!--end .card-body -->
+                                                    </div>
+
+                                                  <div class="row">
+                                                    <input id="pac-input" class="controls" type="text"
+                                                    placeholder="Enter a location">
+                                                    <div id="type-selector" class="controls">
+                                                    <input type="radio" name="type" id="changetype-all" checked="checked">
+                                                    </div>
+                                                    <div id="map"></div>
+
+                                                      </div>
+                                                  <div class="row">
+                                                      <div class="col-md-12 col-sm-12">
+                                                          <div class="form-group label-floating">
+                                                              <input type='button' id='submitAcara' value='SIMPAN' class='btn btn-primary' onclick="saveAcara();" >
+                                                          </div>
+                                                      </div>
+                                                  </div>
+                                                </div>
+                                            </div>
                                               </div>
                                           </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <?php
+                }else{
+                    $getDataEdit = sqlArray(sqlQuery("select * from acara where id = '".$_GET['id']."'"));
+                    $explodeKoordinat = explode(",",$getDataEdit['koordinat']);
+                    ?>
+                    <style>
+                        #map {
+                        height: 100%;
+                        }
+
+                        .controls {
+                        margin-top: 10px;
+                        border: 1px solid transparent;
+                        border-radius: 2px 0 0 2px;
+                        box-sizing: border-box;
+                        -moz-box-sizing: border-box;
+                        height: 32px;
+                        outline: none;
+                        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                        }
+
+                        #pac-input {
+                        background-color: #fff;
+                        font-family: Roboto;
+                        font-size: 15px;
+                        font-weight: 300;
+                        margin-left: 12px;
+                        padding: 0 11px 0 13px;
+                        text-overflow: ellipsis;
+                        width: 300px;
+                        }
+
+                        #pac-input:focus {
+                        border-color: #4d90fe;
+                        }
+
+                        .pac-container {
+                        font-family: Roboto;
+                        }
+
+                        #type-selector {
+                        color: #fff;
+                        background-color: #4d90fe;
+                        padding: 5px 11px 0px 11px;
+                        }
+
+                        #type-selector label {
+                        font-family: Roboto;
+                        font-size: 13px;
+                        font-weight: 300;
+                        }
+                    </style>
+                    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJNf9tt4XIkzl5mAaAA0aehyVrdaS6awU&libraries=places&callback=initMap"
+                    async ></script>
+                            <script>
+                            var markers = [];
+                            var map;
+                            function initMap() {
+                            var origin = {lat: <?php echo $explodeKoordinat[0] ?>, lng: <?php echo $explodeKoordinat[1] ?>};
+                             map = new google.maps.Map(document.getElementById('map'), {
+                              zoom: 18,
+                              center: origin
+                            });
+                            var clickHandler = new ClickEventHandler(map, origin);
+
+                            var input = /** @type {!HTMLInputElement} */(
+                              document.getElementById('pac-input'));
+
+                            var types = document.getElementById('type-selector');
+                            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+                            map.controls[google.maps.ControlPosition.TOP_LEFT].push(types);
+
+                            var autocomplete = new google.maps.places.Autocomplete(input);
+                            autocomplete.bindTo('bounds', map);
+
+                            var infowindow = new google.maps.InfoWindow();
+                            var marker = new google.maps.Marker({
+                            map: map,
+                            anchorPoint: new google.maps.Point(0, -29)
+                            });
+                            google.maps.event.addListener(map, "click", function (e) {
+                              //lat and lng is available in e object
+                              var latLng = e.latLng;
+
+                              getAlamat(latLng);
+                              deleteMarkers();
+                              addMarker(latLng);
+                            });
+
+                            autocomplete.addListener('place_changed', function() {
+                            infowindow.close();
+                            marker.setVisible(false);
+                            var place = autocomplete.getPlace();
+                            if (!place.geometry) {
+                              // User entered the name of a Place that was not suggested and
+                              // pressed the Enter key, or the Place Details request failed.
+                              window.alert("No details available for input: '" + place.name + "'");
+                              return;
+                            }
+
+                            // If the place has a geometry, then present it on a map.
+                            if (place.geometry.viewport) {
+                              map.fitBounds(place.geometry.viewport);
+                            } else {
+                              map.setCenter(place.geometry.location);
+                              map.setZoom(17);  // Why 17? Because it looks good.
+                            }
+                            marker.setIcon(/** @type {google.maps.Icon} */({
+                              url: place.icon,
+                              size: new google.maps.Size(71, 71),
+                              origin: new google.maps.Point(0, 0),
+                              anchor: new google.maps.Point(17, 34),
+                              scaledSize: new google.maps.Size(35, 35)
+                            }));
+                            marker.setPosition(place.geometry.location);
+                            marker.setVisible(true);
+
+                            var address = '';
+                            if (place.address_components) {
+                              address = [
+                                (place.address_components[0] && place.address_components[0].short_name || ''),
+                                (place.address_components[1] && place.address_components[1].short_name || ''),
+                                (place.address_components[2] && place.address_components[2].short_name || '')
+                              ].join(' ');
+                            }
+
+                            infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
+                            infowindow.open(map, marker);
+                            });
+
+                            // Sets a listener on a radio button to change the filter type on Places
+                            // Autocomplete.
+                            function setupClickListener(id, types) {
+                            var radioButton = document.getElementById(id);
+                            radioButton.addEventListener('click', function() {
+                              autocomplete.setTypes(types);
+                            });
+                            }
+
+                            setupClickListener('changetype-all', []);
+                            setupClickListener('changetype-address', ['address']);
+                            setupClickListener('changetype-establishment', ['establishment']);
+                            setupClickListener('changetype-geocode', ['geocode']);
+                            }
 
 
-                                        </div>
 
+
+                            function deleteMarkers() {
+                            clearMarkers();
+                            markers = [];
+                            }
+                            function setMapOnAll(map) {
+                            for (var i = 0; i < markers.length; i++) {
+                             markers[i].setMap(map);
+                            }
+                            }
+
+                            // Removes the markers from the map, but keeps them in the array.
+                            function clearMarkers() {
+                            setMapOnAll(null);
+                            }
+
+                            function addMarker(location) {
+                              var marker = new google.maps.Marker({
+                              position: location,
+                              map: map,
+                              title: 'Lokasi'
+                            });
+                            markers.push(marker);
+                            map.setCenter(marker.getPosition())
+                            }
+
+
+                            var ClickEventHandler = function(map, origin) {
+                            this.origin = origin;
+                            this.map = map;
+                            // this.directionsService = new google.maps.DirectionsService;
+                            // this.directionsDisplay = new google.maps.DirectionsRenderer;
+                            // this.directionsDisplay.setMap(map);
+                            this.placesService = new google.maps.places.PlacesService(map);
+                            this.infowindow = new google.maps.InfoWindow;
+                            this.infowindowContent = document.getElementById('infowindow-content');
+                            this.infowindow.setContent(this.infowindowContent);
+                            deleteMarkers();
+                            var lastLocation = new google.maps.LatLng(<?php echo $explodeKoordinat[0] ?>,<?php echo $explodeKoordinat[1] ?>);
+                            addMarker(lastLocation);
+
+                            // Listen for clicks on the map.
+                            this.map.addListener('click', this.handleClick.bind(this));
+                            };
+
+                            ClickEventHandler.prototype.handleClick = function(event) {
+                            console.log('You clicked on: ' + event.latLng);
+                            // If the event has a placeId, use it.
+                            if (event.placeId) {
+                            console.log('You clicked on place:' + event.placeId);
+
+                            // Calling e.stop() on the event prevents the default info window from
+                            // showing.
+                            // If you call stop here when there is no placeId you will prevent some
+                            // other map click event handlers from receiving the event.
+                            event.stop();
+                            this.calculateAndDisplayRoute(event.placeId);
+                            this.getPlaceInformation(event.placeId);
+                            }
+                            };
+
+                            ClickEventHandler.prototype.calculateAndDisplayRoute = function(placeId) {
+                            var me = this;
+                            this.directionsService.route({
+                            origin: this.origin,
+                            destination: {placeId: placeId},
+                            travelMode: 'WALKING'
+                            }, function(response, status) {
+                            if (status === 'OK') {
+                            me.directionsDisplay.setDirections(response);
+                            } else {
+                            window.alert('Directions request failed due to ' + status);
+                            }
+                            });
+                            };
+
+                            ClickEventHandler.prototype.getPlaceInformation = function(placeId) {
+                            var me = this;
+                            this.placesService.getDetails({placeId: placeId}, function(place, status) {
+                            if (status === 'OK') {
+                            me.infowindow.close();
+                            me.infowindow.setPosition(place.geometry.location);
+                            me.infowindowContent.children['place-icon'].src = place.icon;
+                            me.infowindowContent.children['place-name'].textContent = place.name;
+                            me.infowindowContent.children['place-id'].textContent = place.place_id;
+                            me.infowindowContent.children['place-address'].textContent =
+                              place.formatted_address;
+                            me.infowindow.open(me.map);
+                            }
+                            });
+                            };
+                            </script>
+
+                    <div class="content">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <!-- Start Modal -->
+
+                                <div class="col-md-12">
+                                  <div class="card">
+                                            <div class="card-header">
+                                                <h4 class="card-title">Acara
+                                                </h4>
+                                            </div>
+                                            <div class="card-content">
+                                                <ul class="nav nav-pills nav-pills-primary">
+                                                    <li >
+                                                        <a href="pages.php?page=acara"  >Acara</a>
+                                                    </li>
+                                                    <li class="active">
+                                                        <a >Edit</a>
+                                                    </li>
+                                                </ul>
+                                                <div class="tab-content">
+                                                  <div class="tab-pane active" id="acaraBaru">
+                                                    <div class="row">
+                                                      <div class="col-lg-12">
+                                                          <div class="form-group label-floating" >
+                                                              <label class="control-label">Acara</label>
+                                                              <input type="text" id='namaAcara' name='namaAcara' class="form-control" value='<?php echo $getDataEdit['nama_acara'] ?>'>
+                                                          </div>
+                                                      </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 col-sm-4">
+                                                            <div class="form-group label-floating">
+                                                                <label class="control-label">Tanggal Acara</label>
+                                                                <input type="text" id='tanggalAcara' class="form-control datepicker " value='<?php echo generateDate($getDataEdit['tanggal']) ?>'>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-6">
+                                                            <div class="form-group label-floating">
+                                                                <label class="control-label">Waktu Acara</label>
+                                                                <input type="text" id='waktuAcara' class="form-control timepicker " value='<?php echo $getDataEdit['jam'] ?>'>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                      <div class="col-md-12 col-sm-12">
+                                                        <div class="form-group label-floating">
+                                                            <label class="control-label">Lokasi</label>
+                                                            <textarea id="lokasi" class="form-control"><?php echo $getDataEdit['lokasi'] ?></textarea>
+                                                            <input type="hidden" id='kordinatX' class="" value='<?php echo $explodeKoordinat[0] ?>'>
+                                                            <input type="hidden" id='kordinatY' class="" value='<?php echo $explodeKoordinat[1] ?>'>
+                                                            <input type="hidden" id='tempKordinat' class="">
+                                                        </div>
+                                                      </div>
+                                                    </div>
+
+                                                      <div class="card">
+                                                        Deskripsi Acara
+                                                          <div class="card-body no-padding">
+                                                              <div id="summernote">
+                                                                <?php echo $getDataEdit['deskripsi'] ?>
+                                                              </div>
+                                                          </div><!--end .card-body -->
+                                                      </div>
+
+                                                    <div class="row">
+                                                      <input id="pac-input" class="controls" type="text"
+                                                      placeholder="Enter a location">
+                                                      <div id="type-selector" class="controls">
+                                                      <input type="radio" name="type" id="changetype-all" checked="checked">
+                                                      </div>
+                                                      <div id="map"></div>
+
+                                                        </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12 col-sm-12">
+                                                            <div class="form-group label-floating">
+                                                                <input type='button' id='submitAcara' value='SIMPAN' class='btn btn-primary' onclick="saveEditAcara(<?php echo $getDataEdit['id'] ?>);" >
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                  </div>
+                                              </div>
+                                                </div>
+                                            </div>
                                     </div>
                                 </div>
                             </div>
-
+                        </div>
                     </div>
-                    <!-- End Modal -->
 
-
-
-
-                    <!-- end col-md-12 -->
-                </div>
-                <!-- end row -->
-            </div>
-        </div>
+                    <?php
+                }
+            }
+         ?>
 
 
 

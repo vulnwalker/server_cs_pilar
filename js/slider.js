@@ -1,4 +1,5 @@
 function saveSlider(){
+  $("#LoadingImage").attr('style','display:block');
   $.ajax({
     type:'POST',
     data : {
@@ -10,9 +11,18 @@ function saveSlider(){
       success: function(data) {
       var resp = eval('(' + data + ')');
         if(resp.err==''){
+          $("#LoadingImage").hide();
          refreshList();
         }else{
-          alert(resp.err);
+          // alert(resp.err);
+          swal({
+            position: 'top-right',
+            type: 'warning',
+            title: (resp.err),
+            showConfirmButton: true,
+            timer: 5000
+          });
+          $("#LoadingImage").hide();
         }
       }
   });
@@ -75,6 +85,7 @@ function baruSlider(){
 
 }
 function updateSlider(id){
+  $("#LoadingImage").attr('style','display:block');
   $.ajax({
     type:'POST',
     data : {id : id},
@@ -82,6 +93,7 @@ function updateSlider(id){
       success: function(data) {
       var resp = eval('(' + data + ')');
         if(resp.err==''){
+          $("#LoadingImage").hide();
           $("#formSliderBaru").modal();
           $("#namaSlider").val(resp.content.namaSlider);
           $("#statusPublish").val(resp.content.statusPublish);
@@ -89,7 +101,15 @@ function updateSlider(id){
           $("#gambarSlider").val(resp.content.baseImage);
           $("#buttonSubmit").attr("onclick","saveEditSlider("+id+")");
         }else{
-          alert(resp.err);
+          // alert(resp.err);
+          swal({
+            position: 'top-right',
+            type: 'warning',
+            title: (resp.err),
+            showConfirmButton: true,
+            timer: 5000
+          });
+          $("#LoadingImage").hide();
         }
       }
   });
@@ -97,6 +117,7 @@ function updateSlider(id){
 
 
 function saveEditSlider(idEdit){
+  $("#LoadingImage").attr('style','display:block');
   $.ajax({
     type:'POST',
     data : {
@@ -109,9 +130,18 @@ function saveEditSlider(idEdit){
       success: function(data) {
       var resp = eval('(' + data + ')');
         if(resp.err==''){
+          $("#LoadingImage").hide();
           refreshList();
         }else{
-          alert(resp.err);
+          // alert(resp.err);
+          swal({
+            position: 'top-right',
+            type: 'warning',
+            title: (resp.err),
+            showConfirmButton: true,
+            timer: 5000
+          });
+          $("#LoadingImage").hide();
         }
       }
   });
