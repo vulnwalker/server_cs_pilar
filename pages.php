@@ -112,6 +112,8 @@ if ($page == "informasi") {
     include 'pages/lowonganKerja.php';
 }elseif ($page == "team") {
     include 'pages/team.php';
+}elseif ($page == "profile") {
+    include 'pages/profile.php';
 }else{
 echo " 404 ! halaman tidak di temukan ";
 }

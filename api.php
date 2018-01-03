@@ -1,6 +1,6 @@
 <?php include "include/config.php";
   $page = @$_GET['page'];
-
+session_start();
 switch($page){
   case 'informasi':{
     include 'pages/informasi.php';
@@ -20,6 +20,10 @@ switch($page){
   }
   case 'setting':{
     include 'pages/setting.php';
+    break;
+  }
+  case 'profile':{
+    include 'pages/profile.php';
     break;
   }
   case 'chating':{

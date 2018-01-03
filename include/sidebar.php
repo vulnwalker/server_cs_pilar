@@ -1,5 +1,5 @@
 <?php
-  $getDataUser = sqlArray(sqlQuery("select * from admin where username = '".$_SESSION['username']."'"));
+  $getDataUser = sqlArray(sqlQuery("select * from users where username = '".$_SESSION['username']."'"));
  ?>
             <div class="sidebar-wrapper">
                 <div class="user">
@@ -17,7 +17,7 @@
                         <div class="collapse" id="collapseExample">
                             <ul class="nav">
                                 <li>
-                                    <a href="?page=member&action=">
+                                    <a href="?page=profile">
                                         <span class="sidebar-mini">></span>
                                         <span class="sidebar-normal">My Profile</span>
                                     </a>
