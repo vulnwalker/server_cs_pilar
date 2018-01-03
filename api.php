@@ -34,6 +34,10 @@ switch($page){
     include 'pages/lowonganKerja.php';
     break;
   }
+  case 'team':{
+    include 'pages/team.php';
+    break;
+  }
 
   default:{
 

@@ -104,6 +104,37 @@ switch($tipe){
       echo generateAPI($cek,$err,$content);
     break;
     }
+    case 'saveKonfirmasi':{
+      $dataUpdate = array(
+            'status' => $statusConfirmasi,
+            'jumlah_orang' => $jumlahOrang,
+      );
+      $query = sqlUpdate("reservasi_acara",$dataUpdate,"id = '$id'");
+      sqlQuery($query);
+      $cek = $query;
+      echo generateAPI($cek,$err,$content);
+    break;
+    }
+    case 'confirmAcara':{
+      $getData = sqlArray(sqlQuery("select * from reservasi_acara where id = '$id'"));
+      $arrayStatus = array(
+                        array('1','TERKONFIRMASI'),
+                        array('2','TOLAK'),
+                    );
+      if(empty($getData['status'])){
+        $status = "1";
+      }else{
+        $status = $getData['status'];
+      }
+      $comboStatus = cmbArray("statusConfirmasi",$status,$arrayStatus,"-- STATUS --","  data-style='btn btn-primary btn-round' title='Single Select' data-size='7'");
+      $content = array(
+                        'jumlahOrang' => $getData['jumlah_orang'],
+                        'comboStatus' => $comboStatus,
+                      );
+
+      echo generateAPI($cek,$err,$content);
+    break;
+    }
 
     case 'generateLocation':{
       $explodeKordinat = explode(',',$koordinat);
@@ -149,20 +180,68 @@ switch($tipe){
     }
 
     case 'loadTable':{
-      $getData = sqlQuery("select * from acara");
+        $getData = sqlQuery("select * from acara");
+        while($dataAcara = sqlArray($getData)){
+          foreach ($dataAcara as $key => $value) {
+              $$key = $value;
+          }
+
+          $data .= "     <tr>
+                            <td>$nama_acara</td>
+                            <td>$lokasi</td>
+                            <td>".generateDate($tanggal)." $jam</td>
+                            <td>$jumlahRegister</td>
+                            <td class='text-right'>
+                                <a onclick=listKonfirmasi($id) class='btn btn-simple btn-warning btn-icon edit'><i class='material-icons'>confirmation_number</i></a>
+                                <a onclick=updateAcara($id) class='btn btn-simple btn-warning btn-icon edit'><i class='material-icons'>edit</i></a>
+                                <a onclick=deleteAcara($id) class='btn btn-simple btn-danger btn-icon remove'><i class='material-icons'>close</i></a>
+                            </td>
+                        </tr>
+                      ";
+        }
+
+        $tabel = "<table id='datatables' class='table table-striped table-no-bordered table-hover' cellspacing='0' width='100%' style='width:100%'>
+            <thead>
+                <tr>
+                    <th>Nama Acara</th>
+                    <th>Lokasi</th>
+                    <th>Tanggal</th>
+                    <th>Pendaftar</th>
+                    <th class='disabled-sorting text-right'>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+              $data
+            </tbody>
+        </table>";
+        $content = array("tabelAcara" => $tabel);
+
+
+      echo generateAPI($cek,$err,$content);
+    break;
+    }
+    case 'loadKonfirmasi':{
+      $getData = sqlQuery("select * from reservasi_acara where id_acara = '$idAcara'");
       while($dataAcara = sqlArray($getData)){
         foreach ($dataAcara as $key => $value) {
             $$key = $value;
         }
+        if(empty($status)){
+            $status = "PENDING";
+        }elseif($status == '1'){
+            $status = "TERKONFIMASI";
+        }else{
+            $status = "DITOLAK";
+        }
 
-        $data .= "     <tr>
-                          <td>$nama_acara</td>
-                          <td>$lokasi</td>
-                          <td>".generateDate($tanggal)." $jam</td>
-                          <td>$kapasitas</td>
+        $data .= "<tr>
+                          <td>$nama_peserta</td>
+                          <td>$email</td>
+                          <td>$instansi</td>
+                          <td>$jumlah_orang</td>
+                          <td>$status</td>
                           <td class='text-right'>
-                              <a onclick=updateAcara($id) class='btn btn-simple btn-warning btn-icon edit'><i class='material-icons'>dvr</i></a>
-                              <a onclick=deleteAcara($id) class='btn btn-simple btn-danger btn-icon remove'><i class='material-icons'>close</i></a>
+                              <a onclick=confirmAcara($id) class='btn btn-simple btn-warning btn-icon edit'><i class='material-icons'>edit</i></a>
                           </td>
                       </tr>
                     ";
@@ -171,10 +250,11 @@ switch($tipe){
       $tabel = "<table id='datatables' class='table table-striped table-no-bordered table-hover' cellspacing='0' width='100%' style='width:100%'>
           <thead>
               <tr>
-                  <th>Nama Acara</th>
-                  <th>Lokasi</th>
-                  <th>Tanggal</th>
-                  <th>Kapasitas</th>
+                  <th>Nama</th>
+                  <th>Email</th>
+                  <th>Instansi</th>
+                  <th>Jumlah Orang</th>
+                  <th>Status</th>
                   <th class='disabled-sorting text-right'>Actions</th>
               </tr>
           </thead>
@@ -184,9 +264,12 @@ switch($tipe){
       </table>";
       $content = array("tabelAcara" => $tabel);
 
+
       echo generateAPI($cek,$err,$content);
     break;
     }
+
+
 
      default:{
         ?>
@@ -219,6 +302,9 @@ switch($tipe){
                                               <li >
                                                   <a href="pages.php?page=acara&action=new" >Baru</a>
                                               </li>
+                                              <!-- <li>
+                                                  <a href="pages.php?page=acara&action=confirm">Konfirmasi</a>
+                                              </li> -->
                                             </ul>
                                             <div class="tab-content">
                                                 <div class="tab-pane active" id="dataAcara">
@@ -253,17 +339,6 @@ switch($tipe){
                                                   </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="LoadingImage" style="display: none;">
-                                                <div class="modal-dialog modal-notice">
-                                                    <div class="modal-content" style="background-color: transparent; border: unset; box-shadow: unset;">
-                                                        <div class="modal-body">
-                                                            <!-- <div id="LoadingImage"> -->
-                                                              <img src="img/unnamed.gif" style="width: 30%; height: 30%; display: block; margin: auto;">
-                                                            <!-- </div> -->
-                                                        </div>
-                                                    </div>
-                                                </div>
                                         </div>
                                 </div>
                             </div>
@@ -522,6 +597,9 @@ switch($tipe){
                                                   <li class="active">
                                                       <a href="pages.php?page=acara&action=new"  >Baru</a>
                                                   </li>
+                                                  <!-- <li>
+                                                      <a href="pages.php?page=acara&action=confirm">Konfirmasi</a>
+                                                  </li> -->
                                               </ul>
                                               <div class="tab-content">
                                                 <div class="tab-pane active" id="acaraBaru">
@@ -593,7 +671,7 @@ switch($tipe){
                       </div>
                   </div>
                   <?php
-                }else{
+                }elseif($_GET['action'] == 'edit'){
                     $getDataEdit = sqlArray(sqlQuery("select * from acara where id = '".$_GET['id']."'"));
                     $explodeKoordinat = explode(",",$getDataEdit['koordinat']);
                     ?>
@@ -851,6 +929,9 @@ switch($tipe){
                                                     <li class="active">
                                                         <a >Edit</a>
                                                     </li>
+                                                    <!-- <li>
+                                                        <a href="pages.php?page=acara&action=confirm">Konfirmasi</a>
+                                                    </li> -->
                                                 </ul>
                                                 <div class="tab-content">
                                                   <div class="tab-pane active" id="acaraBaru">
@@ -924,10 +1005,110 @@ switch($tipe){
                     </div>
 
                     <?php
+                }elseif($_GET['action'] == 'confirm'){
+                    ?>
+                    <div class="content">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <!-- Start Modal -->
+
+                                <div class="col-md-12">
+                                  <div class="card">
+                                            <div class="card-header">
+                                                <h4 class="card-title">Acara
+                                                </h4>
+                                            </div>
+                                            <div class="card-content">
+                                                <ul class="nav nav-pills nav-pills-primary">
+                                                  <li >
+                                                      <a href="pages.php?page=acara" >Acara</a>
+                                                  </li>
+                                                  <li >
+                                                      <a href="pages.php?page=acara&action=new" >Baru</a>
+                                                  </li>
+                                                  <li class="active" >
+                                                      <a  href="#">Konfirmasi</a>
+                                                  </li>
+                                                </ul>
+                                                <div class="tab-content">
+                                                    <div class="tab-pane active" id="dataAcara">
+                                                      <div class="col-md-12" id='tableAcara'>
+                                                          <div class="card">
+                                                              <div class="card-header card-header-icon" data-background-color="purple">
+                                                                  <i class="material-icons">assignment</i>
+                                                              </div>
+                                                              <div class="card-content">
+                                                                  <h4 class="card-title">Konfirmasi Acara</h4>
+                                                                  <div class="toolbar">
+                                                                      <!--        Here you can write extra buttons/actions for the toolbar              -->
+                                                                  </div>
+                                                                  <div class="material-datatables">
+                                                                      <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
+                                                                          <thead>
+                                                                              <tr>
+                                                                                  <th>Judul</th>
+                                                                                  <th>Posisi</th>
+                                                                                  <th>Tanggal</th>
+                                                                                  <th>Penulis</th>
+                                                                                  <th>Status</th>
+                                                                                  <th class="disabled-sorting text-right">Actions</th>
+                                                                              </tr>
+                                                                          </thead>
+                                                                          <tbody>
+                                                                          </tbody>
+                                                                      </table>
+                                                                  </div>
+                                                              </div>
+                                                          </div>
+                                                      </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php
                 }
             }
          ?>
 
+
+         <div class="modal fade" id="formKonfirmasiAcara" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+             <div class="modal-dialog">
+                 <div class="modal-content">
+                     <div class="modal-header">
+                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                             <i class="material-icons">clear</i>
+                         </button>
+                         <h4 class="modal-title">Konfirmasi</h4>
+                     </div>
+                     <div class="modal-body">
+
+                         <div class="row">
+                             <div class="col-md-12 col-sm-12">
+                                 <div class="form-group label-floating" id='divForDesc'>
+                                     <label class="control-label">Status</label>
+                                     <span id='spanComboStatus'></span>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="row">
+                             <div class="col-md-12 col-sm-12">
+                                 <div class="form-group label-floating is-focused" id='divForDesc'>
+                                     <label class="control-label">Jumlah Orang</label>
+                                     <input type='text' id='jumlahOrang' class="form-control">
+                                 </div>
+                             </div>
+                         </div>
+                     <div class="modal-footer">
+                         <button type="button" class="btn btn-simple" id='buttonSubmitKonfirmasi' data-dismiss="modal">Simpan</button>
+                         <button type="button" class="btn btn-danger btn-simple" data-dismiss="modal">Close</button>
+                     </div>
+                 </div>
+             </div>
+         </div>
 
 
 <?php

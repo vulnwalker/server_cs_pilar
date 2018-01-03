@@ -49,6 +49,8 @@
                         $chatingActive = "active";
                     }elseif ($page == "lowonganKerja") {
                         $lowonganKerjaActive = "active";
+                    }elseif ($page == "team") {
+                        $teamActivce = "active";
                     }else{
                         $userManagement = "active";
                     }
@@ -88,6 +90,12 @@
                                   <a href='?page=lowonganKerja'>
                                       <i class='material-icons'>person_add</i>
                                       <p>Lowongan Kerja</p>
+                                  </a>
+                              </li>
+                              <li class='$teamActivce'>
+                                  <a href='?page=team'>
+                                      <i class='material-icons'>supervisor_account</i>
+                                      <p>Team</p>
                                   </a>
                               </li>
                               <li class='$settingActive'>

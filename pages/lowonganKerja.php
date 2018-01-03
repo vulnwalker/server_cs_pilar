@@ -22,6 +22,8 @@ switch($tipe){
           $err = "Isi spesifikasi pekerjaan";
       }elseif(empty($jobDesc)){
           $err = "Isi deskripsi pekerjaan ";
+      }elseif(empty($jenisKelamin)){
+          $err = "Pilih jenis kelamin";
       }
 
       if(empty($err)){
@@ -30,9 +32,11 @@ switch($tipe){
                   'pendidikan' => implode(";",$pendidikanLowongan),
                   'salary' => $salaryMinimum."-".$salaryMaximum,
                   'jam_kerja' => $jamKerja,
-                  'pengalaman' => $pengalamanKerja,
+                  'pengalaman' => $pengalamanKerjaMinimum."-".$pengalamanKerjaMaximum,
                   'deskripsi' =>  $jobDesc,
                   'spesifikasi' =>  $spesifikasiPekerjaan,
+                  'usia' => $usiaMinimum."-".$usiaMaximum,
+                  'gender' => $jenisKelamin,
           );
           $query = sqlInsert("lowongan_kerja",$data);
           sqlQuery($query);
@@ -53,17 +57,21 @@ switch($tipe){
           $err = "Isi spesifikasi pekerjaan";
       }elseif(empty($jobDesc)){
           $err = "Isi deskripsi pekerjaan ";
+      }elseif(empty($jenisKelamin)){
+          $err = "Pilih jenis kelamin";
       }
 
       if(empty($err)){
-          $data = array(
-                  'posisi' => $posisiLowongan,
-                  'pendidikan' => implode(";",$pendidikanLowongan),
-                  'salary' => $salaryMinimum."-".$salaryMaximum,
-                  'jam_kerja' => $jamKerja,
-                  'pengalaman' => $pengalamanKerja,
-                  'deskripsi' =>  $jobDesc,
-                  'spesifikasi' =>  $spesifikasiPekerjaan,
+        $data = array(
+                'posisi' => $posisiLowongan,
+                'pendidikan' => implode(";",$pendidikanLowongan),
+                'salary' => $salaryMinimum."-".$salaryMaximum,
+                'jam_kerja' => $jamKerja,
+                'pengalaman' => $pengalamanKerjaMinimum."-".$pengalamanKerjaMaximum,
+                'deskripsi' =>  $jobDesc,
+                'spesifikasi' =>  $spesifikasiPekerjaan,
+                'usia' => $usiaMinimum."-".$usiaMaximum,
+                'gender' => $jenisKelamin,
           );
           $query = sqlUpdate("lowongan_kerja",$data,"id = '$idEdit'");
           sqlQuery($query);
@@ -225,17 +233,7 @@ switch($tipe){
                                                     </div>
                                                   </div>
 
-                                                  <div class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="LoadingImage" style="display: none;">
-                                                          <div class="modal-dialog modal-notice">
-                                                              <div class="modal-content" style="background-color: transparent; border: unset; box-shadow: unset;">
-                                                                  <div class="modal-body">
-                                                                      <!-- <div id="LoadingImage"> -->
-                                                                        <img src="img/unnamed.gif" style="width: 30%; height: 30%; display: block; margin: auto;">
-                                                                      <!-- </div> -->
-                                                                  </div>
-                                                              </div>
-                                                          </div>
-                                                </div>
+
 
 
                                                   <div class="tab-pane" id="lowonganBaru">
@@ -262,11 +260,24 @@ switch($tipe){
                                                             </select>
                                                         </div>
                                                     </div>
+                                                    <div class="row">
+                                                      <div class="col-lg-3 col-md-6 col-sm-3" >
+                                                          <label class="control-label">Jenis Kelamin</label>
+                                                          <?php
+                                                            $arrayJenisKelamin = array(
+                                                                                      array('1','LAKI-LAKI'),
+                                                                                      array('2','PEREMPUAN'),
+                                                                                      array('3','LAKI-LAKI DAN PEREMPUAN'),
+                                                                                    );
+                                                            echo cmbArray("jenisKelamin","1",$arrayJenisKelamin,"-- JENIS KELAMIN --","class='selectpicker' data-style='btn btn-primary btn-round' title='Single Select' data-size='7'")
+                                                          ?>
+                                                      </div>
+                                                    </div>
                                                       <div class="row">
                                                         <div class="col-lg-5">
                                                             <div class="form-group label-floating" id='divForSalaryMinimum'>
-                                                                <label class="control-label">Minimum</label>
-                                                                <input type="text" id='salaryMinimum' name='salaryMinimum' class="form-control">
+                                                                <label class="control-label">Salary Minimum</label>
+                                                                <input type="number" id='salaryMinimum' name='salaryMinimum' class="form-control">
                                                             </div>
                                                         </div>
                                                         <div class="col-lg-1">
@@ -276,8 +287,27 @@ switch($tipe){
                                                         </div>
                                                         <div class="col-lg-6">
                                                             <div class="form-group label-floating" id='divForSalaryMaximum'>
-                                                                <label class="control-label">Maximum</label>
-                                                                <input type="text" id='salaryMaximum' name='salaryMaximum' class="form-control">
+                                                                <label class="control-label">Salary Maximum</label>
+                                                                <input type="number" id='salaryMaximum' name='salaryMaximum' class="form-control">
+                                                            </div>
+                                                        </div>
+                                                      </div>
+                                                      <div class="row">
+                                                        <div class="col-lg-5">
+                                                            <div class="form-group label-floating" id='divForSalaryMinimum'>
+                                                                <label class="control-label">Usia Minimum</label>
+                                                                <input type="number" id='usiaMinimum' name='usiaMinimum' class="form-control">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-1">
+                                                            <div class="form-group label-floating" >
+                                                                <center><h3> - </h3></center>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6">
+                                                            <div class="form-group label-floating" id='divForSalaryMaximum'>
+                                                                <label class="control-label">Usia Maximux</label>
+                                                                <input type="number" id='usiaMaximum' name='usiaMaximum' class="form-control">
                                                             </div>
                                                         </div>
                                                       </div>
@@ -298,10 +328,21 @@ switch($tipe){
                                                         </div>
                                                       </div>
                                                       <div class="row">
-                                                        <div class="col-lg-2">
-                                                            <div class="form-group label-floating" id='divForPengalaman'>
-                                                                <label class="control-label">Pengalaman (TAHUN)</label>
-                                                                <input type="number" id='pengalamanKerja' name='pengalamanKerja' style='' class="form-control">
+                                                        <div class="col-lg-5">
+                                                            <div class="form-group label-floating" id='divForSalaryMinimum'>
+                                                                <label class="control-label">Pengalaman Minimum</label>
+                                                                <input type="number" id='pengalamanKerjaMinimum' name='pengalamanKerjaMinimum' class="form-control">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-1">
+                                                            <div class="form-group label-floating" >
+                                                                <center><h3> - </h3></center>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6">
+                                                            <div class="form-group label-floating" id='divForSalaryMaximum'>
+                                                                <label class="control-label">Pengalaman Maximux</label>
+                                                                <input type="number" id='pengalamanKerjaMaximum' name='pengalamanKerjaMaximum' class="form-control">
                                                             </div>
                                                         </div>
                                                       </div>
@@ -346,6 +387,12 @@ switch($tipe){
                 $explodeSalary = explode("-",$getData['salary']);
                 $salaryMinimum = $explodeSalary[0];
                 $salaryMaximum = $explodeSalary[1];
+                $explodeUsia = explode("-",$getData['usia']);
+                $usiaMinimum = $explodeUsia[0];
+                $usiaMaximum = $explodeUsia[1];
+                $explodePengalaman = explode("-",$getData['pengalaman']);
+                $pengalamanMinimum = $explodePengalaman[0];
+                $pengalamanMaximum = $explodePengalaman[1];
                 if($getData['jam_kerja'] == 'FULL TIME'){
                     $fullTime = "checked";
                 }else{
@@ -396,10 +443,23 @@ switch($tipe){
                                                         </select>
                                                     </div>
                                                 </div>
+                                                <div class="row">
+                                                  <div class="col-lg-3 col-md-6 col-sm-3" >
+                                                      <label class="control-label">Jenis Kelamin</label>
+                                                      <?php
+                                                        $arrayJenisKelamin = array(
+                                                                                  array('1','LAKI-LAKI'),
+                                                                                  array('2','PEREMPUAN'),
+                                                                                  array('3','LAKI-LAKI DAN PEREMPUAN'),
+                                                                                );
+                                                        echo cmbArray("jenisKelamin",$getData['gender'],$arrayJenisKelamin,"-- JENIS KELAMIN --","class='selectpicker' data-style='btn btn-primary btn-round' title='Single Select' data-size='7'")
+                                                      ?>
+                                                  </div>
+                                                </div>
                                                   <div class="row">
                                                     <div class="col-lg-5">
                                                         <div class="form-group label-floating" id='divForSalaryMinimum'>
-                                                            <label class="control-label">Minimum</label>
+                                                            <label class="control-label">Salary Minimum</label>
                                                             <input type="text" id='salaryMinimum' name='salaryMinimum' value='<?php echo $salaryMinimum ?>' class="form-control">
                                                         </div>
                                                     </div>
@@ -410,8 +470,27 @@ switch($tipe){
                                                     </div>
                                                     <div class="col-lg-6">
                                                         <div class="form-group label-floating" id='divForSalaryMaximum'>
-                                                            <label class="control-label">Maximum</label>
+                                                            <label class="control-label">Salary Maximum</label>
                                                             <input type="text" id='salaryMaximum' name='salaryMaximum' value='<?php echo $salaryMaximum ?>' class="form-control">
+                                                        </div>
+                                                    </div>
+                                                  </div>
+                                                  <div class="row">
+                                                    <div class="col-lg-5">
+                                                        <div class="form-group label-floating" id='divForSalaryMinimum'>
+                                                            <label class="control-label">Usia Minimum</label>
+                                                            <input type="number" id='usiaMinimum' name='usiaMinimum' value="<?php echo $usiaMinimum ?>" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-1">
+                                                        <div class="form-group label-floating" >
+                                                            <center><h3> - </h3></center>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group label-floating" id='divForSalaryMaximum'>
+                                                            <label class="control-label">Usia Maximux</label>
+                                                            <input type="number" id='usiaMaximum' name='usiaMaximum' value="<?php echo $usiaMaximum ?>" class="form-control">
                                                         </div>
                                                     </div>
                                                   </div>
@@ -432,10 +511,21 @@ switch($tipe){
                                                     </div>
                                                   </div>
                                                   <div class="row">
-                                                    <div class="col-lg-2">
-                                                        <div class="form-group label-floating" id='divForPengalaman'>
-                                                            <label class="control-label">Pengalaman (TAHUN)</label>
-                                                            <input type="number" id='pengalamanKerja' name='pengalamanKerja' value='<?php echo $getData['pengalaman'] ?>' class="form-control">
+                                                    <div class="col-lg-5">
+                                                        <div class="form-group label-floating" id='divForSalaryMinimum'>
+                                                            <label class="control-label">Pengalaman Minimum</label>
+                                                            <input type="number" id='pengalamanKerjaMinimum' name='pengalamanKerjaMinimum' value="<?php echo $pengalamanMinimum ?>" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-1">
+                                                        <div class="form-group label-floating" >
+                                                            <center><h3> - </h3></center>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group label-floating" id='divForSalaryMaximum'>
+                                                            <label class="control-label">Pengalaman Maximux</label>
+                                                            <input type="number" id='pengalamanKerjaMaximum' name='pengalamanKerjaMaximum' value="<?php echo $pengalamanMaximum ?>" class="form-control">
                                                         </div>
                                                     </div>
                                                   </div>

@@ -1,14 +1,14 @@
-function saveLowongan(){
+function saveTeam(){
   $("#LoadingImage").attr('style','display:block');
   $.ajax({
     type:'POST',
-    data : $("#formLowongan").serialize()+"&jobDesc="+$("#summernote").code()+"&spesifikasiPekerjaan="+$("#spesifikasiLowongan").val(),
-    url: url+'&tipe=saveLowongan',
+    data : $("#formTeam").serialize(),
+    url: url+'&tipe=saveTeam',
       success: function(data) {
       var resp = eval('(' + data + ')');
       $("#LoadingImage").hide();
         if(resp.err==''){
-           suksesAlert("Data Tersimpan");
+          suksesAlert("Data Tersimpan");
         }else{
           errorAlert(resp.err);
         }
@@ -17,7 +17,7 @@ function saveLowongan(){
 }
 
 function refreshList(){
-    window.location = "pages.php?page=lowonganKerja";
+    window.location = "pages.php?page=team";
 }
 
 function loadTable(){
@@ -28,7 +28,7 @@ function loadTable(){
       success: function(data) {
       var resp = eval('(' + data + ')');
         if(resp.err==''){
-          $("#datatables").html(resp.content.tabelLowongan);
+          $("#datatables").html(resp.content.tabelTeam);
           $('#datatables').DataTable({
               "pagingType": "full_numbers",
               "lengthMenu": [
@@ -50,7 +50,7 @@ function loadTable(){
 }
 
 
-function deleteLowongan(id){
+function deleteTeam(id){
   swal({
       title: "Yakin Hapus Data",
       type: "warning",
@@ -63,7 +63,7 @@ function deleteLowongan(id){
            $.ajax({
              type:'POST',
              data : {id:id},
-             url: url+'&tipe=deleteLowongan',
+             url: url+'&tipe=deleteTeam',
                success: function(data) {
                var resp = eval('(' + data + ')');
                  if(resp.err==''){
@@ -75,60 +75,43 @@ function deleteLowongan(id){
            });
          },
          function () { return false; });
-
 }
 function clearTemp(){
   $("#data2").text("Baru");
   $("#data2").click();
 }
-function baruLowongan(){
+function baruTeam(){
 
-          $("#divForLowonganname").attr("class","form-group label-floating ");
+          $("#divForTeamname").attr("class","form-group label-floating ");
           $("#divForPassword").attr("class","form-group label-floating ");
           $("#divForEmail").attr("class","form-group label-floating ");
           $("#divForNama").attr("class","form-group label-floating ");
           $("#divForTelepon").attr("class","form-group label-floating ");
           $("#divForAlamat").attr("class","form-group label-floating ");
           $("#divForInstansi").attr("class","form-group label-floating ");
-          $("#usernameLowongan").val("");
-          $("#passwordLowongan").val("");
-          $("#emailLowongan").val("");
-          $("#namaLowongan").val("");
-          $("#teleponLowongan").val("");
-          $("#alamatLowongan").text("");
-          $("#instansiLowongan").val("");
-          $("#statusLowongan").val("1");
-          $("#buttonSubmit").attr("onclick","saveLowongan()");
+          $("#usernameTeam").val("");
+          $("#passwordTeam").val("");
+          $("#emailTeam").val("");
+          $("#namaTeam").val("");
+          $("#teleponTeam").val("");
+          $("#alamatTeam").text("");
+          $("#instansiTeam").val("");
+          $("#statusTeam").val("1");
+          $("#buttonSubmit").attr("onclick","saveTeam()");
 
 }
-function updateLowongan(id){
-//  $("#LoadingImage").attr('style','display:block');
-  // $.ajax({
-  //   type:'POST',
-  //   data : {id : id},
-  //   url: url+'&tipe=updateLowongan',
-  //     success: function(data) {
-  //     var resp = eval('(' + data + ')');
-  //     //  $("#LoadingImage").hide();
-  //       if(resp.err==''){
-  //
-  //         // $("#divPendidikanLowongan").html(resp.content.pendidikanLowongan);
-  //         $("#buttonSubmit").attr("onclick","saveEditLowongan("+id+")");
-  //       }else{
-  //         alert(resp.err);
-  //       }
-  //     }
-  // });
-  window.location = "pages.php?page=lowonganKerja&edit="+id;
+function updateTeam(id){
+  window.location = "pages.php?page=team&edit="+id;
+
 }
 
 
-function saveEditLowongan(idEdit){
+function saveEditTeam(idEdit){
   $("#LoadingImage").attr('style','display:block');
   $.ajax({
     type:'POST',
-    data : $("#formLowongan").serialize()+"&jobDesc="+$("#summernote").code()+"&idEdit="+idEdit+"&spesifikasiPekerjaan="+$("#spesifikasiLowongan").val(),
-    url: url+'&tipe=saveEditLowongan',
+    data : $("#formTeam").serialize()+"&idEdit="+idEdit,
+    url: url+'&tipe=saveEditTeam',
       success: function(data) {
       var resp = eval('(' + data + ')');
         $("#LoadingImage").hide();
@@ -142,16 +125,26 @@ function saveEditLowongan(idEdit){
 }
 
 
-function base64Encode(str) {
-    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
-        function toSolidBytes(match, p1) {
-            return String.fromCharCode('0x' + p1);
-    }));
-}
 
-function base64Decode(str) {
-    // Going backwards: from bytestream, to percent-encoding, to original string.
-    return decodeURIComponent(atob(str).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
+function imageChanged(){
+  var me= this;
+  var filesSelected = document.getElementById("fileFotoTeam").files;
+  if (filesSelected.length > 0)
+  {
+    var fileToLoad = filesSelected[0];
+
+    var fileReader = new FileReader();
+
+    fileReader.onload = function(fileLoadedEvent)
+    {
+      var textAreaFileContents = document.getElementById
+      (
+        "fotoTeam"
+      );
+
+      textAreaFileContents.value = fileLoadedEvent.target.result;
+    };
+
+    fileReader.readAsDataURL(fileToLoad);
+  }
 }
