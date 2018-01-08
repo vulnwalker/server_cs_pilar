@@ -137,12 +137,30 @@ switch($tipe){
         <script src="js/slider.js"></script>
         <link rel="stylesheet" href="js/dropzone/dropzone.css">
 
+        <div class="content" style="margin: 0; min-height: unset; padding-top: 0; padding-bottom: 0;">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-4">
+                <h4>SLIDER</h4>
+                <button class="btn btn-primary">
+                  BARU
+                </button>
+                <button class="btn btn-warning">
+                  EDIT
+                </button>
+                <button class="btn btn-rose">
+                  HAPUS
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <div class="content">
+        <div class="content" style="margin: 0; min-height: unset; padding-top: 0; padding-bottom: 0;">
             <div class="container-fluid">
                 <div class="row">
                     <!-- Start Modal -->
-                    <div class="col-md-12">
+                    <!-- <div class="col-md-12">
                         <div class="card">
                             <div class="card-content">
                                 <div class="row">
@@ -154,18 +172,18 @@ switch($tipe){
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <!-- End Modal -->
 
 
 
                     <div class="col-md-12" id='tableSlider'>
                         <div class="card">
-                            <div class="card-header card-header-icon" data-background-color="purple">
+                            <!-- <div class="card-header card-header-icon" data-background-color="purple">
                                 <i class="material-icons">assignment</i>
-                            </div>
+                            </div> -->
                             <div class="card-content">
-                                <h4 class="card-title">Data slider</h4>
+                                <!-- <h4 class="card-title">Data slider</h4> -->
                                 <div class="toolbar">
                                     <!--        Here you can write extra buttons/actions for the toolbar              -->
                                 </div>

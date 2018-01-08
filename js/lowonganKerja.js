@@ -23,7 +23,6 @@ function refreshList(){
 function loadTable(){
   $.ajax({
     type:'POST',
-
     url: url+'&tipe=loadTable',
       success: function(data) {
       var resp = eval('(' + data + ')');
@@ -40,8 +39,51 @@ function loadTable(){
                   search: "_INPUT_",
                   searchPlaceholder: "Search records",
               }
-
           });
+        }else{
+          alert(resp.err);
+        }
+      }
+  });
+}
+
+function loadLamaran(idLamaran){
+  $.ajax({
+    type:'POST',
+    data:{idLamaran : idLamaran},
+    url: url+'&tipe=loadLamaran',
+      success: function(data) {
+      var resp = eval('(' + data + ')');
+        if(resp.err==''){
+          $("#datatables").html(resp.content.tabelLamaran);
+          $('#datatables').DataTable({
+              "pagingType": "full_numbers",
+              "lengthMenu": [
+                  [10, 25, 50, -1],
+                  [10, 25, 50, "All"]
+              ],
+              responsive: true,
+              language: {
+                  search: "_INPUT_",
+                  searchPlaceholder: "Search records",
+              }
+          });
+        }else{
+          alert(resp.err);
+        }
+      }
+  });
+}
+function downloadCV(id){
+  $.ajax({
+    type:'POST',
+    data:{id : id},
+    url: url+'&tipe=downloadCV',
+      success: function(data) {
+      var resp = eval('(' + data + ')');
+        if(resp.err==''){
+          var win = window.open(resp.content.cv, '_blank');
+          win.focus();
         }else{
           alert(resp.err);
         }
@@ -102,24 +144,12 @@ function baruLowongan(){
 
 }
 function updateLowongan(id){
-//  $("#LoadingImage").attr('style','display:block');
-  // $.ajax({
-  //   type:'POST',
-  //   data : {id : id},
-  //   url: url+'&tipe=updateLowongan',
-  //     success: function(data) {
-  //     var resp = eval('(' + data + ')');
-  //     //  $("#LoadingImage").hide();
-  //       if(resp.err==''){
-  //
-  //         // $("#divPendidikanLowongan").html(resp.content.pendidikanLowongan);
-  //         $("#buttonSubmit").attr("onclick","saveEditLowongan("+id+")");
-  //       }else{
-  //         alert(resp.err);
-  //       }
-  //     }
-  // });
+
   window.location = "pages.php?page=lowonganKerja&edit="+id;
+}
+function listLamaran(id){
+
+  window.location = "pages.php?page=lowonganKerja&action=confirm&idLowongan="+id;
 }
 
 

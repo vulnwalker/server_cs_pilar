@@ -16,7 +16,9 @@ switch($tipe){
 
     case 'saveLowongan':{
 
-      if(empty($posisiLowongan)){
+      if(empty($judulLowongan)){
+          $err = "Isi judul lowongan";
+      }elseif(empty($posisiLowongan)){
           $err = "Pilih Posisi Pekerjaan";
       }elseif(empty($spesifikasiPekerjaan)){
           $err = "Isi spesifikasi pekerjaan";
@@ -27,22 +29,32 @@ switch($tipe){
       }
 
       if(empty($err)){
+          if(empty($batasTanggalLamaran)){
+            $batasTanggalLamaran = "";
+          }else{
+            $batasTanggalLamaran = generateDate($batasTanggalLamaran);
+          }
+          $expodeSpesifikasi = explode("\n",$spesifikasiPekerjaan);
+          for ($i=0; $i < sizeof($expodeSpesifikasi) ; $i++) {
+            $listSpesifikasi .= "<li>".$expodeSpesifikasi[$i]."</li>";
+          }
           $data = array(
+                  'judul' => $judulLowongan,
+                  'tanggal_buat' => date("Y-m-d"),
+                  'batas_tanggal' => $batasTanggalLamaran,
                   'posisi' => $posisiLowongan,
                   'pendidikan' => implode(";",$pendidikanLowongan),
                   'salary' => $salaryMinimum."-".$salaryMaximum,
                   'jam_kerja' => $jamKerja,
                   'pengalaman' => $pengalamanKerjaMinimum."-".$pengalamanKerjaMaximum,
                   'deskripsi' =>  $jobDesc,
-                  'spesifikasi' =>  $spesifikasiPekerjaan,
+                  'spesifikasi' =>  $listSpesifikasi,
                   'usia' => $usiaMinimum."-".$usiaMaximum,
                   'gender' => $jenisKelamin,
           );
           $query = sqlInsert("lowongan_kerja",$data);
           sqlQuery($query);
           $cek = $query;
-
-
       }
       $content = array("judulLowongan" => $judulLowongan);
 
@@ -51,7 +63,9 @@ switch($tipe){
     }
 
     case 'saveEditLowongan':{
-      if(empty($posisiLowongan)){
+      if(empty($judulLowongan)){
+          $err = "Isi judul lowongan";
+      }elseif(empty($posisiLowongan)){
           $err = "Pilih Posisi Pekerjaan";
       }elseif(empty($spesifikasiPekerjaan)){
           $err = "Isi spesifikasi pekerjaan";
@@ -62,7 +76,18 @@ switch($tipe){
       }
 
       if(empty($err)){
+        if(empty($batasTanggalLamaran)){
+          $batasTanggalLamaran = "";
+        }else{
+          $batasTanggalLamaran = generateDate($batasTanggalLamaran);
+        }
+        $expodeSpesifikasi = explode("\n",$spesifikasiPekerjaan);
+        for ($i=0; $i < sizeof($expodeSpesifikasi) ; $i++) {
+          $listSpesifikasi .= "<li>".$expodeSpesifikasi[$i]."</li>";
+        }
         $data = array(
+                'judul' => $judulLowongan,
+                'batas_tanggal' => $batasTanggalLamaran,
                 'posisi' => $posisiLowongan,
                 'pendidikan' => implode(";",$pendidikanLowongan),
                 'salary' => $salaryMinimum."-".$salaryMaximum,
@@ -89,6 +114,12 @@ switch($tipe){
       $query = "delete from lowongan_kerja where id = '$id'";
       sqlQuery($query);
       $cek = $query;
+      echo generateAPI($cek,$err,$content);
+    break;
+    }
+    case 'downloadCV':{
+      $getData = sqlArray(sqlQuery("select * from lamaran where id = '$id'"));
+      $content = array('cv' => "http://pilar.web.id/cv/".$getData['cv']);
       echo generateAPI($cek,$err,$content);
     break;
     }
@@ -139,13 +170,15 @@ switch($tipe){
         }
 
         $data .= "     <tr>
+                          <td>$judul</td>
                           <td>$namaPosisi</td>
                           <td>$listPendidikan</td>
                           <td>$salary</td>
                           <td>$jam_kerja</td>
                           <td>$pengalaman Tahun</td>
                           <td class='text-right'>
-                              <a onclick=updateLowongan($id) class='btn btn-simple btn-warning btn-icon edit'><i class='material-icons'>dvr</i></a>
+                              <a onclick=listLamaran($id) class='btn btn-simple btn-warning btn-icon edit'><i class='material-icons'>confirmation_number</i></a>
+                              <a onclick=updateLowongan($id) class='btn btn-simple btn-warning btn-icon edit'><i class='material-icons'>edit</i></a>
                               <a onclick=deleteLowongan($id) class='btn btn-simple btn-danger btn-icon remove'><i class='material-icons'>close</i></a>
                           </td>
                       </tr>
@@ -155,7 +188,8 @@ switch($tipe){
       $tabel = "<table id='datatables' class='table table-striped table-no-bordered table-hover' cellspacing='0' width='100%' style='width:100%'>
           <thead>
               <tr>
-                  <th style='width: 380px!important;'>Posisi</th>
+                  <th>Judul</th>
+                  <th>Posisi</th>
                   <th>Pendidikan</th>
                   <th>Salary</th>
                   <th>Jam Kerja</th>
@@ -172,6 +206,45 @@ switch($tipe){
       echo generateAPI($cek,$err,$content);
     break;
     }
+    case 'loadLamaran':{
+      $getData = sqlQuery("select * from lamaran where id_lowongan = '$idLamaran'");
+      while($dataLamaran = sqlArray($getData)){
+        foreach ($dataLamaran as $key => $value) {
+            $$key = $value;
+        }
+        $getDataPendidikan = sqlArray(sqlQuery("select * from ref_pendidikan where id = '$pendidikan'"));
+        $pendidikan = $getDataPendidikan['tingkat'];
+
+        $data .= "     <tr>
+                          <td>$nama</td>
+                          <td>$pendidikan</td>
+                          <td>$email</td>
+                          <td>$telepon</td>
+                          <td><a onclick=downloadCV($id); class='btn btn-simple btn-danger btn-icon remove'><i class='material-icons'>arrow_downward</i></a></td>
+                      </tr>
+                    ";
+      }
+
+      $tabel = "<table id='datatables' class='table table-striped table-no-bordered table-hover' cellspacing='0' width='100%' style='width:100%'>
+          <thead>
+              <tr>
+                  <th>Nama</th>
+                  <th>Pendidikan</th>
+                  <th>Email</th>
+                  <th>Telepon</th>
+                  <th>CV</th>
+
+              </tr>
+          </thead>
+          <tbody>
+            $data
+          </tbody>
+      </table>";
+      $content = array("tabelLamaran" => $tabel);
+
+      echo generateAPI($cek,$err,$content);
+    break;
+    }
 
      default:{
         ?>
@@ -182,7 +255,7 @@ switch($tipe){
         <script src="js/lowonganKerja.js"></script>
 
         <?php
-            if(!isset($_GET['edit'])){
+            if(!isset($_GET['edit']) && !isset($_GET['action'])){
                 ?>
                   <div class="content">
                       <div class="container-fluid">
@@ -239,11 +312,21 @@ switch($tipe){
                                                   <div class="tab-pane" id="lowonganBaru">
                                                     <form id='formLowongan'>
                                                     <div class="row">
+                                                      <div class="col-lg-12 col-md-12 col-sm-12" >
+                                                          <label class="control-label">Judul Lowongan</label>
+                                                          <input type="text" id='judulLowongan' name='judulLowongan' class="form-control">
+                                                      </div>
+                                                    </div>
+                                                    <div class="row">
                                                       <div class="col-lg-3 col-md-6 col-sm-3" >
                                                           <label class="control-label">Posisi</label>
                                                           <?php
                                                             echo cmbQuery("posisiLowongan","1","select id,posisi from ref_posisi","class='selectpicker' data-style='btn btn-primary btn-round' title='Single Select' data-size='7'","-- POSISI --")
                                                           ?>
+                                                      </div>
+                                                      <div class="col-lg-3 col-md-6 col-sm-3" >
+                                                          <label class="control-label">Batas Tanggal Lamaran</label>
+                                                          <input type="text" id='batasTanggalLamaran' name='batasTanggalLamaran' class="form-control">
                                                       </div>
                                                     </div>
                                                     <div class="row">
@@ -381,7 +464,7 @@ switch($tipe){
                       </div>
                   </div>
                 <?php
-            }else{
+            }elseif(isset($_GET['edit']) && !isset($_GET['action'])){
                 $getData = sqlArray(sqlQuery("select * from lowongan_kerja where id = '".$_GET['edit']."'"));
                 $arrayPendidikan = explode(";",$getData['pendidikan']);
                 $explodeSalary = explode("-",$getData['salary']);
@@ -398,6 +481,14 @@ switch($tipe){
                 }else{
                     $partTime = "checked";
                 }
+                if(empty($getData['batas_tanggal'])){
+                    $batasTanggalLamaran = "";
+                }else{
+                    $batasTanggalLamaran = generateDate($getData['batas_tanggal']);
+                }
+                $spesifikasiLowongan = str_replace('<li>',"",$getData['spesifikasi']);
+                $spesifikasiLowongan = str_replace('</li>',"\n",$spesifikasiLowongan);
+
               ?>
               <div class="content">
                   <div class="container-fluid">
@@ -417,11 +508,21 @@ switch($tipe){
                                               <div class="tab-pane active" id="lowonganBaru">
                                                 <form id='formLowongan'>
                                                 <div class="row">
+                                                  <div class="col-lg-12 col-md-12 col-sm-12" >
+                                                      <label class="control-label">Judul Lowongan</label>
+                                                      <input type="text" id='judulLowongan' name='judulLowongan' class="form-control" value="<?php echo $getData['judul'] ?>">
+                                                  </div>
+                                                </div>
+                                                <div class="row">
                                                   <div class="col-lg-3 col-md-6 col-sm-3" >
                                                       <label class="control-label">Posisi</label>
                                                       <?php
                                                         echo cmbQuery("posisiLowongan",$getData['posisi'],"select id,posisi from ref_posisi","class='selectpicker' data-style='btn btn-primary btn-round' title='Single Select' data-size='7'","-- POSISI --")
                                                       ?>
+                                                  </div>
+                                                  <div class="col-lg-3 col-md-6 col-sm-3" >
+                                                      <label class="control-label">Batas Tanggal Lamaran</label>
+                                                      <input type="text" id='batasTanggalLamaran' name='batasTanggalLamaran' value="<?php echo $batasTanggalLamaran ?>" class="form-control">
                                                   </div>
                                                 </div>
                                                 <div class="row">
@@ -533,7 +634,7 @@ switch($tipe){
                                                     <div class="col-lg-12">
                                                         <div class="form-group label-floating" id='divForSpesifikasi'>
                                                             <label class="control-label">Spesifikasi</label>
-                                                            <textarea  id='spesifikasiLowongan' name='spesifikasiLowongan' class="form-control auto-resize"><?php echo $getData['spesifikasi'] ?></textarea>
+                                                            <textarea  id='spesifikasiLowongan' name='spesifikasiLowongan' class="form-control auto-resize"><?php echo $spesifikasiLowongan ?></textarea>
                                                         </div>
                                                     </div>
                                                   </div>
@@ -565,8 +666,66 @@ switch($tipe){
               </div>
 
               <?php
+            }else{
+              ?>
+              <div class="content">
+                  <div class="container-fluid">
+                      <div class="row">
+                          <div class="col-md-12">
+                                  <div class="card">
+                                      <div class="card-content">
+                                          <ul class="nav nav-pills nav-pills-primary">
+                                              <li >
+                                                  <a href="pages.php?page=lowonganKerja" id='data1' data-toggle="tab" aria-expanded="true" >Lowongan</a>
+                                              </li>
+                                              <li class="active">
+                                                  <a  id='data2' data-toggle="tab" aria-expanded="false" >Lamaran</a>
+                                              </li>
+                                          </ul>
+                                          <div class="tab-content">
+                                              <div class="tab-pane active" id="dataLowongan">
+                                                  <div class="col-md-12" id='tableLowongan'>
+                                                    <div class="card">
+                                                        <div class="card-header card-header-icon" data-background-color="purple">
+                                                            <i class="material-icons">assignment</i>
+                                                        </div>
+                                                        <div class="card-content">
+                                                            <h4 class="card-title">Data Lamaran</h4>
+                                                            <div class="toolbar">
+                                                                <!--        Here you can write extra buttons/actions for the toolbar              -->
+                                                            </div>
+                                                            <div class="material-datatables">
+                                                                <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Nama</th>
+                                                                            <th>Posisi</th>
+                                                                            <th>Tanggal</th>
+                                                                            <th>Penulis</th>
+                                                                            <th>Status</th>
+                                                                            <th class="disabled-sorting text-right">Actions</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                        <!-- end content-->
+                                                    </div>
+                                                    <!--  end card  -->
+                                                </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                      </div>
+                  </div>
+              </div>
+            <?php
             }
-        ?>
+            ?>
 
 
         <div class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="LoadingImage" style="display: none;">

@@ -176,29 +176,48 @@ switch($tipe){
         </script>
         <script src="js/userManagement.js"></script>
 
-        <div class="content">
+        <div class="content" style="margin: 0; min-height: unset; padding-top: 0; padding-bottom: 0;">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-4">
+                <h4>USER MANAGEMENT</h4>
+                <button class="btn btn-primary">
+                  BARU
+                </button>
+                <button class="btn btn-warning">
+                  EDIT
+                </button>
+                <button class="btn btn-rose">
+                  HAPUS
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content" style="margin: 0; min-height: unset; padding-top: 0; padding-bottom: 0;">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12">
                             <div class="card">
                                 <div class="card-content">
-                                    <ul class="nav nav-pills nav-pills-primary">
+                                    <!-- <ul class="nav nav-pills nav-pills-primary">
                                         <li class="active">
                                             <a href="#dataInfo" id='data1' data-toggle="tab" aria-expanded="true" onclick="clearTemp();">User</a>
                                         </li>
                                         <li>
                                             <a href="#infoBaru" id='data2' data-toggle="tab" aria-expanded="false" onclick="baruUser();">Baru</a>
                                         </li>
-                                    </ul>
+                                    </ul> -->
                                     <div class="tab-content">
                                         <div class="tab-pane active" id="dataInfo">
                                             <div class="col-md-12" id='tableUser'>
                                               <div class="card">
-                                                  <div class="card-header card-header-icon" data-background-color="purple">
+                                                  <!-- <div class="card-header card-header-icon" data-background-color="purple">
                                                       <i class="material-icons">assignment</i>
-                                                  </div>
+                                                  </div> -->
                                                   <div class="card-content">
-                                                      <h4 class="card-title">Data User</h4>
+                                                      <!-- <h4 class="card-title">Data User</h4> -->
                                                       <div class="toolbar">
                                                           <!--        Here you can write extra buttons/actions for the toolbar              -->
                                                       </div>

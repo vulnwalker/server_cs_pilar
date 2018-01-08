@@ -277,44 +277,64 @@ switch($tipe){
         var url = "http://"+window.location.hostname+"/api.php?page=acara";
 
         </script>
+        
 
         <script src="js/acara.js"></script>
 
         <?php
             if(!isset($_GET['action'])){
                 ?>
-                <div class="content">
+                <div class="content" style="margin: 0; min-height: unset; padding-top: 0; padding-bottom: 0;">
+                  <div class="container-fluid">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <h4>ACARA</h4>
+                        <button class="btn btn-primary">
+                          BARU
+                        </button>
+                        <button class="btn btn-warning">
+                          EDIT
+                        </button>
+                        <button class="btn btn-rose">
+                          HAPUS
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="content" style="margin: 0; min-height: unset; padding-top: 0; padding-bottom: 0;">
                     <div class="container-fluid">
                         <div class="row">
                             <!-- Start Modal -->
 
                             <div class="col-md-12">
                               <div class="card">
-                                        <div class="card-header">
+                                        <!-- <div class="card-header">
                                             <h4 class="card-title">Acara
                                             </h4>
-                                        </div>
+                                        </div> -->
                                         <div class="card-content">
-                                            <ul class="nav nav-pills nav-pills-primary">
+                                            <!-- <ul class="nav nav-pills nav-pills-primary">
                                               <li class="active" >
                                                   <a href="pages.php?page=acara" >Acara</a>
                                               </li>
                                               <li >
                                                   <a href="pages.php?page=acara&action=new" >Baru</a>
                                               </li>
-                                              <!-- <li>
+                                              <li>
                                                   <a href="pages.php?page=acara&action=confirm">Konfirmasi</a>
-                                              </li> -->
-                                            </ul>
+                                              </li>
+                                            </ul> -->
                                             <div class="tab-content">
                                                 <div class="tab-pane active" id="dataAcara">
                                                   <div class="col-md-12" id='tableAcara'>
                                                       <div class="card">
-                                                          <div class="card-header card-header-icon" data-background-color="purple">
+                                                          <!-- <div class="card-header card-header-icon" data-background-color="purple">
                                                               <i class="material-icons">assignment</i>
-                                                          </div>
+                                                          </div> -->
                                                           <div class="card-content">
-                                                              <h4 class="card-title">Data acara</h4>
+                                                              <!-- <h4 class="card-title">Data acara</h4> -->
                                                               <div class="toolbar">
                                                                   <!--        Here you can write extra buttons/actions for the toolbar              -->
                                                               </div>
@@ -669,6 +689,26 @@ switch($tipe){
                               </div>
                           </div>
                       </div>
+                      <div class="content" hidden="hidden">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="card">
+                                        <div class="card-content">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <legend>Sliders</legend>
+                                                    <div id="sliderRegular" class="slider"></div>
+                                                    <div id="sliderDouble" class="slider slider-info"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- end card -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                   </div>
                   <?php
                 }elseif($_GET['action'] == 'edit'){

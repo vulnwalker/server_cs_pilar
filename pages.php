@@ -9,6 +9,8 @@ if ($_SESSION['status'] != "login") {
 <html lang="id">
 <head>
 	<?php include "head.php"; ?>
+    <!--  CSS for Demo Purpose, don't include it in your project     -->
+    <link href="assets/css/demo.css" rel="stylesheet" />
     <style type="text/css">
         /*.modal-dialog{
             width: 800px;
@@ -65,6 +67,9 @@ if ($_SESSION['status'] != "login") {
             background-repeat: repeat-x;
             filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#80000000', endColorstr='#00000000', GradientType=1);
         }
+        .gj-datepicker{
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -73,7 +78,7 @@ if ($_SESSION['status'] != "login") {
 							<?php include "include/sidebar.php"; ?>
         </div>
         <div class="main-panel">
-            <nav class="navbar navbar-transparent navbar-absolute">
+            <!-- <nav class="navbar navbar-transparent navbar-absolute">
                 <div class="container-fluid">
                     <div class="navbar-minimize">
                         <button id="minimizeSidebar" class="btn btn-round btn-white btn-fill btn-just-icon">
@@ -91,7 +96,7 @@ if ($_SESSION['status'] != "login") {
                         <a class="navbar-brand" href="#"> </a>
                     </div>
                 </div>
-            </nav>
+            </nav> -->
 						<?php
 $page = @$_GET['page'];
 if ($page == "informasi") {
@@ -136,10 +141,15 @@ echo " 404 ! halaman tidak di temukan ";
     </div>
 </body>
 
-<?php include "footer.php";
-
- ?>
-
+<?php include "footer.php";?>
+<!-- Material Dashboard DEMO methods, don't include it in your project! -->
+<script src="assets/js/demo.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        md.initSliders();
+        demo.initFormExtendedDatetimepickers();
+    });
+</script>
 <script type="text/javascript">
     function suksesAlert(pesan){
         swal({
@@ -175,9 +185,15 @@ echo " 404 ! halaman tidak di temukan ";
 				   loadTable();
            <?php
          }else{
+            if($_GET['page'] == 'acara'){
            ?>
-           loadKonfirmasi(<?php echo $_GET['idAcara'] ?>);
-           <?php
+              loadKonfirmasi(<?php echo $_GET['idAcara'] ?>);
+            <?php
+            }elseif($_GET['page'] == 'lowonganKerja') {
+              ?>
+              loadLamaran(<?php echo $_GET['idLowongan'] ?>);
+              <?php
+           }
          }
           ?>
         $('.card .material-datatables label').addClass('form-group');
