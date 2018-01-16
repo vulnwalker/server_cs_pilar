@@ -8,6 +8,15 @@ $db_name='pilar_web';
 mysql_connect($db_host,$db_user,$db_password);
 mysql_select_db($db_name);
 
+function setCekBox($cb, $KeyValueStr, $isi, $Prefix){
+  $hsl = '';
+  // $Prefix = "userManagement";
+  /*if($KeyValueStr!=''){*/
+    $hsl = "<input type='checkbox' $isi id='".$Prefix."_cb$cb' name='".$Prefix."_cb[]'
+        value='".$KeyValueStr."' onchange = thisChecked('".$Prefix."_cb$cb','".$Prefix."_jmlcek'); >";
+  /*}*/
+  return $hsl;
+}
 
 function sqlInsert($table, $data){
 	    if (is_array($data)) {
@@ -78,6 +87,15 @@ function cmbArray($name='txtField',$value='',$arrList = '',$default='Pilih', $pa
 	$Input  = "<select $param name='$name'  id='$name' >$Input</select>";
 	return $Input;
 }
+function cmbArrayEmpty($name='txtField',$value='',$arrList = '',$default='Pilih', $param='') {
+ 	$isi = $value;
+	for($i=0;$i<count($arrList);$i++) {
+		$Sel = $isi==$arrList[$i][0]?" selected ":"";
+		$Input .= "<option $Sel value='{$arrList[$i][0]}'>{$arrList[$i][1]}</option>";
+	}
+	$Input  = "<select $param name='$name'  id='$name' >$Input</select>";
+	return $Input;
+}
 
 function generateAPI($cek,$err,$content){
 		$api = array('cek'=>$cek, 'err'=>$err, 'content'=>$content);
@@ -135,6 +153,59 @@ function baseToImage($base64_string, $output_file) {
 		fclose( $ifp );
 
 		return str_replace("../",$output_file);
+}
+
+function limitChar($karakter, $panjang)
+{
+    if (strlen($karakter) <= $panjang) {
+        return $karakter;
+    } else {
+        $string = substr($karakter, 0, $panjang);
+        return $string . '...';
+    }
+}
+
+
+function imageToBase($path){
+  $type = pathinfo($path, PATHINFO_EXTENSION);
+  $data = file_get_contents($path);
+  $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+  return $base64;
+}
+
+function removeExtJam($jam){
+    $jam = str_replace('J',"",$jam);
+    $jam = str_replace('M',"",$jam);
+
+    return $jam;
+}
+function removeExtHarga($harga){
+    $harga = str_replace('.',"",$harga);
+    $harga = str_replace(' ',"",$harga);
+    $harga = str_replace('Rp',"",$harga);
+    $harga = str_replace('_',"",$harga);
+
+    return $harga;
+}
+
+function numberFormat($angka){
+  return number_format($angka,2,',','.');
+}
+
+function sendMail($emailPengirim,$emailTujuan,$subjectEmail,$isiEmail){
+  $arrayData = array(
+              'emailPengirim' => $emailPengirim,
+              'emailTujuan' => $emailTujuan,
+              'subjectEmail' => $subjectEmail,
+              'isiEmail' => $isiEmail,
+  );
+  $curl = curl_init();
+  curl_setopt($curl,CURLOPT_URL, "http://cs.pilar.web.id/maillgun/mail.php");
+  curl_setopt($curl,CURLOPT_POST, sizeof($arrayData));
+  curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36");
+  curl_setopt($curl,CURLOPT_POSTFIELDS, $arrayData);
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+  curl_exec($curl);
 }
 
 ?>

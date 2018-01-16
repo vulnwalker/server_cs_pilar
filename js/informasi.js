@@ -1,164 +1,159 @@
-function saveInformasi(){
-  $("#LoadingImage").attr('style','display:block');
+function loadTable(pageKe,limitTable){
   $.ajax({
     type:'POST',
     data : {
-      isiInformasi : $("#summernote").code(),
-      judulInformasi : $("#judulInformasi").val(),
-      statusPublish : $("#statusPublish").val(),
-      posisiInformasi : $('input[name=posisiInformasi]:checked').val(),
+      limitTable : limitTable,
+      pageKe : pageKe,
+      searchData : $("#searchData").val()
     },
-    url: url+'&tipe=saveInformasi',
-      success: function(data) {
-      var resp = eval('(' + data + ')');
-        if(resp.err==''){
-          $("#LoadingImage").hide();
-          refreshList();
-        }else{
-          // alert(resp.err);
-          swal({
-            position: 'top-right',
-            type: 'warning',
-            title: (resp.err),
-            showConfirmButton: true,
-            timer: 5000
-          });
-          $("#LoadingImage").hide();
-        }
-      }
-  });
-}
-
-function refreshList(){
-    window.location.reload();
-}
-
-function loadTable(){
-  $.ajax({
-    type:'POST',
-
     url: url+'&tipe=loadTable',
-      success: function(data) {
+    success: function(data) {
       var resp = eval('(' + data + ')');
+      if(resp.err==''){
+        $("#tabelBody").html(resp.content.tabelBody);
+        $("#tabelFooter").html(resp.content.tabelFooter);
+        $("table").fixMe();
+
+      }else{
+        alert(resp.err);
+      }
+    }
+  });
+}
+function limitData(){
+  $(".fixed").remove();
+  loadTable(1,$("#jumlahDataPerhalaman").val());
+}
+function currentPage(pageKE){
+  $(".fixed").remove();
+  loadTable(pageKE,$("#jumlahDataPerhalaman").val());
+}
+function refreshList(){
+  window.location = "pages.php?page=informasi" ;
+}
+function Baru(){
+  window.location = "pages.php?page=informasi&action=baru" ;
+}
+function Batal(){
+  window.location = "pages.php?page=informasi" ;
+}
+function Edit(){
+  var errMsg = getJumlahChecked("informasi");
+  if(errMsg == ''){
+    $.ajax({
+      type:'POST',
+      data : $("#formInformasi").serialize(),
+      url: url+'&tipe=Edit',
+      success: function(data) {
+        var resp = eval('(' + data + ')');
         if(resp.err==''){
-          $("#datatables").html(resp.content.tabelInformasi);
-          $('#datatables').DataTable({
-              "pagingType": "full_numbers",
-              "lengthMenu": [
-                  [10, 25, 50, -1],
-                  [10, 25, 50, "All"]
-              ],
-              responsive: true,
-              language: {
-                  search: "_INPUT_",
-                  searchPlaceholder: "Search records",
+          window.location = "pages.php?page=informasi&action=edit&idEdit="+resp.content.idEdit;
+        }else{
+          errorAlert(resp.err);
+        }
+      }
+    });
+  }else{
+    errorAlert(errMsg);
+  }
+}
+function Hapus(){
+  var errMsg = getJumlahChecked("informasi");
+  if(errMsg == '' || errMsg=='Pilih hanya satu data'){
+    swal({
+          title: 'Yakin Hapus Data ?',
+          text: '',
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Ya',
+          cancelButtonText: 'Tidak'
+        }).then((result) => {
+          if (result.value) {
+            $.ajax({
+              type:'POST',
+              data : $("#formInformasi").serialize(),
+              url: url+'&tipe=Hapus',
+              success: function(data) {
+                var resp = eval('(' + data + ')');
+                if(resp.err==''){
+                  suksesAlert("Data Terhapus");
+                }else{
+                  errorAlert(resp.err);
+                }
               }
-
-          });
-        }else{
-          alert(resp.err);
-        }
-      }
-  });
-}
-
-
-function deleteInformasi(id){
-  $.ajax({
-    type:'POST',
-    data : {id : id},
-    url: url+'&tipe=deleteInformasi',
-      success: function(data) {
-      var resp = eval('(' + data + ')');
-        if(resp.err==''){
-          refreshList();
-        }else{
-          alert(resp.err);
-        }
-      }
-  });
-}
-function clearTemp(){
-  $("#data2").text("Baru");
-  $("#data2").click();
-}
-function baruInformasi(){
-
-          // $("#formInformasiBaru").modal();
-          $("#judulInformasi").val("");
-
-          $("#kiri").attr("checked",true);
-
-          $("#summernote").code("");
-          $("#buttonSubmit").attr("onclick","saveInformasi()");
-
-}
-function updateInformasi(id){
-  $("#LoadingImage").attr('style','display:block');
-  $.ajax({
-    type:'POST',
-    data : {id : id},
-    url: url+'&tipe=updateInformasi',
-      success: function(data) {
-      var resp = eval('(' + data + ')');
-        if(resp.err==''){
-          $("#LoadingImage").hide();
-          $("#data2").text("Edit");
-          $("#data2").click();
-          $("#judulInformasi").val(resp.content.judulInformasi);
-          $("#statusPublish").val(resp.content.statusPublish);
-          if(resp.content.posisi == "1"){
-            $("#kiri").attr("checked",true);
-          }else{
-            $("#kanan").attr("checked",true);
+            });
+          } else if (result.dismiss === 'cancel') {
           }
-          $("#summernote").code(resp.content.isiInformasi);
-          $("#buttonSubmit").attr("onclick","saveEditInformasi("+id+")");
-          // $("#isiInformasi").val(resp.content.isiInformasi);
-        }else{
-          // alert(resp.err);
-          swal({
-            position: 'top-right',
-            type: 'warning',
-            title: (resp.err),
-            showConfirmButton: true,
-            timer: 5000
-          });
-          $("#LoadingImage").hide();
-        }
-      }
-  });
+        })
+
+    }else{
+      errorAlert(errMsg);
+    }
+  }
+ function getEditorContent(){
+    var editors = textboxio.get('#isiInformasi');
+    var editor = editors[0];
+    return editor.content.get();
 }
-
-
+function saveInformasi(){
+    $.ajax({
+      type:'POST',
+      data : {
+              statusPublish : $("#statusPublish").val(),
+              judulInformasi : $("#judulInformasi").val(),
+              isiInformasi : getEditorContent(),
+      },
+      url: url+'&tipe=saveInformasi',
+        success: function(data) {
+        var resp = eval('(' + data + ')');
+          if(resp.err==''){
+            suksesAlert("Data Tersimpan");
+          }else{
+            errorAlert(resp.err);
+          }
+        }
+    });
+  }
 function saveEditInformasi(idEdit){
-  $("#LoadingImage").attr('style','display:block');
   $.ajax({
     type:'POST',
     data : {
-            idEdit : idEdit,
-            isiInformasi : $("#summernote").code(),
-            judulInformasi : $("#judulInformasi").val(),
-            statusPublish : $("#statusPublish").val(),
-            posisiInformasi : $('input[name=posisiInformasi]:checked').val(),
+          statusPublish : $("#statusPublish").val(),
+          judulInformasi : $("#judulInformasi").val(),
+          isiInformasi : getEditorContent(),
+          idEdit : idEdit
     },
     url: url+'&tipe=saveEditInformasi',
       success: function(data) {
       var resp = eval('(' + data + ')');
         if(resp.err==''){
-          $("#LoadingImage").hide();
-          refreshList();
+          suksesAlert("Data Tersimpan");
         }else{
-          // alert(resp.err);
-          swal({
-            position: 'top-right',
-            type: 'warning',
-            title: (resp.err),
-            showConfirmButton: true,
-            timer: 5000
-          });
-          $("#LoadingImage").hide();
+          errorAlert(resp.err);
         }
       }
   });
+}
+function setMenuEdit(statusMenu){
+  $.ajax({
+    type:'POST',
+    data : {statusMenu : statusMenu},
+    url: url+'&tipe=setMenuEdit',
+      success: function(data) {
+      var resp = eval('(' + data + ')');
+        if(resp.err==''){
+          $("#actionArea").html(resp.content.header);
+          $("#filterinTable").html(resp.content.filterinTable);
+
+
+        }else{
+          alert(resp.err);
+        }
+      }
+  });
+}
+
+function priview(id){
+  var win = window.open("http://pilar.web.id/?page=informasi&id="+id, '_blank');
+  win.focus();
 }

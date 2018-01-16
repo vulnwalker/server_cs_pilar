@@ -3,8 +3,13 @@ $tipe = @$_GET['tipe'];
 $cek = "";
 $err = "";
 $content = "";
-session_start();
-
+$tableName = "produk";
+if(!empty($tipe)){
+  include "../include/config.php";
+  foreach ($_POST as $key => $value) {
+      $$key = $value;
+  }
+}
 function unlinkDir($dir)
 {
     $dirs = array($dir);
@@ -15,43 +20,33 @@ function unlinkDir($dir)
             $dir =  $dirs[$i];
         else
             break ;
-
         if($openDir = opendir($dir))
         {
             while($readDir = @readdir($openDir))
             {
                 if($readDir != "." && $readDir != "..")
                 {
-
                     if(is_dir($dir."/".$readDir))
                     {
                         $dirs[] = $dir."/".$readDir ;
                     }
                     else
                     {
-
                         $files[] = $dir."/".$readDir ;
                     }
                 }
             }
-
         }
-
     }
-
-
-
     foreach($files as $file)
     {
         unlink($file) ;
-
     }
     $dirs = array_reverse($dirs) ;
     foreach($dirs as $dir)
     {
         rmdir($dir) ;
     }
-
 }
 function createDescFile($fileName,$descSreenShot) {
   $fileDesc = fopen( "temp/".$_SESSION['username']."/$fileName".".desc", 'wb' );
@@ -65,204 +60,20 @@ if(!empty($tipe)){
   }
 }
 
-
 switch($tipe){
-    case 'showGambarProduk':{
-      $getNamaImage = sqlArray(sqlQuery("SELECT * from produk where id = '$idproduk' "));
-      $decodedJSON = json_decode($getNamaImage[screen_shot]);
-      for ($i=0; $i < sizeof($decodedJSON) ; $i++) {
-          $explodeNamaGambar = explode('/',$decodedJSON[$i]->fileName);
-          $jsonScreenshot[] = array(
-                    'name' => $explodeNamaGambar[3],
-                    'type' => 'image/jpeg',
-                    'imageLocation' => "temp/".$_SESSION['username']."/".$explodeNamaGambar[3],
-          );
-          if ($number == "") {
-            $listImage .="
-                <div class='item active'>
-                  <img src='".$decodedJSON[$i]->fileName."' alt='Awesome Image'>
-                  <div class='carousel-caption'>
-                  </div>
-                  <h5>".$decodedJSON[$i]->desc."</h5>
-                </div>
+  case 'saveDescSreenshot':{
+      $fileDesc = fopen( "temp/".$_SESSION['username']."/$namaFile".".desc", 'wb' );
+      fwrite( $fileDesc, $descSreenShot );
+      fclose( $fileDesc );
 
-          ";
-          }else{
-            $listImage .="
-                <div class='item'>
-                  <img src='".$decodedJSON[$i]->fileName."' alt='Awesome Image'>
-                  <div class='carousel-caption'>
-                  </div>
-                  <h5>".$decodedJSON[$i]->desc."</h5>
-                </div>
-                
-          ";
-          }
-        $number = "1";
-          
-      }
-      $imagesProduks = "
-        <!-- Carousel Card -->
-        <div class='card card-raised card-carousel'>
-          <div id='carousel-example-generic' class='carousel slide' data-ride='carousel'>
-            <div class='carousel slide' data-ride='carousel'>
-
-              <!-- Indicators -->
-
-              <!-- <ol class='carousel-indicators'>
-                <li data-target='#carousel-example-generic' data-slide-to='0' class='active'></li>
-                <li data-target='#carousel-example-generic' data-slide-to='1'></li>
-                <li data-target='#carousel-example-generic' data-slide-to='2'></li>
-              </ol> -->
-
-              <!-- Wrapper for slides -->
-              <div class='carousel-inner'>
-                
-                ".$listImage."
-                <!-- <div class='item'>
-                  <img src='images/produk/ATISISBADA/b3c18adb84f2548b04467090a673c529.jpg' alt='Awesome Image'>
-                  <div class='carousel-caption'>
-                  </div>
-                </div>
-                <div class='item'>
-                  <img src='images/produk/ATISISBADA/e8c6d95650a17cd8530834a8ce5ab45a.jpg' alt='Awesome Image'>
-                  <div class='carousel-caption'>
-                  </div>
-                </div> -->
-
-              </div>
-
-              <!-- Controls -->
-              <a class='left carousel-control' href='#carousel-example-generic' data-slide='prev' style='background: linear-gradient(to right, #0a0a0a45 , #0a0a0a00);'>
-                <i class='material-icons'><!-- keyboard_arrow_left --></i>
-              </a>
-              <a class='right carousel-control' href='#carousel-example-generic' data-slide='next' style='background: linear-gradient(to right, #08080800 , #0a0a0a45);'>
-                <i class='material-icons'><!-- keyboard_arrow_right --></i>
-              </a>
-            </div>
-          </div>
-        </div>
-        <!-- End Carousel Card -->
-      ";
-      $content = array("imagesProduks" => $imagesProduks);
-
-      echo generateAPI($cek,$err,$content);
-      break;
-}
-    case 'saveProduk':{
-      if(empty($namaProduk)){
-          $err = "Isi nama produk";
-      }elseif(empty($statusPublish)){
-          $err = "Pilih status publish";
-      }elseif(empty($gambarProduk)){
-          $err = "Pilih gambar Produk";
-      }
-      if(empty($err)){
-
-        // $listImage = getImage("../temp","../images/produk/$namaProduk");
-        // $imageTitle = baseToImage($gambarProduk,"../images/produk/$namaProduk/title.jpg");
-        $listImage = getImage("temp/".$_SESSION['username'],"images/produk/$namaProduk");
-        $imageTitle = baseToImage($gambarProduk,"images/produk/$namaProduk/title.jpg");
-        $data = array(
-                'nama_produk' => $namaProduk,
-                'status' => $statusPublish,
-                'tanggal' =>  date("Y-m-d"),
-                'image_title' => "images/produk/$namaProduk/title.jpg",
-                'deskripsi' => $deskripsiProduk,
-                'screen_shot' => $listImage,
-        );
-        $query = sqlInsert("produk",$data);
-        sqlQuery($query);
-        $cek = $query;
-
-      }
-      $content = array("judulProduk" => $judulProduk);
-
+      $content = array(
+                        'srcImage' => "temp/".$_SESSION['username']."/$namaFile",
+                        'descScreenShot' => file_get_contents($namaFile.".desc")
+                      );
       echo generateAPI($cek,$err,$content);
     break;
-    }
-
-    case 'saveEditProduk':{
-      if(empty($namaProduk)){
-          $err = "Isi nama produk";
-      }elseif(empty($statusPublish)){
-          $err = "Pilih status publish";
-      }elseif(empty($gambarProduk)){
-          $err = "Pilih gambar Produk";
-      }
-      if(empty($err)){
-        $getOldProduk = sqlArray(sqlQuery("select * from produk where id = '$idEdit'"));
-        // $files = glob("images/produk/".$getOldProduk['nama_produk']."/*"); // get all file names
-        //   foreach($files as $file){ // iterate files
-        //     if(is_file($file))
-        //       unlink($file); // delete file
-        //   }
-        unlinkDir("images/produk/".$getOldProduk['nama_produk']);
-        $listImage = getImage("temp/".$_SESSION['username'],"images/produk/$namaProduk");
-        $imageTitle = baseToImage($gambarProduk,"images/produk/$namaProduk/title.jpg");
-        $data = array(
-                'nama_produk' => $namaProduk,
-                'status' => $statusPublish,
-                'tanggal' =>  date("Y-m-d"),
-                'image_title' => "images/produk/$namaProduk/title.jpg",
-                'deskripsi' => $deskripsiProduk,
-                'screen_shot' => $listImage,
-        );
-        $query = sqlUpdate("produk",$data,"id = '$idEdit'");
-        sqlQuery($query);
-        $cek = $query;
-      }
-      $content = array("judulProduk" => $judulProduk);
-
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-
-    case 'deleteProduk':{
-      $getData = sqlArray(sqlQuery("select * from produk where id = '$id'"));
-      unlinkDir("images/produk/".$getData['nama_produk']);
-      $query = "delete from produk where id = '$id'";
-      sqlQuery($query);
-      $cek = $query;
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-    case 'removeTemp':{
-      unlink('temp/'.$_SESSION['username']."/".$id);
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-
-    case 'updateProduk':{
-      clearDirectory("temp/".$_SESSION['username']);
-      $getData = sqlArray(sqlQuery("select * from produk where id = '$id'"));
-      $decodedJSON = json_decode($getData['screen_shot']);
-      for ($i=0; $i < sizeof($decodedJSON) ; $i++) {
-          $explodeNamaGambar = explode('/',$decodedJSON[$i]->fileName);
-          copy($decodedJSON[$i]->fileName,"temp/".$_SESSION['username']."/".$explodeNamaGambar[3]);
-          createDescFile($explodeNamaGambar[3],$decodedJSON[$i]->desc);
-          $jsonScreenshot[] = array(
-                    'name' => $explodeNamaGambar[3],
-                    'type' => 'image/jpeg',
-                    'imageLocation' => "temp/".$_SESSION['username']."/".$explodeNamaGambar[3],
-          );;
-      }
-
-
-
-      $type = pathinfo($getData['image_title'], PATHINFO_EXTENSION);
-      $data = file_get_contents($getData['image_title']);
-      //$baseOfFile = 'data:image/' . $type . ';base64,' . base64_encode($data);
-      $content = array("namaProduk" => $getData['nama_produk']
-                      ,"statusPublish" => $getData['status']
-                      , "deskripsi" => $getData['deskripsi']
-                      , "baseOfFile" => $baseOfFile
-                      ,"screenShot" => json_encode($jsonScreenshot));
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-
-    case 'deskripsiScreenShot':{
+  }
+  case 'deskripsiScreenShot':{
       $descScreenShot = file_get_contents("temp/".$_SESSION['username']."/$namaFile".".desc");
       if($descScreenShot){
 
@@ -276,404 +87,922 @@ switch($tipe){
       echo generateAPI($cek,$err,$content);
     break;
     }
-    case 'saveDescSreenshot':{
-      $fileDesc = fopen( "temp/".$_SESSION['username']."/$namaFile".".desc", 'wb' );
-      fwrite( $fileDesc, $descSreenShot );
-      fclose( $fileDesc );
+  case 'saveProduk':{
+    if(empty($namaProduk)){
+        $err = "Isi nama produk";
+    }elseif(empty($statusPublish)){
+        $err = "Pilih status publish";
+    }elseif(empty($statusKosong)){
+        $err = "Pilih gambar Produk";
+    }elseif(sqlNumRow(sqlQuery("select * from $tableName where nama_produk = '$namaProduk'")) !=0){
+        $err = "Nama produk sudah ada !";
+    }
+    if(empty($err)){
 
-      $content = array(
-                        'srcImage' => "temp/".$_SESSION['username']."/$namaFile",
-                        'descScreenShot' => file_get_contents($namaFile.".desc")
-                      );
+      $listImage = getImage("temp/".$_SESSION['username'],"images/produk/$namaProduk");
+      $imageTitle = baseToImage($baseGambarProduk,"images/produk/$namaProduk/title.jpg");
+      $data = array(
+              'nama_produk' => $namaProduk,
+              'status' => $statusPublish,
+              'tanggal' =>  date("Y-m-d"),
+              'image_title' => "images/produk/$namaProduk/title.jpg",
+              'deskripsi' => $deskripsiProduk,
+              'screen_shot' => $listImage,
+      );
+      $query = sqlInsert($tableName,$data);
+      sqlQuery($query);
+      $cek = $query;
+
+    }
+
+    echo generateAPI($cek,$err,$content);
+  break;
+  }
+
+  case 'saveEditProduk':{
+    if(empty($namaProduk)){
+        $err = "Isi nama produk";
+    }elseif(empty($statusPublish)){
+        $err = "Pilih status publish";
+    }elseif(sqlNumRow(sqlQuery("select * from $tableName where nama_produk = '$namaProduk' and id !='$idEdit'")) !=0){
+        $err = "Nama produk sudah ada !";
+    }
+    if(empty($err)){
+      $getOldProduk = sqlArray(sqlQuery("select * from produk where id = '$idEdit'"));
+      unlinkDir("images/produk/".$getOldProduk['nama_produk']);
+      $listImage = getImage("temp/".$_SESSION['username'],"images/produk/$namaProduk");
+      $imageTitle = baseToImage($baseGambarProduk,"images/produk/$namaProduk/title.jpg");
+      $data = array(
+              'nama_produk' => $namaProduk,
+              'status' => $statusPublish,
+              'tanggal' =>  date("Y-m-d"),
+              'image_title' => "images/produk/$namaProduk/title.jpg",
+              'deskripsi' => $deskripsiProduk,
+              'screen_shot' => $listImage,
+      );
+      $query = sqlUpdate($tableName,$data,"id = '$idEdit'");
+      sqlQuery($query);
+      $cek = $query;
+   }
+
+    echo generateAPI($cek,$err,$content);
+  break;
+  }
+
+    case 'Hapus':{
+      for ($i=0; $i < sizeof($produk_cb) ; $i++) {
+        $query = "delete from $tableName where id = '".$produk_cb[$i]."'";
+        sqlQuery($query);
+      }
+
+      $cek = $query;
+      echo generateAPI($cek,$err,$content);
+    break;
+    }
+
+    case 'Edit':{
+
+      $content = array("idEdit" => $produk_cb[0]);
       echo generateAPI($cek,$err,$content);
     break;
     }
 
     case 'loadTable':{
-      $getData = sqlQuery("select * from produk");
-      while($dataProduk = sqlArray($getData)){
-        foreach ($dataProduk as $key => $value) {
+      if(!empty($searchData)){
+        $getColom = sqlQuery("desc $tableName");
+        while ($dataColomn = sqlArray($getColom)) {
+          
+        }
+        $arrKondisi[] = "nama_produk like '%$searchData%' ";
+        $arrKondisi[] = "image_title like '%$searchData%' ";
+        $arrKondisi[] = "deskripsi like '%$searchData%' ";
+        $arrKondisi[] = "status like '%$searchData%' ";
+        $arrKondisi[] = "screen_shot like '%$searchData%' ";
+        $kondisi = join(" or ",$arrKondisi);
+        $kondisi = " where $kondisi ";
+      }
+      if(!empty($limitTable)){
+          if($pageKe == 1){
+             $queryLimit  = " limit 0,$limitTable";
+          }else{
+             $dataMulai = ($pageKe - 1)  * $limitTable;
+             $dataMulai +=1;
+             $queryLimit  = " limit $dataMulai,$limitTable";
+          }
+
+      }
+      $getData = sqlQuery("select * from $tableName $kondisi order by id desc $queryLimit");
+      $cek = "select * from $tableName $kondisi $queryLimit";
+      $nomor = 1;
+      $nomorCB = 0;
+      while($dataUser = sqlArray($getData)){
+        foreach ($dataUser as $key => $value) {
             $$key = $value;
         }
-
-        if($status == "1"){
-            $status = "PUBLISH";
+        if($status == '1'){
+            $status = "YA";
         }else{
-            $status = "NON PUBLISH";
+            $status = "TIDAK";
         }
         $data .= "     <tr>
-                          <td>$nama_produk</td>
-                          <td><img src='$image_title'  class='materialboxed' style='width:100px;height:100px;'></img> </td>
-                          <td>".generateDate($tanggal)."</td>
-                          <td>$status</td>
-                          <td>
-                            <!-- <input type='button'  class='waves-effect waves-light btn btn-primary' value='Show'> -->
-                            <button class='btn btn-raised btn-round btn-primary' data-toggle='modal' data-target='#noticeModal' onclick=showGambarProduk($id);>
-                                show
-                            </button>
-                            <!-- notice modal -->
-                                            <div class='modal fade' id='noticeModal' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>
-                                                <div class='modal-dialog modal-notice'>
-                                                    <div class='modal-content'>
-                                                        <div class='modal-header'>
-                                                            <button type='button' class='close' data-dismiss='modal' aria-hidden='true'> <!-- <i class='material-icons'>clear</i> --></button>
-                                                            <!-- <h5 class='modal-title' id='myModalLabel'>
-                                                              How Do You Become an Affiliate?
-                                                            </h5> -->
-                                                        </div>
-                                                        <div class='modal-body'>
-                                                            <div class='instruction'>
-                                                                <div class='row'>
-                                                                    <div class='col-md-12'>
-                                                                        
-                                                                      <div id='tempatGambar'></div>
-
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end notice modal -->
-                          </td>
-                          <td class='text-right'>
-                              <a onclick=updateProduk($id) class='btn btn-simple btn-warning btn-icon edit'><i class='material-icons'>dvr</i></a>
-                              <a onclick=deleteProduk($id) class='btn btn-simple btn-danger btn-icon remove'><i class='material-icons'>close</i></a>
-                          </td>
-                      </tr>
+                          <td class='text-center' width='20px;'  style='vertical-align:middle;'>$nomor</td>
+                          <td class='text-center' width='20px;'  style='vertical-align:middle;'>
+                            <div  class='checkbox checkbox-inline checkbox-styled'>
+                                    <label>
+                                    ".setCekBox($nomorCB,$id,'','produk')."
+                                <span></span>
+															</label>
+														</div>
+                            </td>
+                            <td  class='col-lg-2 text-center' style='vertical-align:middle;'><img src='$image_title' onclick = imageClicked(this); alt='$nama_produk' class='materialboxed' style='width:100px;height:100px;'></img></td>
+                          <td  class='col-lg-2' style='vertical-align:middle;'>$nama_produk</td>
+                          <td  class='col-lg-2 text-center' style='vertical-align:middle;'>$status</td>
+                        <!--  <td  class='col-lg-2  text-center' style='vertical-align:middle;'><input type='button' class='btn ink-reaction btn-raised btn-primary' onclick=showGambarProduk($id); value='Lihat'></td> -->
+                       </tr>
                     ";
+          $nomor += 1;
+          $nomorCB += 1;
       }
 
-      $tabel = "<table id='datatables' class='table table-striped table-no-bordered table-hover' cellspacing='0' width='100%' style='width:100%'>
-          <thead>
-              <tr>
-                  <th>Produk</th>
-                  <th>Gambar</th>
-                  <th>Tanggal</th>
-                  <th>Status</th>
-                  <th>Screen Shot</th>
-                  <th class='disabled-sorting text-right'>Actions</th>
-              </tr>
-          </thead>
-          <tbody>
-            $data
-          </tbody>
-      </table>";
-      $content = array("tabelProduk" => $tabel);
+      $tabelBody = "
 
+        <thead>
+          <tr>
+            <th class='text-center' width='20px;'>No</th>
+            <th class='text-center' width='20px;'>
+             <div class='checkbox checkbox-inline checkbox-styled' >
+              <label>
+                <input type='checkbox' name='produk_toogle' id='produk_toogle' onclick=checkSemua($nomorCB,'produk_cb','produk_toogle','produk_jmlcek',this)>
+              <span></span>
+            </label>
+          </div>
+            </th>
+            <th class='col-lg-1 text-center'>Gambar</th>
+            <th class='col-lg-10'>Nama</th>
+            <th class='col-lg-1 text-center'>Publish</th>
+          <!--  <th class='col-lg-3 text-center'>Screen Shot</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          $data
+        </tbody>
+
+      ";
+
+      $jumlahData = sqlNumRow(sqlQuery("select * from $tableName $kondisi"));
+      $jumlahPage =ceil($jumlahData / $limitTable) ;
+      for ($i=1; $i <= $jumlahPage ; $i++) {
+          if($pageKe == $i){
+            $dataPagging .= "<li class='active'>
+                                <a onclick=currentPage($i)>$i</a>
+                            </li>";
+          }else{
+            $dataPagging .= "<li >
+                                <a onclick=currentPage($i)>$i</a>
+                            </li>";
+          }
+
+      }
+      $tabelFooter = "
+        <ul class='pagination pagination-info'>
+          $dataPagging
+        </ul>
+      <input type='hidden' name='produk_jmlcek' id='produk_jmlcek' value='0'>";
+      $content = array("tabelBody" => $tabelBody, 'tabelFooter' => $tabelFooter);
+      echo generateAPI($cek,$err,$content);
+    break;
+    }
+
+    case 'setMenuEdit':{
+      if($statusMenu == 'index'){
+        $filterinTable = "
+          <ul class='header-nav header-nav-options'>
+            <li class='dropdown'>
+              <div class='row'>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <form class='form' role='form'>
+                    <div class='form-group floating-label' style='padding-top: 0px;'>
+                      <div class='input-group'>
+                        <span class='input-group-addon'></span>
+                        <div class='input-group-content'>
+                          <input type='text' class='form-control' id='searchData' name='searchData' onkeyup=limitData(); placeholder='Search'>
+                          <!-- <label for='searchData'>Search</label> -->
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                <form class='form' role='form'>
+                    <div class='form-group' style='padding-top: 0px;'>
+                      <div class='input-group'>
+                        <div class='input-group-content'>
+                          <input type='text' onkeypress='return event.charCode >= 48 && event.charCode <= 57' class='form-control ' id='jumlahDataPerhalaman' name='jumlahDataPerhalaman' value = '50' onkeyup=limitData(); placeholder='Data / Halaman'>
+                          <label for='username10'>Data</label>
+                        </div>
+                      </div>
+                    </div>
+                </form>
+                </div>
+              </div>
+            </li>
+          </ul>";
+        $header = "
+
+          <ul class='header-nav header-nav-options'>
+            <li class='dropdown'>
+              <div class='row'>
+
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <button type='button' class='btn ink-reaction btn-flat btn-primary' onclick=Baru();>
+                      <i class='fa fa-plus'></i>
+                      baru
+                  </button>
+                </div>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <button type='button' class='btn ink-reaction btn-flat btn-primary' onclick=Edit();>
+                    <i class='fa fa-magic'></i>
+                    edit
+                  </button>
+                </div>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <button type='button' class='btn ink-reaction btn-flat btn-primary' onclick=Hapus();>
+                    <i class='fa fa-close'></i>
+                    hapus
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ul>
+          ";
+      }else{
+        $header = "
+          <ul class='header-nav header-nav-options'>
+
+          </ul>
+          ";
+          $filterinTable = "";
+      }
+
+      $content = array("header" => $header, 'filterinTable' => $filterinTable);
+      echo generateAPI($cek,$err,$content);
+    break;
+    }
+    case 'removeTemp':{
+      unlink('temp/'.$_SESSION['username']."/".$id);
       echo generateAPI($cek,$err,$content);
     break;
     }
 
      default:{
+       clearDirectory("temp/".$_SESSION['username']);
         ?>
         <script>
         var url = "http://"+window.location.hostname+"/api.php?page=produk";
-
         </script>
-        <script src="js/dropzone/dropzone.js"></script>
+
+        <style>
+        .form .form-group .input-group-addon:first-child{
+          min-width: 0px;
+        }
+        #jumlahDataPerhalaman{
+          width: 60px;
+        }
+        .form-control:focus{
+          border-bottom-color: #0aa89e!important;
+        }
+        table{
+          border-collapse:collapse;
+          width:100%;
+        }
+        .blue thead{
+          background:#1ABC9C;
+        }
+        thead{
+          color:white;
+        }
+
+        th,td{
+          padding:5px 0;
+        }
+
+        tbody tr:nth-child(even){
+          background:#ECF0F1;
+        }
+        tbody tr:hover{
+        background:#BDC3C7;
+        }
+        .fixed {
+            top: 65px;
+            position: fixed;
+            width: auto;
+            display: none;
+            border: none;
+            background: #ffffff;
+        }
+        .scrollMore{
+          margin-top:600px;
+        }
+        .up{
+          cursor:pointer;
+        }
+
+        </style>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script src="js/produk.js"></script>
-        <link rel="stylesheet" href="js/dropzone/dropzone.css">
+        <script>
+        (function($) {
+          $.fn.fixMe = function() {
+            return this.each(function() {
+              var $this = $(this),
+                $t_fixed;
+              function init() {
+                // $this.wrap('<div class="container" />');
+                $t_fixed = $this.clone();
+                $t_fixed
+                  .find("tbody")
+                  .remove()
+                  .end()
+                  .addClass("fixed")
+                  .insertBefore($this);
+                resizeFixed();
+              }
+              function resizeFixed() {
+                $t_fixed.find("th").each(function(index) {
+                  $(this).css(
+                    "width",
+                    $this
+                      .find("th")
+                      .eq(index)
+                      .outerWidth() + "px"
+                  );
+                });
+              }
+              function scrollFixed() {
+                var offset = $(this).scrollTop(),
+                  tableOffsetTop = $this.offset().top,
+                  tableOffsetBottom =
+                    tableOffsetTop + $this.height() - $this.find("thead").height();
+                if (offset < tableOffsetTop || offset > tableOffsetBottom)
+                  $t_fixed.hide();
+                else if (
+                  offset >= tableOffsetTop &&
+                  offset <= tableOffsetBottom &&
+                  $t_fixed.is(":hidden")
+                )
+                  $t_fixed.show();
+              }
+              $(window).resize(resizeFixed);
+              $(window).scroll(scrollFixed);
+              init();
+            });
+          };
+        })(jQuery);
+        </script>
+
+
 
         <?php
-            if(!isset($_GET['edit'])){
-              clearDirectory("temp/".$_SESSION['username']);
-              ?>
-              <div class="content" style="margin: 0; min-height: unset; padding-top: 0; padding-bottom: 0;">
-                <div class="container-fluid">
-                  <div class="row">
-                    <div class="col-md-4">
-                      <h4>PRODUK</h4>
-                      <button class="btn btn-primary">
-                        BARU
-                      </button>
-                      <button class="btn btn-warning">
-                        EDIT
-                      </button>
-                      <button class="btn btn-rose">
-                        HAPUS
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          if(!isset($_GET['action'])){
+            ?>
+            <script type="text/javascript">
+              $(document).ready(function() {
+                  loadTable(1,50);
+                  setMenuEdit('index');
+                  $("#pageTitle").text("PRODUK");
+              });
+            </script>
+            <style>
+            /*popup image*/
 
-              <div class="content" style="margin: 0; min-height: unset; padding-top: 0; padding-bottom: 0;">
-                  <div class="container-fluid">
-                      <div class="row">
-                          <div class="col-md-12">
-                                  <div class="card">
-                                      <div class="card-content">
-                                          <!-- <ul class="nav nav-pills nav-pills-primary">
-                                              <li class="active">
-                                                  <a href="#dataProduk" id='data1' data-toggle="tab" aria-expanded="true" onclick="clearTemp();">Produk</a>
-                                              </li>
-                                              <li>
-                                                  <a href="#produkBaru" id='data2' data-toggle="tab" aria-expanded="false" onclick="baruProduk();">Baru</a>
-                                              </li>
-                                          </ul> -->
-                                          <div class="tab-content">
-                                              <div class="tab-pane active" id="dataProduk">
-                                                  <div class="col-md-12" id='tableInformasi'>
-                                                    <div class="card">
-                                                        <!-- <div class="card-header card-header-icon" data-background-color="purple">
-                                                            <i class="material-icons">assignment</i>
-                                                        </div> -->
-                                                        <div class="card-content">
-                                                            <!-- <h4 class="card-title">Data Produk</h4> -->
-                                                            <div class="toolbar">
-                                                            </div>
-                                                            <div class="material-datatables">
-                                                                <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>Judul</th>
-                                                                            <th>Posisi</th>
-                                                                            <th>Tanggal</th>
-                                                                            <th>Penulis</th>
-                                                                            <th>Status</th>
-                                                                            <th class="disabled-sorting text-right">Actions</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                              </div>
-                                              <div class="tab-pane" id="produkBaru">
-                                                  <div class="row">
-                                                    <div class="col-lg-3 col-md-6 col-sm-3">
-                                                      <label class="control-label">Status</label>
-                                                        <?php
-                                                          $arrayStatus = array(
-                                                                    array('1','PUBLISH'),
-                                                                    array('2','NON PUBLISH'),
-                                                          );
-                                                          echo cmbArray("statusPublish","1",$arrayStatus,"STATUS","class='selectpicker' data-style='btn btn-primary btn-round' title='Single Select' data-size='7'")
-                                                        ?>
-                                                    </div>
-                                                  </div>
-                                                  <div class="row">
-                                                    <div class="col-md-4 col-sm-4">
-                                                      <div class="fileinput fileinput-new text-center" data-provides="fileinput">
-                                                          <div class="fileinput-new thumbnail">
-                                                              <img  src="assets/img/image_placeholder.jpg" id='tempImageProduk' alt="...">
-                                                          </div>
-                                                          <div class="fileinput-preview fileinput-exists thumbnail"></div>
-                                                          <div>
-                                                              <span class="btn btn-rose btn-round btn-file">
-                                                                  <span class="fileinput-new">Select image</span>
-                                                                  <span class="fileinput-exists">Change</span>
-                                                                  <input type="hidden" id='gambarProduk' name='gambarProduk'>
-                                                                  <input type="file" accept='image/x-png,image/gif,image/jpeg' onchange="imageChanged();" id='imageProduk' name="imageProduk">
-                                                              </span>
-                                                              <a href="#pablo" class="btn btn-danger btn-round fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Remove</a>
-                                                          </div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                  <div class="row">
-                                                    <div class="col-lg-12">
-                                                      <form method="#" action="#">
-                                                        <div class="form-group label-floating">
-                                                            <label class="control-label">Nama Produk</label>
-                                                            <input type="text" id="namaProduk" class="form-control">
-                                                        </div>
-                                                      </form>
-                                                    </div>
-                                                  </div>
-                                                  <div class="row">
-                                                    <div class="col-md-12 col-sm-12">
-                                                      Screen Shot
-                                                        <form action="upload.php" id='dropzone'  >
-                                                        </form>
-                                                        <input type="file" multiple="multiple"  accept='image/x-png,image/gif,image/jpeg' class="dz-hidden-input" style="visibility: hidden; position: absolute; top: 0px; left: 0px; height: 0px; width: 0px;">
-                                                    </div>
-                                                  </div>
-                                                  <div class="row">
-                                                    <div class="card">
-                                                        <div class="card-body no-padding">
-                                                            <div id="summernote">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                  </div>
-                                                  <div class="row">
-                                                    <div class="col-lg-12">
-                                                      <button type="button" class="btn btn-primary" id='buttonSubmit' onclick="saveProduk();" data-dismiss="modal">Simpan</button>
-                                                    </div>
-                                                  </div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-                          <div class="col-md-12" id='tableProduk'>
-                              <div class="card">
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-              <?php
-            }else{
-              $getDataEdit = sqlArray(sqlQuery("select * from produk where id='".$_GET['edit']."'"));
-
-              $type = pathinfo($getDataEdit['image_title'], PATHINFO_EXTENSION);
-              $data = file_get_contents($getDataEdit['image_title']);
-              $baseOfFile = 'data:image/' . $type . ';base64,' . base64_encode($data);
-              ?>
-              <div class="content">
-                  <div class="container-fluid">
-                      <div class="row">
-                          <div class="col-md-12">
-                                  <div class="card">
-                                      <div class="card-content">
-                                          <ul class="nav nav-pills nav-pills-primary">
-                                              <li >
-                                                  <a href="pages.php?page=produk" >Produk</a>
-                                              </li>
-                                              <li class="active">
-                                                  <a >Edit</a>
-                                              </li>
-                                          </ul>
-                                          <div class="tab-content">
-                                              <div class="tab-pane active" id="produkBaru">
-                                                  <div class="row">
-                                                    <div class="col-lg-3 col-md-6 col-sm-3">
-                                                        <label class="control-label">Status</label>
-                                                        <?php
-                                                          $arrayStatus = array(
-                                                                    array('1','PUBLISH'),
-                                                                    array('2','NON PUBLISH'),
-                                                          );
-                                                          echo cmbArray("statusPublish",$getDataEdit['status'],$arrayStatus,"STATUS","class='selectpicker' data-style='btn btn-primary btn-round' title='Single Select' data-size='7'")
-                                                        ?>
-                                                    </div>
-                                                  </div>
-                                                  <div class="row">
-                                                    <div class="col-md-4 col-sm-4">
-                                                      <div class="fileinput fileinput-new text-center" data-provides="fileinput">
-                                                          <div class="fileinput-new thumbnail">
-                                                              <img  src="<?php echo $baseOfFile ?>" id='tempImageProduk' alt="...">
-                                                          </div>
-                                                          <div class="fileinput-preview fileinput-exists thumbnail"></div>
-                                                          <div>
-                                                              <span class="btn btn-rose btn-round btn-file">
-                                                                  <span class="fileinput-new">Select image</span>
-                                                                  <span class="fileinput-exists">Change</span>
-                                                                  <input type="hidden" id='gambarProduk' name='gambarProduk' value='<?php echo $baseOfFile ?>'>
-                                                                  <input type="file" accept='image/x-png,image/gif,image/jpeg' onchange="imageChanged();" id='imageProduk' name="imageProduk">
-                                                              </span>
-                                                              <a href="#pablo" class="btn btn-danger btn-round fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Remove</a>
-                                                          </div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                  <div class="row">
-                                                    <div class="col-lg-12">
-                                                      <form method="#" action="#">
-                                                        <div class="form-group label-floating">
-                                                            <label class="control-label">Nama Produk</label>
-                                                            <input type="text" id="namaProduk" class="form-control" value='<?php echo $getDataEdit['nama_produk'] ?>'>
-                                                        </div>
-                                                      </form>
-                                                    </div>
-                                                  </div>
-                                                  <div class="row">
-                                                    <div class="col-md-12 col-sm-12">
-                                                      Screen Shot
-                                                        <form action="upload.php" id='dropzone'  >
-                                                        </form>
-                                                        <input type="file" multiple="multiple"  accept='image/x-png,image/gif,image/jpeg' class="dz-hidden-input" style="visibility: hidden; position: absolute; top: 0px; left: 0px; height: 0px; width: 0px;">
-                                                    </div>
-                                                  </div>
-                                                  <div class="row">
-                                                    <div class="card">
-                                                        <div class="card-body no-padding">
-                                                            <div id="summernote">
-                                                              <?php echo $getDataEdit['deskripsi']?>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                  </div>
-                                                  <div class="row">
-                                                    <div class="col-lg-12">
-                                                      <button type="button" class="btn btn-primary" id='buttonSubmit' onclick="saveEditProduk(<?php echo $getDataEdit['id'] ?>);" data-dismiss="modal">Simpan</button>
-                                                    </div>
-                                                  </div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-                          <div class="col-md-12" id='tableProduk'>
-                              <div class="card">
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-              <script>
-
-              </script>
-              <?php
+                    #myImg {
+                border-radius: 5px;
+                cursor: pointer;
+                transition: 0.3s;
             }
 
+            #myImg:hover {opacity: 0.7;}
+
+            /* The Modal (background) */
+            .modal {
+                display: none; /* Hidden by default */
+                position: fixed; /* Stay in place */
+                z-index: 1; /* Sit on top */
+                padding-top: 100px; /* Location of the box */
+                left: 0;
+                top: 0;
+                width: 100%; /* Full width */
+                height: 100%; /* Full height */
+                overflow: auto; /* Enable scroll if needed */
+                background-color: rgb(0,0,0); /* Fallback color */
+                background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+            }
+
+            /* Modal Content (image) */
+            .modal-content {
+                margin: auto;
+                display: block;
+                width: 80%;
+                max-width: 700px;
+            }
+
+            /* Caption of Modal Image */
+            #captionImage {
+                margin: auto;
+                display: block;
+                width: 80%;
+                max-width: 700px;
+                text-align: center;
+                color: #ccc;
+                padding: 10px 0;
+                height: 150px;
+            }
+
+            /* Add Animation */
+            .modal-content, #captionImage {
+                -webkit-animation-name: zoom;
+                -webkit-animation-duration: 0.6s;
+                animation-name: zoom;
+                animation-duration: 0.6s;
+            }
+
+            @-webkit-keyframes zoom {
+                from {-webkit-transform:scale(0)}
+                to {-webkit-transform:scale(1)}
+            }
+
+            @keyframes zoom {
+                from {transform:scale(0)}
+                to {transform:scale(1)}
+            }
+
+
+
+            @media only screen and (max-width: 700px){
+                .modal-content {
+                    width: 100%;
+                }
+            }
+            </style>
+
+
+            <div id="content">
+      				<section>
+      					<div class="section-body contain-lg">
+      						<div class="row">
+      							<div class="col-lg-12">
+      								<div class="card">
+      									<div class="card-body no-padding">
+      										<div class="table-responsive no-margin">
+                            <form id='formProduk' name="formProduk" action="#">
+                              <table class="table table-striped no-margin table-hover blue" id='tabelBody'>
+                                <thead>
+                                  <tr>
+                                    <th>Colonne 1</th>
+                                    <th>Colonne 2</th>
+                                    <th>Colonne 3</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td>Non</td>
+                                    <td>Mais</td>
+                                    <td>Allo !</td>
+                                  </tr>
+
+                                </tbody>
+                              </table>
+        											<div class="col-lg-12" style="text-align: right;" id='tabelFooter'>
+        												<ul class="pagination pagination-info">
+        		                        <li class="active">
+        		                            <a href="javascript:void(0);"> prev</a>
+        		                        </li>
+        		                        <li>
+        		                            <a href="javascript:void(0);">1</a>
+        		                        </li>
+        		                        <li>
+        		                            <a href="javascript:void(0);">2</a>
+        		                        </li>
+        		                        <li >
+        		                            <a href="javascript:void(0);">3</a>
+        		                        </li>
+        		                        <li>
+        		                            <a href="javascript:void(0);">4</a>
+        		                        </li>
+        		                        <li>
+        		                            <a href="javascript:void(0);">5</a>
+        		                        </li>
+        		                        <li>
+        		                            <a href="javascript:void(0);">next </a>
+        		                        </li>
+        		                    </ul>
+        											</div>
+                            </form>
+      										</div>
+      									</div>
+      								</div>
+      							</div>
+      						</div>
+      					</div>
+      				</section>
+      			</div>
+
+
+    <div id="myModal" class="modal" onclick="closeImage();">
+      <img class="modal-content" id="img01">
+      <div id="captionImage"></div>
+    </div>
+
+            <?php
+          }else{
+              if($_GET['action'] == 'baru'){
+                clearDirectory("temp/".$_SESSION['username']);
+                ?>
+                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/componentProduk.css" />
+                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demoProduk.css" />
+            		<script src="js/ImageResizeCropCanvas/js/component.js"></script>
+
+                <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.css">
+                <link href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.7.3/css/froala_editor.pkgd.min.css" rel="stylesheet" type="text/css" />
+                <link href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.7.3/css/froala_style.min.css" rel="stylesheet" type="text/css" />
+                <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+                <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.js"></script>
+                <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/mode/xml/xml.min.js"></script>
+                <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.7.3/js/froala_editor.pkgd.min.js"></script> -->
+                <script type="text/javascript" src="js/textboxio/textboxio.js"></script>
+
+
+                <script src="js/dropzone/dropzone.js"></script>
+                <link rel="stylesheet" href="js/dropzone/dropzone.css">
+                <script>
+
+                </script>
+
+
+                <div id="content">
+          				<section>
+          					<div class="section-body contain-lg">
+                      <form class="form" id='formProduk'>
+      									<div class="card">
+      										<div class="card-body floating-label">
+      											<div class="row">
+      												<div class="col-sm-2">
+      													<div class="form-group">
+                                  <?php
+                                    $arrayStatus = array(
+                                              array('1','YA'),
+                                              array('2','TIDAK'),
+                                    );
+                                    echo cmbArrayEmpty("statusPublish","",$arrayStatus,"-- PUBLISH --","class='form-control' ")
+                                  ?>
+      														<label for="Firstname2">PUBLISH</label>
+      													</div>
+      												</div>
+      												<div class="col-sm-10">
+      													<div class="form-group">
+      														<input type="text" class="form-control" id="namaProduk" name='namaProduk'>
+      														<label for="namaProduk">Nama Produk</label>
+      													</div>
+      												</div>
+      											</div>
+      											<div class="row">
+      												<div class="col-sm-12">
+                                <div class="component">
+                                  <div class="overlay">
+                                    <div class="overlay-inner">
+                                    </div>
+                                  </div>
+                                  <img class="resize-image" id='gambarProduk' alt="image for resizing">
+                                </div>
+      												</div>
+      											</div>
+      											<div class="row">
+      												<div class="col-sm-4">
+                                <span class="btn ink-reaction btn-raised btn-primary">
+                                  <span class="fileinput-exists" onclick='$("#imageProduk").click();'>Pilih Gambar</span>
+                                  <input type="hidden" id='statusKosong' name='statusKosong'>
+                                  <input style="display:none;" type="file" accept='image/x-png,image/gif,image/jpeg' onchange="imageChanged();" id='imageProduk' name="imageProduk">
+                                </span>
+      												</div>
+      											</div>
+                          </div>
+                          <div class="row">
+                            <div class="col-sm-12">
+                                <div class='dropzone'  >
+                                  <h3>Screen Shot</h3>
+                                <input type="file" multiple="multiple"  accept='image/x-png,image/gif,image/jpeg' class="dz-hidden-input" style="visibility: hidden; position: absolute; top: 0px; left: 0px; height: 0px; width: 0px;">
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-sm-12">
+                                <textarea id='deskripsiProduk'  style="height: 400px;" ></textarea>
+                            </div>
+                          </div>
+                          <div class="card-actionbar">
+      											<div class="card-actionbar-row">
+                              <button type="button" class="btn ink-reaction btn-raised btn-primary" onclick="saveProduk();">Simpan</button>
+                              <button type="button" class="btn ink-reaction btn-raised btn-danger" onclick="refreshList();">batal</button>
+      											</div>
+      										</div>
+      										</div><!--end .card-body -->
+
+      									</div><!--end .card -->
+      								</form>
+                      <button type='button' id='pemicuPopup' style='display:none;' data-toggle='modal' data-target='#myModal'>SHOW</button>
+                      <div id='myModal' class='modal fade' role='dialog'>
+                        <div class='modal-dialog'>
+                          <div class='modal-content'>
+                            <div class='modal-header'>
+                              <button type='button' class='close' data-dismiss='modal'>&times;</button>
+                              <h4 class='modal-title'>SCREEN SHOT</h4>
+                            </div>
+                              <div id ='contentModal'>
+                                <div class='section-body contain-lg'>
+                                    <div class='card'>
+                                      <div class='card-body floating-label'>
+                                        <div class='row'>
+                                          <div class='col-sm-12'>
+                                            <div class='form-group'>
+                                            <cente>  <img src="assets/img/image_placeholder.jpg" id='tempScreenShot' style="width:200px;height:200px;" alt="..."></center>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class='row'>
+                                          <div class='col-sm-12'>
+                                            <div class='form-group'>
+                                              <textarea id='descSreenShot' class="form-control" rows="3"></textarea>
+                                              <label for='descSreenShot'>Deskripsi</textarea>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                              </div>
+                            <div class='modal-footer'>
+                              <button type="button" id = 'buttonSubmitScreenShot' class="btn ink-reaction btn-raised btn-primary" data-dismiss='modal'>Simpan</button>
+                              <button type="button" id='buttonDismiss' class="btn ink-reaction btn-raised btn-danger" data-dismiss='modal'>batal</button>
+                            </div>
+                          </div>
+
+                        </div>
+                    </div>
+
+      							</div>
+          				</section>
+          			</div>
+                <script type="text/javascript">
+                  $(document).ready(function() {
+                      $('.component').hide();
+                      setMenuEdit('baru');
+                      $("#pageTitle").text("PRODUK");
+                      textboxio.replaceAll('#deskripsiProduk', {
+                        paste: {
+                          style: 'clean'
+                        },
+                        css: {
+                          stylesheets: ['js/textboxio/example.css']
+                        }
+                      });
+                      Dropzone.autoDiscover = false;
+                      var myDropzone = new Dropzone("div.dropzone", {
+                          url: "upload.php",
+                          maxFileSize: 50,
+                          acceptedFiles: ".jpeg,.jpg,.png,.gif",
+                          addRemoveLinks: true,
+                          init: function() {
+                              this.on("complete", function(file) {
+                                  $(".dz-remove").html("<div><span class='fa fa-trash text-danger' style='font-size: 1.5em;cursor:pointer;' >REMOVE</span></div>");
+                                  // $(".dz-details").attr("onclick","deskripsiScreenShot('"+file.name+"')");
+                                  $(".dz-details").attr("style","cursor:pointer;");
+                              });
+                              this.on("thumbnail", function(file) {
+                                console.log(file); // will send to console all available props
+                                file.previewElement.addEventListener("click", function() {
+                                   deskripsiScreenShot(file.name);
+                                });
+                            });
+                              this.on("removedfile", function(file) {
+                                   removeTemp(file.name);
+                            });
+                          }
+                      });
+                      $("div.dropzone").attr('class','dropzone dz-clickable');
+                  });
+                </script>
+                <?php
+              }elseif($_GET['action']=='edit'){
+                  clearDirectory("temp/".$_SESSION['username']);
+                  $getData = sqlArray(sqlQuery("select * from $tableName where id = '".$_GET['idEdit']."'"));
+                  $decodedJSON = json_decode($getData['screen_shot']);
+                   for ($i=0; $i < sizeof($decodedJSON) ; $i++) {
+                       $explodeNamaGambar = explode('/',$decodedJSON[$i]->fileName);
+                       copy($decodedJSON[$i]->fileName,"temp/".$_SESSION['username']."/".$explodeNamaGambar[3]);
+                       createDescFile($explodeNamaGambar[3],$decodedJSON[$i]->desc);
+                       $jsonScreenshot[] = array(
+                                 'name' => $explodeNamaGambar[3],
+                                 'size' => filesize("temp/".$_SESSION['username']."/".$explodeNamaGambar[3]),
+                                 'type' => 'image/jpeg',
+                                 'imageLocation' => "temp/".$_SESSION['username']."/".$explodeNamaGambar[3],
+                       );
+                   }
+
+                  ?>
+                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/componentProduk.css" />
+                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demoProduk.css" />
+              		<script src="js/ImageResizeCropCanvas/js/component.js"></script>
+
+                  <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+                  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.css">
+                  <link href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.7.3/css/froala_editor.pkgd.min.css" rel="stylesheet" type="text/css" />
+                  <link href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.7.3/css/froala_style.min.css" rel="stylesheet" type="text/css" />
+                  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+                  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.js"></script>
+                  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/mode/xml/xml.min.js"></script>
+                  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.7.3/js/froala_editor.pkgd.min.js"></script> -->
+                  <script type="text/javascript" src="js/textboxio/textboxio.js"></script>
+
+
+                  <script src="js/dropzone/dropzone.js"></script>
+                  <link rel="stylesheet" href="js/dropzone/dropzone.css">
+                  <script>
+
+                  </script>
+
+
+                  <div id="content">
+            				<section>
+            					<div class="section-body contain-lg">
+                        <form class="form" id='formProduk'>
+        									<div class="card">
+        										<div class="card-body floating-label">
+        											<div class="row">
+        												<div class="col-sm-2">
+        													<div class="form-group">
+                                    <?php
+                                      $arrayStatus = array(
+                                                array('1','YA'),
+                                                array('2','TIDAK'),
+                                      );
+                                      echo cmbArrayEmpty("statusPublish",$getData['status'],$arrayStatus,"-- PUBLISH --","class='form-control' ")
+                                    ?>
+        														<label for="Firstname2">PUBLISH</label>
+        													</div>
+        												</div>
+        												<div class="col-sm-10">
+        													<div class="form-group">
+        														<input type="text" class="form-control" id="namaProduk" name='namaProduk' value="<?php echo $getData['nama_produk'] ?>">
+        														<label for="namaProduk">Nama Produk</label>
+        													</div>
+        												</div>
+        											</div>
+        											<div class="row">
+        												<div class="col-sm-12">
+                                  <div class="component">
+                                    <div class="overlay">
+                                      <div class="overlay-inner">
+                                      </div>
+                                    </div>
+                                    <img class="resize-image" id='gambarProduk' src ='<?php echo $getData['image_title'] ?>' alt="image for resizing">
+                                  </div>
+        												</div>
+        											</div>
+        											<div class="row">
+        												<div class="col-sm-4">
+                                  <span class="btn ink-reaction btn-raised btn-primary">
+                                    <span class="fileinput-exists" onclick='$("#imageProduk").click();'>Pilih Gambar</span>
+                                    <input type="hidden" id='statusKosong' name='statusKosong' value="1">
+                                    <input type="hidden" id='statusEdit' name='statusEdit' >
+                                    <input type="file" style="display:none;" accept='image/x-png,image/gif,image/jpeg' onchange="imageChanged();" id='imageProduk' name="imageProduk">
+                                  </span>
+        												</div>
+        											</div>
+                            </div>
+                            <div class="row">
+                              <div class="col-sm-12">
+                                  <div  class='dropzone'  >
+                                    <h3>Screen Shot</h3>
+                                  <input type="file" multiple="multiple"  accept='image/x-png,image/gif,image/jpeg' class="dz-hidden-input" style="visibility: hidden; position: absolute; top: 0px; left: 0px; height: 0px; width: 0px;">
+                                </div>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-sm-12">
+                                  <div id='deskripsiProduk'  style="height:400px;"><?php echo $getData['deskripsi'] ?></div>
+                              </div>
+                            </div>
+                            <div class="card-actionbar">
+        											<div class="card-actionbar-row">
+                                <button type="button" class="btn ink-reaction btn-raised btn-primary" onclick="saveEditProduk(<?php echo $_GET['idEdit'] ?>);">Simpan</button>
+                                <button type="button" class="btn ink-reaction btn-raised btn-danger" onclick="refreshList();">batal</button>
+        											</div>
+        										</div>
+        										</div><!--end .card-body -->
+
+        									</div><!--end .card -->
+        								</form>
+        							</div>
+            				</section>
+
+                    <button type='button' id='pemicuPopup' style='display:none;' data-toggle='modal' data-target='#myModal'>SHOW</button>
+                    <div id='myModal' class='modal fade' role='dialog'>
+                      <div class='modal-dialog'>
+                        <div class='modal-content'>
+                          <div class='modal-header'>
+                            <button type='button' class='close' data-dismiss='modal'>&times;</button>
+                            <h4 class='modal-title'>SCREEN SHOT</h4>
+                          </div>
+                            <div id ='contentModal'>
+                              <div class='section-body contain-lg'>
+                                  <div class='card'>
+                                    <div class='card-body floating-label'>
+                                      <div class='row'>
+                                        <div class='col-sm-12'>
+                                          <div class='form-group'>
+                                          <cente>  <img src="assets/img/image_placeholder.jpg" id='tempScreenShot' style="width:200px;height:200px;" alt="..."></center>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class='row'>
+                                        <div class='col-sm-12'>
+                                          <div class='form-group'>
+                                            <textarea id='descSreenShot' class="form-control" rows="3"></textarea>
+                                            <label for='descSreenShot'>Deskripsi</textarea>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                              </div>
+                            </div>
+                          <div class='modal-footer'>
+                            <button type="button" id = 'buttonSubmitScreenShot' class="btn ink-reaction btn-raised btn-primary" data-dismiss='modal'>Simpan</button>
+                            <button type="button" id='buttonDismiss' class="btn ink-reaction btn-raised btn-danger" data-dismiss='modal'>batal</button>
+                          </div>
+                        </div>
+
+                      </div>
+            			</div>
+                  <script type="text/javascript">
+                    $(document).ready(function() {
+                        resizeableImage($('#gambarProduk'));
+                        setMenuEdit('baru');
+                        $("#pageTitle").text("PRODUK");
+                        textboxio.replaceAll('#deskripsiProduk', {
+                          paste: {
+                            style: 'clean'
+                          },
+                          css: {
+                            stylesheets: ['js/textboxio/example.css']
+                          }
+                        });
+                        Dropzone.autoDiscover = false;
+                        var myDropzone = new Dropzone("div.dropzone", {
+                            url: "upload.php",
+                            maxFileSize: 50,
+                            acceptedFiles: ".jpeg,.jpg,.png,.gif",
+                            addRemoveLinks: true,
+                            init: function() {
+                                this.on("complete", function(file) {
+                                    $(".dz-remove").html("<div><span class='fa fa-trash text-danger' style='font-size: 1.5em;cursor:pointer;' >REMOVE</span></div>");
+                                    // $(".dz-details").attr("onclick","deskripsiScreenShot('"+file.name+"')");
+                                    $(".dz-details").attr("style","cursor:pointer;");
+                                });
+                                this.on("thumbnail", function(file) {
+                                  console.log(file); // will send to console all available props
+                                  file.previewElement.addEventListener("click", function() {
+                                     deskripsiScreenShot(file.name);
+                                  });
+                              });
+                                this.on("removedfile", function(file) {
+                                     removeTemp(file.name);
+                              });
+                            }
+                        });
+                        $("div.dropzone").attr('class','dropzone dz-clickable');
+                        var existingFiles = <?php echo json_encode($jsonScreenshot) ?>;
+                        for (i = 0; i < existingFiles.length; i++) {
+                            myDropzone.emit("addedfile", existingFiles[i]);
+                            myDropzone.emit("thumbnail", existingFiles[i], existingFiles[i].imageLocation);
+                            myDropzone.emit("complete", existingFiles[i]);
+                        }
+
+                    });
+                  </script>
+                  <?php
+              }
+          }
          ?>
 
 
 
-  <!-- Popup Area -->
-
-        <div class="modal fade" id="formDeskripsiScreenShot" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-                            <i class="material-icons">clear</i>
-                        </button>
-                        <h4 class="modal-title">Screen Shot</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12 col-sm-12">
-                                <div class="form-group label-floating">
-                                  <div class="fileinput fileinput-new text-center" data-provides="fileinput">
-                                              <div class="fileinput-new thumbnail">
-                                                  <img  src="assets/img/image_placeholder.jpg" id='tempScreenShot' alt="...">
-                                              </div>
-                                              <div class="fileinput-preview fileinput-exists thumbnail"></div>
-                                          </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Start Form Input -->
-                        <div class="row">
-                            <div class="col-md-12 col-sm-12">
-                                <div class="form-group label-floating" id='divForDesc'>
-                                    <label class="control-label">Deskripsi Srenshot</label>
-                                    <textarea id='descSreenShot' class="form-control" style="height:100px;"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-simple" id='buttonSubmitScreenShot' data-dismiss="modal">Simpan</button>
-                        <button type="button" class="btn btn-danger btn-simple" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
 <?php
 
      break;
      }
 
 }
-
 
 ?>

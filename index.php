@@ -1,12 +1,11 @@
 <html>
 <head>
-	<?php include "head.php";
+	<?php include "headLogin.php";
 	session_start();
 	if ($_SESSION['status'] == "login") {
 	    header("location:pages.php");
 	}
 	?>
-    <script type="text/javascript" src="js/login.js"></script>
 </head>
 <body class="off-canvas-sidebar">
     <nav class="navbar navbar-primary navbar-transparent navbar-absolute">
@@ -42,25 +41,14 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-md-4 col-sm-6 col-md-offset-4 col-sm-offset-3">
-                            <!-- <form method="post" action="login.php" onsubmit="return validasi()"> -->
+                            <form method="post" action="login.php" onsubmit="return validasi()">
                                 <div class="card card-login card-hidden">
-                                    <div class="card-header text-center" data-background-color="rose">
-                                        <h4 class="card-title">Login</h4>
-                                        <div class="social-line">
-                                            <a href="#btn" class="btn btn-just-icon btn-simple">
-                                                <i class="fa fa-facebook-square"></i>
-                                            </a>
-                                            <a href="#pablo" class="btn btn-just-icon btn-simple">
-                                                <i class="fa fa-twitter"></i>
-                                            </a>
-                                            <a href="#eugen" class="btn btn-just-icon btn-simple">
-                                                <i class="fa fa-google-plus"></i>
-                                            </a>
-                                        </div>
+                                    <div class="card-header text-center" data-background-color="rose" style="background: #0aa89e;">
+                                        <h4 class="card-title">LOGIN PILAR</h4>
                                     </div>
-                                    <p class="category text-center">
+                                    <!-- <p class="category text-center">
                                         Or Be Classical
-                                    </p>
+                                    </p> -->
                                     <div class="card-content">
                                         <div class="input-group">
                                             <span class="input-group-addon">
@@ -91,10 +79,10 @@
                                         </div>
                                     </div>
                                     <div class="footer text-center">
-                                        <input type="submit" name="submit" id="submit" onclick="check_login();" value="Login" class="btn btn-rose">
+                                        <input type="submit" name="submit" id="submit" value="Login" class="btn btn-rose" style="background-color: #0aa89e;">
                                     </div>
                                 </div>
-                            <!-- </form> -->
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -113,7 +101,7 @@
         </div>
     </div>
 </body>
-<?php include "footer.php" ?>
+<?php include "footerLogin.php" ?>
 <script type="text/javascript">
     $().ready(function() {
         demo.checkFullPageBackgroundImage();

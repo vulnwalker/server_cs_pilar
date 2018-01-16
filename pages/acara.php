@@ -3,14 +3,13 @@ $tipe = @$_GET['tipe'];
 $cek = "";
 $err = "";
 $content = "";
-
+$tableName = "acara";
 if(!empty($tipe)){
   include "../include/config.php";
   foreach ($_POST as $key => $value) {
       $$key = $value;
   }
 }
-
 function getKordinat($alamat){
   $curl = curl_init();
   curl_setopt($curl,CURLOPT_URL, "https://maps.googleapis.com/maps/api/geocode/json?address=".urlencode($alamat)."&country:ID&key=AIzaSyCJNf9tt4XIkzl5mAaAA0aehyVrdaS6awU");
@@ -26,1133 +25,1166 @@ function getKordinat($alamat){
 }
 
 switch($tipe){
-
-    case 'saveAcara':{
-      if(empty($namaAcara)){
-          $err = "Isi Nama Acara";
-      }elseif(empty($tanggalAcara)){
-          $err = "Isi tanggal acara";
-      }elseif(empty($waktuAcara)){
-          $err = "Isi waktu acara";
-      }elseif(empty($lokasi)){
-          $err = "Isi lokasi";
+  case 'loadTablePendaftaran':{
+    // if(!empty($searchData)){
+    //   $getColom = sqlQuery("desc $tableName");
+    //   while ($dataColomn = sqlArray($getColom)) {
+    //     $arrKondisi[] = $dataColomn['Field']." like '%$searchData%' ";
+    //   }
+    //   $kondisi = join(" or ",$arrKondisi);
+    //   $kondisi = " where $kondisi ";
+    // }
+    // if(!empty($limitTable)){
+    //     if($pageKe == 1){
+    //        $queryLimit  = " limit 0,$limitTable";
+    //     }else{
+    //        $dataMulai = ($pageKe - 1)  * $limitTable;
+    //        $dataMulai +=1;
+    //        $queryLimit  = " limit $dataMulai,$limitTable";
+    //     }
+    //
+    // }
+    $getData = sqlQuery("select * from reservasi_acara where id_acara = '$idAcara' order by id asc $queryLimit");
+    $cek = "select * from reservasi_acara where id_acara = '$idAcara' order by id asc $queryLimit";
+    $nomor = 1;
+    $nomorCB = 0;
+    while($dataUser = sqlArray($getData)){
+      foreach ($dataUser as $key => $value) {
+          $$key = $value;
       }
 
-      if(empty($err)){
-        if($kordinatX == ''){
-            $kordinatLocation = getKordinat($lokasi);
-        }else{
-            $kordinatLocation = $kordinatX.",".$kordinatY;
+        $getNamaMember = sqlArray(sqlQuery("select * from users where id = '$id_user'"));
+        $nama = $getNamaMember['nama'];
+        $getDataAcara = sqlArray(sqlQuery("select * from acara where id = '$id_acara'"));
+        $totalTiket = $jumlah_orang  * $getDataAcara['harga_tiket'];
+        $totalKamar = $jumlah_kamar  * $getDataAcara['harga_kamar'] * $getDataAcara['lama_acara'];
+        $totalExtraBed = $extra_bed  * $getDataAcara['extra_bed'] * $getDataAcara['lama_acara'];
+        if(empty($status)){
+            $statusPendaftaran = "MENUNGGU PEMBAYARAN";
+        }elseif($status == '1'){
+            $statusPendaftaran = "<span style='cursor:pointer' onclick='konfirmasiPembayaran($id)'> KONFIRMASI PEMBAYARAN </span>";
+        }elseif($status == '2'){
+            $statusPendaftaran = "<span style='cursor:pointer' onclick='pembayaranDiterima($id)'> PEMBAYARAN DITERIMA </span>";
+        }elseif($status == '3'){
+            $statusPendaftaran = "<span stye='color:red'>DEALINE BAYAR</span>";
+        }elseif($status == '4'){
+            $statusPendaftaran = "<span stye='color:red'>DIBATALKAN</span>";
         }
-        $data = array(
-                'nama_acara' => $namaAcara,
-                'tanggal' => generateDate($tanggalAcara),
-                'jam' => $waktuAcara,
-                'lokasi' => $lokasi,
-                'deskripsi' =>  $deskripsiAcara,
-                'koordinat' => $kordinatLocation
-        );
-        $query = sqlInsert("acara",$data);
-        sqlQuery($query);
-        $cek = $query;
-      }
-
-
-      echo generateAPI($cek,$err,$content);
-    break;
+      $data .= "     <tr>
+                        <td class='text-center' width='20px;'  style='vertical-align:middle;'>$nomor</td>
+                        <td class='text-center' width='20px;'  style='vertical-align:middle;'>
+                          <div  class='checkbox checkbox-inline checkbox-styled'>
+                                  <label>
+                                  ".setCekBox($nomorCB,$id,'','acara')."
+                              <span></span>
+                            </label>
+                          </div>
+                        </td>
+                        <td style='vertical-align:middle;'>$nama</td>
+                        <td style='vertical-align:middle;'>".generateDate($tanggal_daftar)."</td>
+                        <td style='vertical-align:middle;'>$jumlah_orang Orang x ".numberFormat($getDataAcara['harga_tiket'])." = ".numberFormat($totalTiket)." </td>
+                        <td style='vertical-align:middle;'>$jumlah_kamar Kamar x ".$getDataAcara['lama_acara']." Hari x ".numberFormat($getDataAcara['harga_kamar'])." = ".numberFormat($totalKamar)."</td>
+                        <td style='vertical-align:middle;'>$extra_bed Bed x ".$getDataAcara['lama_acara']." Hari x ".numberFormat($getDataAcara['extra_bed'])." = ".numberFormat($totalExtraBed)."</td>
+                        <td style='vertical-align:middle;'>".numberFormat($totalTiket + $totalKamar + $totalExtraBed)."</td>
+                        <td style='vertical-align:middle;text-align:center;'>$statusPendaftaran</td>
+                             </tr>
+                  ";
+        $nomor += 1;
+        $nomorCB += 1;
     }
 
-    case 'saveEditAcara':{
-      if(empty($namaAcara)){
-          $err = "Isi Nama Acara";
-      }elseif(empty($tanggalAcara)){
-          $err = "Isi tanggal acara";
-      }elseif(empty($waktuAcara)){
-          $err = "Isi waktu acara";
-      }elseif(empty($lokasi)){
-          $err = "Isi lokasi";
-      }
+    $tabelBody = "
 
-      if(empty($err)){
-        if($kordinatX == ''){
-            $kordinatLocation = getKordinat($lokasi);
+      <thead>
+        <tr>
+          <th class='text-center' width='20px;'>No</th>
+          <th class='text-center' width='20px;'>
+           <div class='checkbox checkbox-inline checkbox-styled' >
+            <label>
+              <input type='checkbox' name='acara_toogle' id='acara_toogle' onclick=checkSemua($nomorCB,'acara_cb','acara_toogle','acara_jmlcek',this)>
+              <span></span>
+            </label>
+          </div>
+          </th>
+          <th class='col-lg-1'>Nama</th>
+          <th class='col-lg-1'>Tanggal Pendaftaran</th>
+          <th class='col-lg-3'>Jumlah Orang</th>
+          <th class='col-lg-3'>Kamar</th>
+          <th class='col-lg-3'>Extra Bed</th>
+          <th class='col-lg-1'>Total</th>
+          <th class='col-lg-1 text-center'>Status
+
+<button type='button' id='pemicuPopup' style='display:none;' data-toggle='modal' data-target='#myModal'>SHOW</button>
+</th>
+        </tr>
+      </thead>
+      <tbody>
+        $data
+      </tbody>
+
+
+    ";
+
+    $jumlahData = sqlNumRow(sqlQuery("select * from $tableName $kondisi"));
+    $jumlahPage =ceil($jumlahData / $limitTable) ;
+    for ($i=1; $i <= $jumlahPage ; $i++) {
+        if($pageKe == $i){
+          $dataPagging .= "<li class='active'>
+                              <a onclick=currentPage($i)>$i</a>
+                          </li>";
         }else{
-            $kordinatLocation = $kordinatX.",".$kordinatY;
+          $dataPagging .= "<li >
+                              <a onclick=currentPage($i)>$i</a>
+                          </li>";
         }
-        $data = array(
-                'nama_acara' => $namaAcara,
-                'tanggal' => generateDate($tanggalAcara),
-                'jam' => $waktuAcara,
-                'lokasi' => $lokasi,
-                'deskripsi' =>  $deskripsiAcara,
-                'koordinat' => $kordinatLocation
-        );
-        $query = sqlUpdate("acara",$data,"id='$idEdit'");
-        sqlQuery($query);
-        $cek = $query;
-      }
-      $content = array("location" => $kordinatLocation);
 
-      echo generateAPI($cek,$err,$content);
-    break;
     }
+    $tabelFooter = "
+      <ul class='pagination pagination-info'>
+        $dataPagging
+      </ul>
+    <input type='hidden' name='acara_jmlcek' id='acara_jmlcek' value='0'>";
+    $tabelFooter = "<input type='hidden' name='acara_jmlcek' id='acara_jmlcek' value='0'>";
+    $content = array("tabelPendaftaran" => $tabelBody, 'tabelFooter' => $tabelFooter);
+    echo generateAPI($cek,$err,$content);
+  break;
+  }
+  case 'konfirmasiPendaftaran':{
 
-    case 'deleteAcara':{
-      $query = "delete from acara where id = '$id'";
-      sqlQuery($query);
+    $getData = sqlArray(sqlQuery("select * from reservasi_acara where id = '".$acara_cb[0]."'"));
+    $arrayStatus = array(
+                            array('1','KONFIRMASI PEMBAYARAN'),
+                            array('2','PEMBAYARAN DITERIMA'),
+                            array('4','BATALKAN PENDAFTAR'),
+                          );
+    $contentModal = "
+    <div class='section-body contain-lg'>
+        <div class='card'>
+          <div class='card-body floating-label'>
+            <div class='row'>
+              <div class='col-sm-12'>
+                <div class='form-group'>
+                  ".cmbArray("statusPendaftaran",$getData['status'],$arrayStatus,"-- STATUS --","class='form-control'")."
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>";
+
+    $content = array('contentModal' => $contentModal,'id' => $acara_cb[0]);
+
+    echo generateAPI($cek,$err,$content);
+  break;
+  }
+  case 'saveAcara':{
+   if(empty($namaAcara)){
+       $err = "Isi Nama Acara";
+   }elseif(empty($tanggalAcara)){
+       $err = "Isi tanggal acara";
+   }elseif(empty(removeExtJam($jamAcara)) || removeExtJam($jamAcara) == ':'){
+       $err = "Isi jam acara";
+   }elseif(empty($kuotaAcara)){
+       $err = "Isi kuota acara";
+   }elseif(empty($lamaAcara)){
+       $err = "Isi lama acara";
+   }elseif(empty(removeExtHarga($hargaTiket))){
+       $err = "Isi harga tiket";
+   }elseif(empty($deadlinePembayaran)){
+       $err = "Isi lama deadline pembayaran";
+   }elseif(empty($lokasiAcara)){
+       $err = "Isi deskripsi acara";
+   }elseif(empty($deskripsiAcara)){
+       $err = "Isi deskripsi acara";
+   }
+   if(empty($err)){
+     $kordinatLocation = getKordinat($lokasiAcara);
+     $data = array(
+               'nama_acara' => $namaAcara,
+               'tanggal' => generateDate($tanggalAcara),
+               'jam' => removeExtJam($jamAcara),
+               'lokasi' =>  $lokasiAcara,
+               'deskripsi' =>  $deskripsiAcara,
+               'koordinat' => $kordinatLocation,
+               'kuota' => $kuotaAcara,
+               'harga_tiket' => removeExtHarga($hargaTiket),
+               'harga_kamar' => removeExtHarga($hargaKamar),
+               'extra_bed' => removeExtHarga($hargaExtraBed),
+               'lama_acara' => $lamaAcara,
+               'reversed' => 0,
+               'deadline_pembayaran' => $deadlinePembayaran,
+     );
+     $query = sqlInsert("acara",$data);
+     sqlQuery($query);
+     $cek = $query;
+   }
+   echo generateAPI($cek,$err,$content);
+ break;
+ }
+
+ case 'saveEditAcara':{
+   if(empty($namaAcara)){
+       $err = "Isi Nama Acara";
+   }elseif(empty($tanggalAcara)){
+       $err = "Isi tanggal acara";
+   }elseif(empty(removeExtJam($jamAcara)) || removeExtJam($jamAcara) == ':'){
+       $err = "Isi jam acara";
+   }elseif(empty($kuotaAcara)){
+       $err = "Isi kuota acara";
+   }elseif(empty($lamaAcara)){
+       $err = "Isi lama acara";
+   }elseif(empty(removeExtHarga($hargaTiket))){
+       $err = "Isi harga tiket";
+   }elseif(empty($deadlinePembayaran)){
+       $err = "Isi lama deadline pembayaran";
+   }elseif(empty($lokasiAcara)){
+       $err = "Isi deskripsi acara";
+   }elseif(empty($deskripsiAcara)){
+       $err = "Isi deskripsi acara";
+   }
+   if(empty($err)){
+     $kordinatLocation = getKordinat($lokasiAcara);
+     $data = array(
+               'nama_acara' => $namaAcara,
+               'tanggal' => generateDate($tanggalAcara),
+               'jam' => removeExtJam($jamAcara),
+               'lokasi' =>  $lokasiAcara,
+               'deskripsi' =>  $deskripsiAcara,
+               'koordinat' => $kordinatLocation,
+               'kuota' => $kuotaAcara,
+               'harga_tiket' => removeExtHarga($hargaTiket),
+               'harga_kamar' => removeExtHarga($hargaKamar),
+               'extra_bed' => removeExtHarga($hargaExtraBed),
+               'lama_acara' => $lamaAcara,
+               'reversed' => 0,
+               'deadline_pembayaran' => $deadlinePembayaran,
+     );
+     $query = sqlUpdate("acara",$data,"id = '$idEdit'");
+     sqlQuery($query);
+     $cek = $query;
+     }
+     echo generateAPI($cek,$err,$content);
+   break;
+   }
+
+   case 'savePendaftaran':{
+     if(empty($statusPendaftaran)){
+         $err = "Pilih status pendaftaran";
+     }
+     if(empty($err)){
+       $getDataPendaftaran = sqlArray(sqlQuery("select * from reservasi_acara where id = '$idEdit'"));
+       $getDataAcara = sqlArray(sqlQuery("select * from acara where id ='".$getDataPendaftaran['id_acara']."'"));
+       $getEmailTujuan = sqlArray(sqlQuery("select * from users where id = '".$getDataPendaftaran['id_user']."'"));
+       $namaAcara = $getDataAcara['nama_acara'];
+       $tanggalAcara = generateDate($getDataAcara['tanggal']);
+
+       if($statusPendaftaran == '2'){
+         if(!empty($getDataPendaftaran['jumlah_kamar'])){
+            $detailInvoice.= "
+            <tr>
+              <td style='width: 43.0463%;'>Kamar</td>
+              <td style='width: 12.9184%; text-align:right;'>".$getDataPendaftaran['jumlah_kamar']."</td>
+              <td style='width: 25.0000%; text-align:right;'>".numberFormat($getDataAcara['harga_kamar'])."</td>
+              <td style='width: 18.9897%; text-align:right;'>".numberFormat($getDataPendaftaran['jumlah_kamar'] * $getDataAcara['harga_kamar'] * $getDataAcara['lama_acara'])."</td>
+            </tr>";
+            $totalKamar = $getDataPendaftaran['jumlah_kamar'] * $getDataAcara['harga_kamar'] * $getDataAcara['lama_acara'];
+         }
+         if(!empty($getDataPendaftaran['extra_bed'])){
+            $detailInvoice.= "
+            <tr>
+              <td style='width: 43.0463%;'>Extra Bed</td>
+              <td style='width: 12.9184%; text-align:right;'>".$getDataPendaftaran['extra_bed']."</td>
+              <td style='width: 25.0000%; text-align:right;'>".numberFormat($getDataAcara['extra_bed'])."</td>
+              <td style='width: 18.9897%; text-align:right;'>".numberFormat($getDataPendaftaran['extra_bed'] * $getDataAcara['extra_bed'] * $getDataAcara['lama_acara'])."</td>
+            </tr>";
+            $totalExtraBed = $getDataPendaftaran['extra_bed'] * $getDataAcara['extra_bed'] * $getDataAcara['lama_acara'];
+
+         }
+          $isiEmail = "<table border='0' cellpadding='0' cellspacing='0' width='600'>
+          	<tbody>
+          		<tr>
+          			<td align='center' valign='top'>
+
+          				<table border='0' cellpadding='0' cellspacing='0' width='600'>
+          					<tbody>
+          						<tr>
+          							<td valign='top'>
+
+          								<table border='0' cellpadding='20' cellspacing='0' width='100%'>
+          									<tbody>
+          										<tr>
+          											<td valign='top'>
+
+          												<h2>$namaAcara ($tanggalAcara)</h2>
+
+          												<p>
+          													<br>
+          												</p>
+
+          												<p>Pembayaran anda telah kami terima, dengan rincian sebagai berikut :</p>
+
+          												<table border='1' cellpadding='6' cellspacing='0'>
+                                    <thead>
+                                      <th>Item</th>
+                                      <th>Jumlah</th>
+                                      <th>Harga</th>
+                                      <th>Total</th>
+                                    </thead>
+          													<tbody>
+          														<tr>
+          															<td style='width: 43.0463%;'>Jumlah Perserta</td>
+          															<td style='width: 12.9184%; text-align:right;'>".$getDataPendaftaran['jumlah_orang']."</td>
+          															<td style='width: 25.0000%; text-align:right;'>".numberFormat($getDataAcara['harga_tiket'])."</td>
+          															<td style='width: 18.9897%; text-align:right;'>".numberFormat($getDataPendaftaran['jumlah_orang'] * $getDataAcara['harga_tiket'])."</td>
+          														</tr>
+                                      $detailInvoice
+
+                                    </tbody>
+          													<tfoot>
+          														<tr>
+          															<th colspan='3' scope='row' style='width: 55.9647%;'>Total:
+          															</th>
+          															<td style='width: 18.9897%; text-align:right;'>".numberFormat(($getDataPendaftaran['jumlah_orang'] * $getDataAcara['harga_tiket']) + $totalKamar + $totalExtraBed)."</td>
+          														</tr>
+          													</tfoot>
+          												</table>
+
+          												<table border='0' cellpadding='0' cellspacing='0'>
+          													<tbody>
+          														<tr>
+          															<td valign='top' width='50%'>
+          																<h2>Detail acara : <a href='http://pilar.web.id/?page=viewAcara&id=".$getDataAcara['id']."'>http://pilar.web.id/?page=viewAcara&id=".$getDataAcara['id']."</a></h2><address><br></address></td>
+          														</tr>
+          													</tbody>
+          												</table>
+          											</td>
+          										</tr>
+          									</tbody>
+          								</table>
+          							</td>
+          						</tr>
+          					</tbody>
+          				</table>
+          			</td>
+          		</tr>
+          		<tr>
+          			<td align='center' valign='top'>
+
+          				<table border='0' cellpadding='10' cellspacing='0' width='600'>
+          					<tbody>
+          						<tr>
+          							<td valign='top'>
+
+          								<table border='0' cellpadding='10' cellspacing='0' width='100%'>
+          									<tbody>
+          										<tr>
+          											<td colspan='2' valign='middle'>
+
+          												<p>office@pilar.web.id</p>
+          											</td>
+          										</tr>
+          									</tbody>
+          								</table>
+          							</td>
+          						</tr>
+          					</tbody>
+          				</table>
+          			</td>
+          		</tr>
+          	</tbody>
+          </table>
+
+          <p>
+          	<br>
+          </p>
+";
+        if($getDataPendaftaran['status'] !='2'){
+          sendMail("Event Pilar <event@pilar.web.id>",$getEmailTujuan['email'],"Pembayaran diterima",$isiEmail);
+          sqlQuery("update acara set reversed = reversed + ".$getDataPendaftaran['jumlah_orang']." where id = '".$getDataAcara['id']."'");
+        }
+      }
+       $data = array(
+                 'status' => $statusPendaftaran,
+       );
+       $query = sqlUpdate("reservasi_acara",$data,"id = '$idEdit'");
+       sqlQuery($query);
+       $cek = $query;
+       }
+       echo generateAPI($cek,$err,$content);
+   break;
+   }
+
+    case 'Hapus':{
+      for ($i=0; $i < sizeof($acara_cb) ; $i++) {
+        $query = "delete from $tableName where id = '".$acara_cb[$i]."'";
+        sqlQuery($query);
+      }
+
       $cek = $query;
       echo generateAPI($cek,$err,$content);
     break;
     }
-    case 'saveKonfirmasi':{
-      $dataUpdate = array(
-            'status' => $statusConfirmasi,
-            'jumlah_orang' => $jumlahOrang,
-      );
-      $query = sqlUpdate("reservasi_acara",$dataUpdate,"id = '$id'");
-      sqlQuery($query);
-      $cek = $query;
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-    case 'confirmAcara':{
-      $getData = sqlArray(sqlQuery("select * from reservasi_acara where id = '$id'"));
-      $arrayStatus = array(
-                        array('1','TERKONFIRMASI'),
-                        array('2','TOLAK'),
-                    );
-      if(empty($getData['status'])){
-        $status = "1";
-      }else{
-        $status = $getData['status'];
-      }
-      $comboStatus = cmbArray("statusConfirmasi",$status,$arrayStatus,"-- STATUS --","  data-style='btn btn-primary btn-round' title='Single Select' data-size='7'");
-      $content = array(
-                        'jumlahOrang' => $getData['jumlah_orang'],
-                        'comboStatus' => $comboStatus,
-                      );
 
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
+    case 'Edit':{
 
-    case 'generateLocation':{
-      $explodeKordinat = explode(',',$koordinat);
-      $kordinatX = str_replace("(","",$explodeKordinat[0]);
-      $kordinatY = str_replace(')','',$explodeKordinat[1]);
-      $kordinatY = str_replace(' ','',$kordinatY);
-      $curl = curl_init();
-			curl_setopt($curl,CURLOPT_URL, "https://maps.googleapis.com/maps/api/geocode/json?latlng=".$kordinatX.",".$kordinatY."&key=AIzaSyCJNf9tt4XIkzl5mAaAA0aehyVrdaS6awU");
-			curl_setopt($curl,CURLOPT_POST, sizeof($arrayData));
-			curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36");
-			curl_setopt($curl,CURLOPT_POSTFIELDS, $arrayData);
-			curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-      $result = json_decode(curl_exec($curl));
-      $resultJSON = $result->results;
-      $lokasi = $resultJSON[0]->formatted_address;
-
-
-
-
-
-      $content = array('lat' => str_replace("(","",$explodeKordinat[0]),'lang' => str_replace(')','',$explodeKordinat[1]), 'lokasi' => $lokasi );
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-
-    case 'updateAcara':{
-      $getData = sqlArray(sqlQuery("select * from acara where id = '$id'"));
-      $explodeLocation = explode(',',$getData['koordinat']);
-      $lat = $explodeLocation[0];
-      $lng = $explodeLocation[1];
-      $content = array("namaAcara" => $getData['nama_acara'],
-      "tanggalAcara" => generateDate($getData['tanggal']),
-      "waktuAcara" => $getData['jam'],
-       "kapasitasAcara" => $getData['kapasitas'],
-       "lokasi" => $getData['lokasi'],
-       "deskripsiAcara" => $getData['deskripsi'],
-       "kordinatLocation" => "(".$getData['koordinat'].")",
-       "lat" => $lat,
-       "lng" => $lng,
-    );
+      $content = array("idEdit" => $acara_cb[0]);
       echo generateAPI($cek,$err,$content);
     break;
     }
 
     case 'loadTable':{
-        $getData = sqlQuery("select * from acara");
-        while($dataAcara = sqlArray($getData)){
-          foreach ($dataAcara as $key => $value) {
-              $$key = $value;
+      if(!empty($searchData)){
+        $getColom = sqlQuery("desc $tableName");
+        while ($dataColomn = sqlArray($getColom)) {
+          
+        }
+        $arrKondisi[] = "nama_acara like '%$searchData%' ";
+        $arrKondisi[] = "lokasi like '%$searchData%' ";
+        $arrKondisi[] = "tanggal like '%$searchData%' ";
+        $arrKondisi[] = "jam like '%$searchData%' ";
+        $arrKondisi[] = "lama_acara like '%$searchData%' ";
+        $arrKondisi[] = "reversed like '%$searchData%' ";
+        $arrKondisi[] = "kuota like '%$searchData%' ";
+        $kondisi = join(" or ",$arrKondisi);
+        $kondisi = " where $kondisi ";
+      }
+      if(!empty($limitTable)){
+          if($pageKe == 1){
+             $queryLimit  = " limit 0,$limitTable";
+          }else{
+             $dataMulai = ($pageKe - 1)  * $limitTable;
+             $dataMulai +=1;
+             $queryLimit  = " limit $dataMulai,$limitTable";
           }
 
-          $data .= "     <tr>
-                            <td>$nama_acara</td>
-                            <td>$lokasi</td>
-                            <td>".generateDate($tanggal)." $jam</td>
-                            <td>$jumlahRegister</td>
-                            <td class='text-right'>
-                                <a onclick=listKonfirmasi($id) class='btn btn-simple btn-warning btn-icon edit'><i class='material-icons'>confirmation_number</i></a>
-                                <a onclick=updateAcara($id) class='btn btn-simple btn-warning btn-icon edit'><i class='material-icons'>edit</i></a>
-                                <a onclick=deleteAcara($id) class='btn btn-simple btn-danger btn-icon remove'><i class='material-icons'>close</i></a>
-                            </td>
-                        </tr>
-                      ";
-        }
-
-        $tabel = "<table id='datatables' class='table table-striped table-no-bordered table-hover' cellspacing='0' width='100%' style='width:100%'>
-            <thead>
-                <tr>
-                    <th>Nama Acara</th>
-                    <th>Lokasi</th>
-                    <th>Tanggal</th>
-                    <th>Pendaftar</th>
-                    <th class='disabled-sorting text-right'>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-              $data
-            </tbody>
-        </table>";
-        $content = array("tabelAcara" => $tabel);
-
-
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-    case 'loadKonfirmasi':{
-      $getData = sqlQuery("select * from reservasi_acara where id_acara = '$idAcara'");
-      while($dataAcara = sqlArray($getData)){
-        foreach ($dataAcara as $key => $value) {
+      }
+      $getData = sqlQuery("select * from $tableName $kondisi order by id desc $queryLimit");
+      $cek = "select * from $tableName $kondisi $queryLimit";
+      $nomor = 1;
+      $nomorCB = 0;
+      while($dataUser = sqlArray($getData)){
+        foreach ($dataUser as $key => $value) {
             $$key = $value;
         }
-        if(empty($status)){
-            $status = "PENDING";
-        }elseif($status == '1'){
-            $status = "TERKONFIMASI";
+        if(str_replace('-','',generateDate($tanggal)) < str_replace("-","",date("Y-m-d"))){
+            $status = "SELESAI";
         }else{
-            $status = "DITOLAK";
+            $status = "BELUM";
         }
 
-        $data .= "<tr>
-                          <td>$nama_peserta</td>
-                          <td>$email</td>
-                          <td>$instansi</td>
-                          <td>$jumlah_orang</td>
-                          <td>$status</td>
-                          <td class='text-right'>
-                              <a onclick=confirmAcara($id) class='btn btn-simple btn-warning btn-icon edit'><i class='material-icons'>edit</i></a>
-                          </td>
-                      </tr>
+        $data .= "     <tr>
+                          <td class='text-center' width='20px;'  style='vertical-align:middle;'>$nomor</td>
+                          <td class='text-center' width='20px;'  style='vertical-align:middle;'>
+                            <div  class='checkbox checkbox-inline checkbox-styled'>
+                                    <label>
+                                    ".setCekBox($nomorCB,$id,'','acara')."
+                                <span></span>
+															</label>
+														</div>
+                            </td>
+                          <td style='vertical-align:middle;'>$nama_acara</td>
+                          <td style='vertical-align:middle;'>$lokasi</td>
+                          <td class='text-center' style='vertical-align:middle;'>".generateDate($tanggal)." $jam</td>
+                          <td class='text-center' style='vertical-align:middle;'>$lama_acara Hari</td>
+                          <td class='text-center' style='vertical-align:middle;'>$reversed</td>
+                          <td class='text-center' style='vertical-align:middle;'>$kuota</td>
+                          <td class='text-center' style='vertical-align:middle;'>$status</td>
+                          <td class='text-center' style='vertical-align:middle;'><div class='demo-icon-hover' style='cursor:pointer;' onclick=pendaftaran($id);>
+        											<i class='md md-launch'></i>
+        										</div></td>
+                               </tr>
                     ";
+          $nomor += 1;
+          $nomorCB += 1;
       }
 
-      $tabel = "<table id='datatables' class='table table-striped table-no-bordered table-hover' cellspacing='0' width='100%' style='width:100%'>
-          <thead>
-              <tr>
-                  <th>Nama</th>
-                  <th>Email</th>
-                  <th>Instansi</th>
-                  <th>Jumlah Orang</th>
-                  <th>Status</th>
-                  <th class='disabled-sorting text-right'>Actions</th>
-              </tr>
-          </thead>
-          <tbody>
-            $data
-          </tbody>
-      </table>";
-      $content = array("tabelAcara" => $tabel);
+      $tabelBody = "
 
+        <thead>
+          <tr>
+            <th class='text-center' width='20px;'>No</th>
+            <th class='text-center' width='20px;'>
+             <div class='checkbox checkbox-inline checkbox-styled' >
+              <label>
+                <input type='checkbox' name='acara_toogle' id='acara_toogle' onclick=checkSemua($nomorCB,'acara_cb','acara_toogle','acara_jmlcek',this)>
+              <span></span>
+            </label>
+          </div>
+            </th>
+            <th class='col-lg-3'>Nama Acara</th>
+            <th class='col-lg-3'>Lokasi</th>
+            <th class='col-lg-2 text-center'>Tanggal</th>
+            <th class='col-lg-1 text-center'>Lama Acara</th>
+            <th class='col-lg-1 text-center'>Pendaftar</th>
+            <th class='col-lg-1 text-center'>Kuota</th>
+            <th class='col-lg-1 text-center'>Status</th>
+            <th class='col-lg-1 text-center'>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          $data
+        </tbody>
 
+      ";
+
+      $jumlahData = sqlNumRow(sqlQuery("select * from $tableName $kondisi"));
+      $jumlahPage =ceil($jumlahData / $limitTable) ;
+      for ($i=1; $i <= $jumlahPage ; $i++) {
+          if($pageKe == $i){
+            $dataPagging .= "<li class='active'>
+                                <a onclick=currentPage($i)>$i</a>
+                            </li>";
+          }else{
+            $dataPagging .= "<li >
+                                <a onclick=currentPage($i)>$i</a>
+                            </li>";
+          }
+
+      }
+      $tabelFooter = "
+        <ul class='pagination pagination-info'>
+          $dataPagging
+        </ul>
+      <input type='hidden' name='acara_jmlcek' id='acara_jmlcek' value='0'>";
+      $content = array("tabelBody" => $tabelBody, 'tabelFooter' => $tabelFooter);
       echo generateAPI($cek,$err,$content);
     break;
     }
 
+    case 'setMenuEdit':{
+      if($statusMenu == 'index'){
+        $filterinTable = "
+          <ul class='header-nav header-nav-options'>
+            <li class='dropdown'>
+              <div class='row'>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <form class='form' role='form'>
+                    <div class='form-group floating-label' style='padding-top: 0px;'>
+                      <div class='input-group'>
+                        <span class='input-group-addon'></span>
+                        <div class='input-group-content'>
+                          <input type='text' class='form-control' id='searchData' name='searchData' onkeyup=limitData(); placeholder='Search'>
+                          <!-- <label for='searchData'>Search</label> -->
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                <form class='form' role='form'>
+                    <div class='form-group' style='padding-top: 0px;'>
+                      <div class='input-group'>
+                        <div class='input-group-content'>
+                          <input type='text' onkeypress='return event.charCode >= 48 && event.charCode <= 57' class='form-control ' id='jumlahDataPerhalaman' name='jumlahDataPerhalaman' value = '50' onkeyup=limitData(); placeholder='Data / Halaman'>
+                          <label for='username10'>Data</label>
+                        </div>
+                      </div>
+                    </div>
+                </form>
+                </div>
+              </div>
+            </li>
+          </ul>";
+        $header = "
 
+          <ul class='header-nav header-nav-options'>
+            <li class='dropdown'>
+              <div class='row'>
+
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <button type='button' class='btn ink-reaction btn-flat btn-primary' onclick=Baru();>
+                      <i class='fa fa-plus'></i>
+                      baru
+                  </button>
+                </div>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <button type='button' class='btn ink-reaction btn-flat btn-primary' onclick=Edit();>
+                    <i class='fa fa-magic'></i>
+                    edit
+                  </button>
+                </div>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <button type='button' class='btn ink-reaction btn-flat btn-primary' onclick=Hapus();>
+                    <i class='fa fa-close'></i>
+                    hapus
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ul>
+          ";
+      }elseif($statusMenu == 'pendaftaran'){
+        // $filterinTable = "
+        //   <ul class='header-nav header-nav-options'>
+        //     <li class='dropdown'>
+        //       <div class='row'>
+        //         <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+        //           <form class='form' role='form'>
+        //             <div class='form-group floating-label' style='padding-top: 0px;'>
+        //               <div class='input-group'>
+        //                 <span class='input-group-addon'></span>
+        //                 <div class='input-group-content'>
+        //                   <input type='text' class='form-control' id='searchData' name='searchData' onkeyup=limitData();>
+        //                   <label for='searchData'>Search</label>
+        //                 </div>
+        //               </div>
+        //             </div>
+        //           </form>
+        //         </div>
+        //         <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+        //         <form class='form' role='form'>
+        //             <div class='form-group floating-label' style='padding-top: 0px;'>
+        //               <div class='input-group'>
+        //                 <div class='input-group-content'>
+        //                   <input type='text' onkeypress='return event.charCode >= 48 && event.charCode <= 57' class='form-control ' id='jumlahDataPerhalaman' name='jumlahDataPerhalaman' value = '50' onkeyup=limitData();>
+        //                   <label for='username10'>Data / Halaman</label>
+        //                 </div>
+        //               </div>
+        //             </div>
+        //         </form>
+        //         </div>
+        //       </div>
+        //     </li>
+        //   </ul>";
+        $header = "
+
+          <ul class='header-nav header-nav-options'>
+            <li class='dropdown'>
+              <div class='row'>
+
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <button type='button' class='btn ink-reaction btn-flat btn-primary' onclick=konfirmasiPendaftaran();>
+                      <i class='md md-link'></i>
+                      Action
+                  </button>
+                </div>
+
+              </div>
+            </li>
+          </ul>
+          ";
+      }else{
+        $header = "
+          <ul class='header-nav header-nav-options'>
+
+          </ul>
+          ";
+          $filterinTable = "";
+      }
+
+      $content = array("header" => $header, 'filterinTable' => $filterinTable);
+      echo generateAPI($cek,$err,$content);
+    break;
+    }
+    case 'removeTemp':{
+      unlink('temp/'.$_SESSION['username']."/".$id);
+      echo generateAPI($cek,$err,$content);
+    break;
+    }
 
      default:{
         ?>
         <script>
         var url = "http://"+window.location.hostname+"/api.php?page=acara";
-
         </script>
-        
 
+        <style>
+        .form .form-group .input-group-addon:first-child{
+          min-width: 0px;
+        }
+        #jumlahDataPerhalaman{
+          width: 60px;
+        }
+        .form-control:focus{
+          border-bottom-color: #0aa89e!important;
+        }
+        table{
+          border-collapse:collapse;
+          width:100%;
+        }
+        .blue thead{
+          background:#1ABC9C;
+        }
+        thead{
+          color:white;
+        }
+        th,td{
+          padding:5px 0;
+        }
+        tbody tr:nth-child(even){
+          background:#ECF0F1;
+        }
+        tbody tr:hover{
+        background:#BDC3C7;
+        }
+        .fixed {
+            top: 65px;
+            position: fixed;
+            width: auto;
+            display: none;
+            border: none;
+            background: #ffffff;
+        }
+        .scrollMore{
+          margin-top:600px;
+        }
+        .up{
+          cursor:pointer;
+        }
+        </style>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script src="js/acara.js"></script>
+        <script>
+        (function($) {
+          $.fn.fixMe = function() {
+            return this.each(function() {
+              var $this = $(this),
+                $t_fixed;
+              function init() {
+                // $this.wrap('<div class="container" />');
+                $t_fixed = $this.clone();
+                $t_fixed
+                  .find("tbody")
+                  .remove()
+                  .end()
+                  .addClass("fixed")
+                  .insertBefore($this);
+                resizeFixed();
+              }
+              function resizeFixed() {
+                $t_fixed.find("th").each(function(index) {
+                  $(this).css(
+                    "width",
+                    $this
+                      .find("th")
+                      .eq(index)
+                      .outerWidth() + "px"
+                  );
+                });
+              }
+              function scrollFixed() {
+                var offset = $(this).scrollTop(),
+                  tableOffsetTop = $this.offset().top,
+                  tableOffsetBottom =
+                    tableOffsetTop + $this.height() - $this.find("thead").height();
+                if (offset < tableOffsetTop || offset > tableOffsetBottom)
+                  $t_fixed.hide();
+                else if (
+                  offset >= tableOffsetTop &&
+                  offset <= tableOffsetBottom &&
+                  $t_fixed.is(":hidden")
+                )
+                  $t_fixed.show();
+              }
+              $(window).resize(resizeFixed);
+              $(window).scroll(scrollFixed);
+              init();
+            });
+          };
+        })(jQuery);
+        </script>
+
+
 
         <?php
-            if(!isset($_GET['action'])){
+          if(!isset($_GET['action'])){
+            ?>
+            <script type="text/javascript">
+              $(document).ready(function() {
+                  loadTable(1,50);
+                  setMenuEdit('index');
+                  $("#pageTitle").text("ACARA");
+              });
+            </script>
+            <div id="content">
+      				<section>
+      					<div class="section-body contain-lg">
+      						<div class="row">
+      							<div class="col-lg-12">
+      								<div class="card">
+      									<div class="card-body no-padding">
+      										<div class="table-responsive no-margin">
+                            <form id='formAcara' name="formAcara" action="#">
+                              <table class="table table-striped no-margin table-hover blue" id='tabelBody'>
+                                <thead>
+                                  <tr>
+                                    <th>Colonne 1</th>
+                                    <th>Colonne 2</th>
+                                    <th>Colonne 3</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td>Non</td>
+                                    <td>Mais</td>
+                                    <td>Allo !</td>
+                                  </tr>
+
+                                </tbody>
+                              </table>
+        											<div class="col-lg-12" style="text-align: right;" id='tabelFooter'>
+        												<ul class="pagination pagination-info">
+        		                        <li class="active">
+        		                            <a href="javascript:void(0);"> prev</a>
+        		                        </li>
+        		                        <li>
+        		                            <a href="javascript:void(0);">1</a>
+        		                        </li>
+        		                        <li>
+        		                            <a href="javascript:void(0);">2</a>
+        		                        </li>
+        		                        <li >
+        		                            <a href="javascript:void(0);">3</a>
+        		                        </li>
+        		                        <li>
+        		                            <a href="javascript:void(0);">4</a>
+        		                        </li>
+        		                        <li>
+        		                            <a href="javascript:void(0);">5</a>
+        		                        </li>
+        		                        <li>
+        		                            <a href="javascript:void(0);">next </a>
+        		                        </li>
+        		                    </ul>
+        											</div>
+                            </form>
+      										</div>
+      									</div>
+      								</div>
+      							</div>
+      						</div>
+      					</div>
+      				</section>
+      			</div>
+            <?php
+          }else{
+              if($_GET['action'] == 'baru'){
                 ?>
-                <div class="content" style="margin: 0; min-height: unset; padding-top: 0; padding-bottom: 0;">
-                  <div class="container-fluid">
-                    <div class="row">
-                      <div class="col-md-4">
-                        <h4>ACARA</h4>
-                        <button class="btn btn-primary">
-                          BARU
-                        </button>
-                        <button class="btn btn-warning">
-                          EDIT
-                        </button>
-                        <button class="btn btn-rose">
-                          HAPUS
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="content" style="margin: 0; min-height: unset; padding-top: 0; padding-bottom: 0;">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <!-- Start Modal -->
-
-                            <div class="col-md-12">
-                              <div class="card">
-                                        <!-- <div class="card-header">
-                                            <h4 class="card-title">Acara
-                                            </h4>
-                                        </div> -->
-                                        <div class="card-content">
-                                            <!-- <ul class="nav nav-pills nav-pills-primary">
-                                              <li class="active" >
-                                                  <a href="pages.php?page=acara" >Acara</a>
-                                              </li>
-                                              <li >
-                                                  <a href="pages.php?page=acara&action=new" >Baru</a>
-                                              </li>
-                                              <li>
-                                                  <a href="pages.php?page=acara&action=confirm">Konfirmasi</a>
-                                              </li>
-                                            </ul> -->
-                                            <div class="tab-content">
-                                                <div class="tab-pane active" id="dataAcara">
-                                                  <div class="col-md-12" id='tableAcara'>
-                                                      <div class="card">
-                                                          <!-- <div class="card-header card-header-icon" data-background-color="purple">
-                                                              <i class="material-icons">assignment</i>
-                                                          </div> -->
-                                                          <div class="card-content">
-                                                              <!-- <h4 class="card-title">Data acara</h4> -->
-                                                              <div class="toolbar">
-                                                                  <!--        Here you can write extra buttons/actions for the toolbar              -->
-                                                              </div>
-                                                              <div class="material-datatables">
-                                                                  <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
-                                                                      <thead>
-                                                                          <tr>
-                                                                              <th>Judul</th>
-                                                                              <th>Posisi</th>
-                                                                              <th>Tanggal</th>
-                                                                              <th>Penulis</th>
-                                                                              <th>Status</th>
-                                                                              <th class="disabled-sorting text-right">Actions</th>
-                                                                          </tr>
-                                                                      </thead>
-                                                                      <tbody>
-                                                                      </tbody>
-                                                                  </table>
-                                                              </div>
-                                                          </div>
-                                                      </div>
-                                                  </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                </div>
+                <script type="text/javascript" src="js/textboxio/textboxio.js"></script>
+                <div id="content">
+          				<section>
+          					<div class="section-body contain-lg">
+                      <form class="form" id='formAcara'>
+      									<div class="card">
+      										<div class="card-body floating-label">
+      											<div class="row">
+      												<div class="col-sm-12">
+      													<div class="form-group">
+      														<input type="text" class="form-control" id="namaAcara" name='namaAcara'>
+      														<label for="namaAcara">Nama Acara</label>
+      													</div>
+      												</div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <?php
-            }else{
-                if($_GET['action']=='new'){
-                  ?>
-                  <style>
-                      #map {
-                      height: 100%;
-                      }
-
-                      .controls {
-                      margin-top: 10px;
-                      border: 1px solid transparent;
-                      border-radius: 2px 0 0 2px;
-                      box-sizing: border-box;
-                      -moz-box-sizing: border-box;
-                      height: 32px;
-                      outline: none;
-                      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-                      }
-
-                      #pac-input {
-                      background-color: #fff;
-                      font-family: Roboto;
-                      font-size: 15px;
-                      font-weight: 300;
-                      margin-left: 12px;
-                      padding: 0 11px 0 13px;
-                      text-overflow: ellipsis;
-                      width: 300px;
-                      }
-
-                      #pac-input:focus {
-                      border-color: #4d90fe;
-                      }
-
-                      .pac-container {
-                      font-family: Roboto;
-                      }
-
-                      #type-selector {
-                      color: #fff;
-                      background-color: #4d90fe;
-                      padding: 5px 11px 0px 11px;
-                      }
-
-                      #type-selector label {
-                      font-family: Roboto;
-                      font-size: 13px;
-                      font-weight: 300;
-                      }
-                  </style>
-                  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJNf9tt4XIkzl5mAaAA0aehyVrdaS6awU&libraries=places&callback=initMap"
-                  async ></script>
-                          <script>
-                          var markers = [];
-                          var map;
-                          function initMap() {
-                          var origin = {lat: -6.9066217615554235, lng: 107.6347303390503};
-
-                           map = new google.maps.Map(document.getElementById('map'), {
-                            zoom: 18,
-                            center: origin
-                          });
-                          var clickHandler = new ClickEventHandler(map, origin);
-
-                          var input = /** @type {!HTMLInputElement} */(
-                            document.getElementById('pac-input'));
-
-                          var types = document.getElementById('type-selector');
-                          map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-                          map.controls[google.maps.ControlPosition.TOP_LEFT].push(types);
-
-                          var autocomplete = new google.maps.places.Autocomplete(input);
-                          autocomplete.bindTo('bounds', map);
-
-                          var infowindow = new google.maps.InfoWindow();
-                          var marker = new google.maps.Marker({
-                          map: map,
-                          anchorPoint: new google.maps.Point(0, -29)
-                          });
-                          google.maps.event.addListener(map, "click", function (e) {
-                            //lat and lng is available in e object
-                            var latLng = e.latLng;
-
-                            getAlamat(latLng);
-                            deleteMarkers();
-                            addMarker(latLng);
-                          });
-
-                          autocomplete.addListener('place_changed', function() {
-                          infowindow.close();
-                          marker.setVisible(false);
-                          var place = autocomplete.getPlace();
-                          if (!place.geometry) {
-                            // User entered the name of a Place that was not suggested and
-                            // pressed the Enter key, or the Place Details request failed.
-                            window.alert("No details available for input: '" + place.name + "'");
-                            return;
-                          }
-
-                          // If the place has a geometry, then present it on a map.
-                          if (place.geometry.viewport) {
-                            map.fitBounds(place.geometry.viewport);
-                          } else {
-                            map.setCenter(place.geometry.location);
-                            map.setZoom(17);  // Why 17? Because it looks good.
-                          }
-                          marker.setIcon(/** @type {google.maps.Icon} */({
-                            url: place.icon,
-                            size: new google.maps.Size(71, 71),
-                            origin: new google.maps.Point(0, 0),
-                            anchor: new google.maps.Point(17, 34),
-                            scaledSize: new google.maps.Size(35, 35)
-                          }));
-                          marker.setPosition(place.geometry.location);
-                          marker.setVisible(true);
-
-                          var address = '';
-                          if (place.address_components) {
-                            address = [
-                              (place.address_components[0] && place.address_components[0].short_name || ''),
-                              (place.address_components[1] && place.address_components[1].short_name || ''),
-                              (place.address_components[2] && place.address_components[2].short_name || '')
-                            ].join(' ');
-                          }
-
-                          infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
-                          infowindow.open(map, marker);
-                          });
-
-                          // Sets a listener on a radio button to change the filter type on Places
-                          // Autocomplete.
-                          function setupClickListener(id, types) {
-                          var radioButton = document.getElementById(id);
-                          radioButton.addEventListener('click', function() {
-                            autocomplete.setTypes(types);
-                          });
-                          }
-
-                          setupClickListener('changetype-all', []);
-                          setupClickListener('changetype-address', ['address']);
-                          setupClickListener('changetype-establishment', ['establishment']);
-                          setupClickListener('changetype-geocode', ['geocode']);
-                          }
-
-                          function deleteMarkers() {
-                          clearMarkers();
-                          markers = [];
-                          }
-                          function setMapOnAll(map) {
-                          for (var i = 0; i < markers.length; i++) {
-                           markers[i].setMap(map);
-                          }
-                          }
-
-                          // Removes the markers from the map, but keeps them in the array.
-                          function clearMarkers() {
-                          setMapOnAll(null);
-                          }
-
-                          function addMarker(location) {
-                            var marker = new google.maps.Marker({
-                            position: location,
-                            map: map,
-                            title: 'Lokasi'
-                          });
-                          markers.push(marker);
-                          map.setCenter(marker.getPosition())
-                          }
-
-
-                          var ClickEventHandler = function(map, origin) {
-                          this.origin = origin;
-                          this.map = map;
-                          this.directionsService = new google.maps.DirectionsService;
-                          this.directionsDisplay = new google.maps.DirectionsRenderer;
-                          this.directionsDisplay.setMap(map);
-                          this.placesService = new google.maps.places.PlacesService(map);
-                          this.infowindow = new google.maps.InfoWindow;
-                          this.infowindowContent = document.getElementById('infowindow-content');
-                          this.infowindow.setContent(this.infowindowContent);
-
-                          // Listen for clicks on the map.
-                          this.map.addListener('click', this.handleClick.bind(this));
-                          };
-
-                          ClickEventHandler.prototype.handleClick = function(event) {
-                          console.log('You clicked on: ' + event.latLng);
-                          // If the event has a placeId, use it.
-                          if (event.placeId) {
-                          console.log('You clicked on place:' + event.placeId);
-
-                          // Calling e.stop() on the event prevents the default info window from
-                          // showing.
-                          // If you call stop here when there is no placeId you will prevent some
-                          // other map click event handlers from receiving the event.
-                          event.stop();
-                          this.calculateAndDisplayRoute(event.placeId);
-                          this.getPlaceInformation(event.placeId);
-                          }
-                          };
-
-                          ClickEventHandler.prototype.calculateAndDisplayRoute = function(placeId) {
-                          var me = this;
-                          this.directionsService.route({
-                          origin: this.origin,
-                          destination: {placeId: placeId},
-                          travelMode: 'WALKING'
-                          }, function(response, status) {
-                          if (status === 'OK') {
-                          me.directionsDisplay.setDirections(response);
-                          } else {
-                          window.alert('Directions request failed due to ' + status);
-                          }
-                          });
-                          };
-
-                          ClickEventHandler.prototype.getPlaceInformation = function(placeId) {
-                          var me = this;
-                          this.placesService.getDetails({placeId: placeId}, function(place, status) {
-                          if (status === 'OK') {
-                          me.infowindow.close();
-                          me.infowindow.setPosition(place.geometry.location);
-                          me.infowindowContent.children['place-icon'].src = place.icon;
-                          me.infowindowContent.children['place-name'].textContent = place.name;
-                          me.infowindowContent.children['place-id'].textContent = place.place_id;
-                          me.infowindowContent.children['place-address'].textContent =
-                            place.formatted_address;
-                          me.infowindow.open(me.map);
-                          }
-                          });
-                          };
-                          </script>
-                  <div class="content">
-                      <div class="container-fluid">
-                          <div class="row">
-                              <!-- Start Modal -->
-
-                              <div class="col-md-12">
-                                <div class="card">
-                                          <div class="card-header">
-                                              <h4 class="card-title">Acara
-                                              </h4>
-                                          </div>
-                                          <div class="card-content">
-                                              <ul class="nav nav-pills nav-pills-primary">
-                                                  <li >
-                                                      <a href="pages.php?page=acara"  >Acara</a>
-                                                  </li>
-                                                  <li class="active">
-                                                      <a href="pages.php?page=acara&action=new"  >Baru</a>
-                                                  </li>
-                                                  <!-- <li>
-                                                      <a href="pages.php?page=acara&action=confirm">Konfirmasi</a>
-                                                  </li> -->
-                                              </ul>
-                                              <div class="tab-content">
-                                                <div class="tab-pane active" id="acaraBaru">
-                                                  <div class="row">
-                                                    <div class="col-lg-12">
-                                                        <div class="form-group label-floating" >
-                                                            <label class="control-label">Acara</label>
-                                                            <input type="text" id='namaAcara' name='namaAcara' class="form-control">
-                                                        </div>
-                                                    </div>
-                                                  </div>
-                                                  <div class="row">
-                                                      <div class="col-md-6 col-sm-4">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Tanggal Acara</label>
-                                                              <input type="text" id='tanggalAcara' class="form-control datepicker ">
-                                                          </div>
-                                                      </div>
-                                                      <div class="col-md-6 col-sm-6">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Waktu Acara</label>
-                                                              <input type="text" id='waktuAcara' class="form-control timepicker ">
-                                                          </div>
-                                                      </div>
-                                                  </div>
-                                                  <div class="row">
-                                                    <div class="col-md-12 col-sm-12">
-                                                      <div class="form-group label-floating">
-                                                          <label class="control-label">Lokasi</label>
-                                                          <textarea id="lokasi" class="form-control"></textarea>
-                                                          <input type="hidden" id='kordinatX' class="">
-                                                          <input type="hidden" id='kordinatY' class="">
-                                                          <input type="hidden" id='tempKordinat' class="">
-                                                      </div>
-                                                    </div>
-                                                  </div>
-
-                                                    <div class="card">
-                                                      Deskripsi Acara
-                                                        <div class="card-body no-padding">
-                                                            <div id="summernote">
-                                                            </div>
-                                                        </div><!--end .card-body -->
-                                                    </div>
-
-                                                  <div class="row">
-                                                    <input id="pac-input" class="controls" type="text"
-                                                    placeholder="Enter a location">
-                                                    <div id="type-selector" class="controls">
-                                                    <input type="radio" name="type" id="changetype-all" checked="checked">
-                                                    </div>
-                                                    <div id="map"></div>
-
-                                                      </div>
-                                                  <div class="row">
-                                                      <div class="col-md-12 col-sm-12">
-                                                          <div class="form-group label-floating">
-                                                              <input type='button' id='submitAcara' value='SIMPAN' class='btn btn-primary' onclick="saveAcara();" >
-                                                          </div>
-                                                      </div>
-                                                  </div>
-                                                </div>
-                                            </div>
-                                              </div>
-                                          </div>
-                                  </div>
+      											<div class="row">
+      												<div class="col-sm-1">
+                                <div class="form-group date" >
+        														<input type="text" id='tanggalAcara' name='tanggalAcara' class="form-control">
+        														<label>Tanggal</label>
+        													<span class="input-group-addon"></span>
+        												</div>
+      												</div>
+      												<div class="col-sm-1">
+                                <div class="form-group">
+          												<input type="text" id='jamAcara' name='jamAcara' class="form-control time-mask">
+          												<label>Jam</label>
+          											</div>
+      												</div>
+      												<div class="col-sm-1">
+                                <div class="form-group">
+          												<input type="number" id='kuotaAcara' name='kuotaAcara' class="form-control">
+          												<label>Kuota</label>
+          											</div>
+      												</div>
+      												<div class="col-sm-1">
+                                <div class="form-group">
+          												<input type="number" id='lamaAcara' name='lamaAcara' class="form-control">
+          												<label>Lama</label>
+          											</div>
+      												</div>
+      												<div class="col-sm-2">
+                                <div class="form-group">
+          												<input type="text" id='hargaTiket' name='hargaTiket' class="form-control">
+          												<label>Harga Tiket</label>
+          											</div>
+      												</div>
+      												<div class="col-sm-2">
+                                <div class="form-group">
+          												<input type="text" id='hargaKamar' name='hargaKamar' class="form-control">
+          												<label>Harga Kamar</label>
+          											</div>
+      												</div>
+      												<div class="col-sm-2">
+                                <div class="form-group">
+          												<input type="text" id='hargaExtraBed' name='hargaExtraBed' class="form-control">
+          												<label>Harga Extra Bed</label>
+          											</div>
+      												</div>
+                              <div class="col-sm-2">
+                                <div class="form-group">
+          												<input type="number" id='deadlinePembayaran' name='deadlinePembayaran' class="form-control">
+          												<label>Deadline Pembayaran</label>
+          											</div>
+      												</div>
+                            </div>
+                            <div class="row">
+                              <div class="col-sm-12">
+                                <div class="form-group">
+                                  <textarea name="lokasiAcara" id="lokasiAcara" class="form-control" rows="3" placeholder=""></textarea>
+                                  <label>Lokasi Acara</label>
+                                </div>
                               </div>
-                          </div>
-                      </div>
-                      <div class="content" hidden="hidden">
-                        <div class="container-fluid">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-content">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <legend>Sliders</legend>
-                                                    <div id="sliderRegular" class="slider"></div>
-                                                    <div id="sliderDouble" class="slider slider-info"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- end card -->
-                                </div>
                             </div>
+                            <div class="row">
+                              <div class="col-sm-12">
+                                  <textarea id='deskripsiAcara' style="height:400px;"></textarea>
+                              </div>
+                            </div>
+                            <div class="card-actionbar">
+        											<div class="card-actionbar-row">
+                                <button type="button" class="btn ink-reaction btn-raised btn-primary" onclick="saveAcara();">Simpan</button>
+                                <button type="button" class="btn ink-reaction btn-raised btn-danger" onclick="refreshList();">batal</button>
+        											</div>
+        										</div>
+      										</div>
+      									</div>
+      								</form>
+      							</div>
+          				</section>
+          			</div>
+                <script type="text/javascript">
+                  $(document).ready(function() {
+                      setMenuEdit('baru');
+                      $("#pageTitle").text("ACARA");
+                      $('.date').datepicker({
+                                              autoclose: true,
+                                              todayHighlight: true,
+                                              format : 'dd-mm-yyyy'
+                                            });
+                      $(".form-control.time-mask").inputmask('h:s', {placeholder: 'JJ:MM'});
+                      $("#hargaTiket").inputmask('Rp 999.999.999', {numericInput: true, rightAlignNumerics: false});
+                      $("#hargaKamar").inputmask('Rp 999.999.999', {numericInput: true, rightAlignNumerics: false});
+                      $("#hargaTiket").inputmask('Rp 999.999.999', {numericInput: true, rightAlignNumerics: false});
+                      $("#hargaExtraBed").inputmask('Rp 999.999.999', {numericInput: true, rightAlignNumerics: false});
+                      textboxio.replaceAll('#deskripsiAcara', {
+                        paste: {
+                          style: 'clean'
+                        },
+                        css: {
+                          stylesheets: ['js/textboxio/example.css']
+                        }
+                      });
+                  });
+                </script>
+                <?php
+              }elseif($_GET['action']=='edit'){
+                  $getData = sqlArray(sqlQuery("select * from $tableName where id = '".$_GET['idEdit']."'"));
+                  ?>
+                  <script type="text/javascript" src="js/textboxio/textboxio.js"></script>
+                  <div id="content">
+            				<section>
+            					<div class="section-body contain-lg">
+                        <form class="form" id='formAcara'>
+        									<div class="card">
+        										<div class="card-body floating-label">
+        											<div class="row">
+        												<div class="col-sm-12">
+        													<div class="form-group">
+        														<input type="text" class="form-control" id="namaAcara" name='namaAcara' value="<?php echo $getData['nama_acara'] ?>">
+        														<label for="namaAcara">Nama Acara</label>
+        													</div>
+        												</div>
+                              </div>
+        											<div class="row">
+        												<div class="col-sm-1">
+                                  <div class="form-group date" >
+          														<input type="text" id='tanggalAcara' name='tanggalAcara' class="form-control" value="<?php echo generateDate($getData['tanggal']) ?>">
+          														<label>Tanggal</label>
+          													<span class="input-group-addon"></span>
+          												</div>
+        												</div>
+        												<div class="col-sm-1">
+                                  <div class="form-group">
+            												<input type="text" id='jamAcara' name='jamAcara' class="form-control time-mask" value="<?php echo $getData['jam'] ?>">
+            												<label>Jam</label>
+            											</div>
+        												</div>
+        												<div class="col-sm-1">
+                                  <div class="form-group">
+            												<input type="number" id='kuotaAcara' name='kuotaAcara' class="form-control" value="<?php echo $getData['kuota'] ?>">
+            												<label>Kuota</label>
+            											</div>
+        												</div>
+        												<div class="col-sm-1">
+                                  <div class="form-group">
+            												<input type="number" id='lamaAcara' name='lamaAcara' class="form-control" value="<?php echo $getData['lama_acara'] ?>">
+            												<label>Lama</label>
+            											</div>
+        												</div>
+        												<div class="col-sm-2">
+                                  <div class="form-group">
+            												<input type="text" id='hargaTiket' name='hargaTiket' class="form-control" value="<?php echo $getData['harga_tiket'] ?>">
+            												<label>Harga Tiket</label>
+            											</div>
+        												</div>
+        												<div class="col-sm-2">
+                                  <div class="form-group">
+            												<input type="text" id='hargaKamar' name='hargaKamar' class="form-control" value="<?php echo $getData['harga_kamar'] ?>">
+            												<label>Harga Kamar</label>
+            											</div>
+        												</div>
+        												<div class="col-sm-2">
+                                  <div class="form-group">
+            												<input type="text" id='hargaExtraBed' name='hargaExtraBed' class="form-control" value="<?php echo $getData['extra_bed'] ?>">
+            												<label>Harga Extra Bed</label>
+            											</div>
+        												</div>
+                                <div class="col-sm-2">
+                                  <div class="form-group">
+            												<input type="number" id='deadlinePembayaran' name='deadlinePembayaran' class="form-control" value="<?php echo $getData['deadline_pembayaran'] ?>">
+            												<label>Deadline Pembayaran</label>
+            											</div>
+        												</div>
+                              </div>
+                              <div class="row">
+                                <div class="col-sm-12">
+                                  <div class="form-group">
+                                    <textarea name="lokasiAcara" id="lokasiAcara" class="form-control" rows="3" placeholder=""><?php echo $getData['lokasi'] ?></textarea>
+                                    <label>Lokasi Acara</label>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-sm-12">
+                                    <textarea id='deskripsiAcara' style="height:400px;"><?php echo $getData['deskripsi'] ?></textarea>
+                                </div>
+                              </div>
+                              <div class="card-actionbar">
+          											<div class="card-actionbar-row">
+                                  <button type="button" class="btn ink-reaction btn-raised btn-primary" onclick="saveEditAcara(<?php echo $_GET['idEdit'] ?>);">Simpan</button>
+                                  <button type="button" class="btn ink-reaction btn-raised btn-danger" onclick="refreshList();">batal</button>
+          											</div>
+          										</div>
+        										</div>
+        									</div>
+        								</form>
+        							</div>
+            				</section>
+            			</div>
+                  <script type="text/javascript">
+                    $(document).ready(function() {
+                        setMenuEdit('baru');
+                        $("#pageTitle").text("ACARA");
+                        $('.date').datepicker({
+                                                autoclose: true,
+                                                todayHighlight: true,
+                                                format : 'dd-mm-yyyy'
+                                              });
+                        $(".form-control.time-mask").inputmask('h:s', {placeholder: 'JJ:MM'});
+                        $("#hargaTiket").inputmask('Rp 999.999.999', {numericInput: true, rightAlignNumerics: false});
+                        $("#hargaKamar").inputmask('Rp 999.999.999', {numericInput: true, rightAlignNumerics: false});
+                        $("#hargaTiket").inputmask('Rp 999.999.999', {numericInput: true, rightAlignNumerics: false});
+                        $("#hargaExtraBed").inputmask('Rp 999.999.999', {numericInput: true, rightAlignNumerics: false});
+                        textboxio.replaceAll('#deskripsiAcara', {
+                          paste: {
+                            style: 'clean'
+                          },
+                          css: {
+                            stylesheets: ['js/textboxio/example.css']
+                          }
+                        });
+                    });
+                  </script>
+                  <?php
+              }elseif($_GET['action'] == 'pendaftaran'){
+                  ?>
+                  <script type="text/javascript">
+                    $(document).ready(function() {
+                        loadTablePendaftaran(1,50,<?php echo $_GET['idAcara'] ?>);
+                        setMenuEdit('pendaftaran');
+                        $("#pageTitle").text("PENDAFTARAN ACARA");
+                    });
+                  </script>
+                  <div id="content">
+            				<section>
+            					<div class="section-body contain-lg">
+            						<div class="row">
+            							<div class="col-lg-12">
+            								<div class="card">
+            									<div class="card-body no-padding">
+            										<div class="table-responsive no-margin">
+                                  <form id='formAcara' name="formAcara" action="#">
+                                    <table class="table table-striped no-margin table-hover blue" id='tabelPendaftaran'>
+                                      <thead>
+                                        <tr>
+                                          <th>Nama</th>
+                                          <th>Pendidikan</th>
+                                          <th>Email</th>
+                                          <th>Telepon</th>
+                                          <th>CV</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+
+                                      </tbody>
+                                    </table>
+              											<div class="col-lg-12" style="text-align: right;" id='tabelFooter'>
+              												<ul class="pagination pagination-info">
+              		                        <li class="active">
+              		                            <a href="javascript:void(0);"> prev</a>
+              		                        </li>
+              		                        <li>
+              		                            <a href="javascript:void(0);">1</a>
+              		                        </li>
+              		                        <li>
+              		                            <a href="javascript:void(0);">2</a>
+              		                        </li>
+              		                        <li >
+              		                            <a href="javascript:void(0);">3</a>
+              		                        </li>
+              		                        <li>
+              		                            <a href="javascript:void(0);">4</a>
+              		                        </li>
+              		                        <li>
+              		                            <a href="javascript:void(0);">5</a>
+              		                        </li>
+              		                        <li>
+              		                            <a href="javascript:void(0);">next </a>
+              		                        </li>
+              		                    </ul>
+              											</div>
+                                  </form>
+            										</div>
+            									</div>
+            								</div>
+            							</div>
+            						</div>
+            					</div>
+            				</section>
+
+                    <div id='myModal' class='modal fade' role='dialog'>
+                    <div class='modal-dialog'>
+                      <div class='modal-content'>
+                        <div class='modal-header'>
+                          <button type='button' class='close' data-dismiss='modal'>&times;</button>
+                          <h4 class='modal-title'>KONFIRMASI PENDAFTARAN</h4>
                         </div>
+                          <div id ='contentModal'>
+
+                          </div>
+                        <div class='modal-footer'>
+                          <button type="button" id = 'buttonSave' class="btn ink-reaction btn-raised btn-primary" onclick="saveEditPendaftaran(<?php echo $_GET['idEdit'] ?>);">Simpan</button>
+                          <button type="button" id='buttonDismiss' class="btn ink-reaction btn-raised btn-danger" data-dismiss='modal'>batal</button>
+                        </div>
+                      </div>
+
                     </div>
                   </div>
+            			</div>
                   <?php
-                }elseif($_GET['action'] == 'edit'){
-                    $getDataEdit = sqlArray(sqlQuery("select * from acara where id = '".$_GET['id']."'"));
-                    $explodeKoordinat = explode(",",$getDataEdit['koordinat']);
-                    ?>
-                    <style>
-                        #map {
-                        height: 100%;
-                        }
-
-                        .controls {
-                        margin-top: 10px;
-                        border: 1px solid transparent;
-                        border-radius: 2px 0 0 2px;
-                        box-sizing: border-box;
-                        -moz-box-sizing: border-box;
-                        height: 32px;
-                        outline: none;
-                        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-                        }
-
-                        #pac-input {
-                        background-color: #fff;
-                        font-family: Roboto;
-                        font-size: 15px;
-                        font-weight: 300;
-                        margin-left: 12px;
-                        padding: 0 11px 0 13px;
-                        text-overflow: ellipsis;
-                        width: 300px;
-                        }
-
-                        #pac-input:focus {
-                        border-color: #4d90fe;
-                        }
-
-                        .pac-container {
-                        font-family: Roboto;
-                        }
-
-                        #type-selector {
-                        color: #fff;
-                        background-color: #4d90fe;
-                        padding: 5px 11px 0px 11px;
-                        }
-
-                        #type-selector label {
-                        font-family: Roboto;
-                        font-size: 13px;
-                        font-weight: 300;
-                        }
-                    </style>
-                    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJNf9tt4XIkzl5mAaAA0aehyVrdaS6awU&libraries=places&callback=initMap"
-                    async ></script>
-                            <script>
-                            var markers = [];
-                            var map;
-                            function initMap() {
-                            var origin = {lat: <?php echo $explodeKoordinat[0] ?>, lng: <?php echo $explodeKoordinat[1] ?>};
-                             map = new google.maps.Map(document.getElementById('map'), {
-                              zoom: 18,
-                              center: origin
-                            });
-                            var clickHandler = new ClickEventHandler(map, origin);
-
-                            var input = /** @type {!HTMLInputElement} */(
-                              document.getElementById('pac-input'));
-
-                            var types = document.getElementById('type-selector');
-                            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-                            map.controls[google.maps.ControlPosition.TOP_LEFT].push(types);
-
-                            var autocomplete = new google.maps.places.Autocomplete(input);
-                            autocomplete.bindTo('bounds', map);
-
-                            var infowindow = new google.maps.InfoWindow();
-                            var marker = new google.maps.Marker({
-                            map: map,
-                            anchorPoint: new google.maps.Point(0, -29)
-                            });
-                            google.maps.event.addListener(map, "click", function (e) {
-                              //lat and lng is available in e object
-                              var latLng = e.latLng;
-
-                              getAlamat(latLng);
-                              deleteMarkers();
-                              addMarker(latLng);
-                            });
-
-                            autocomplete.addListener('place_changed', function() {
-                            infowindow.close();
-                            marker.setVisible(false);
-                            var place = autocomplete.getPlace();
-                            if (!place.geometry) {
-                              // User entered the name of a Place that was not suggested and
-                              // pressed the Enter key, or the Place Details request failed.
-                              window.alert("No details available for input: '" + place.name + "'");
-                              return;
-                            }
-
-                            // If the place has a geometry, then present it on a map.
-                            if (place.geometry.viewport) {
-                              map.fitBounds(place.geometry.viewport);
-                            } else {
-                              map.setCenter(place.geometry.location);
-                              map.setZoom(17);  // Why 17? Because it looks good.
-                            }
-                            marker.setIcon(/** @type {google.maps.Icon} */({
-                              url: place.icon,
-                              size: new google.maps.Size(71, 71),
-                              origin: new google.maps.Point(0, 0),
-                              anchor: new google.maps.Point(17, 34),
-                              scaledSize: new google.maps.Size(35, 35)
-                            }));
-                            marker.setPosition(place.geometry.location);
-                            marker.setVisible(true);
-
-                            var address = '';
-                            if (place.address_components) {
-                              address = [
-                                (place.address_components[0] && place.address_components[0].short_name || ''),
-                                (place.address_components[1] && place.address_components[1].short_name || ''),
-                                (place.address_components[2] && place.address_components[2].short_name || '')
-                              ].join(' ');
-                            }
-
-                            infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
-                            infowindow.open(map, marker);
-                            });
-
-                            // Sets a listener on a radio button to change the filter type on Places
-                            // Autocomplete.
-                            function setupClickListener(id, types) {
-                            var radioButton = document.getElementById(id);
-                            radioButton.addEventListener('click', function() {
-                              autocomplete.setTypes(types);
-                            });
-                            }
-
-                            setupClickListener('changetype-all', []);
-                            setupClickListener('changetype-address', ['address']);
-                            setupClickListener('changetype-establishment', ['establishment']);
-                            setupClickListener('changetype-geocode', ['geocode']);
-                            }
-
-
-
-
-                            function deleteMarkers() {
-                            clearMarkers();
-                            markers = [];
-                            }
-                            function setMapOnAll(map) {
-                            for (var i = 0; i < markers.length; i++) {
-                             markers[i].setMap(map);
-                            }
-                            }
-
-                            // Removes the markers from the map, but keeps them in the array.
-                            function clearMarkers() {
-                            setMapOnAll(null);
-                            }
-
-                            function addMarker(location) {
-                              var marker = new google.maps.Marker({
-                              position: location,
-                              map: map,
-                              title: 'Lokasi'
-                            });
-                            markers.push(marker);
-                            map.setCenter(marker.getPosition())
-                            }
-
-
-                            var ClickEventHandler = function(map, origin) {
-                            this.origin = origin;
-                            this.map = map;
-                            // this.directionsService = new google.maps.DirectionsService;
-                            // this.directionsDisplay = new google.maps.DirectionsRenderer;
-                            // this.directionsDisplay.setMap(map);
-                            this.placesService = new google.maps.places.PlacesService(map);
-                            this.infowindow = new google.maps.InfoWindow;
-                            this.infowindowContent = document.getElementById('infowindow-content');
-                            this.infowindow.setContent(this.infowindowContent);
-                            deleteMarkers();
-                            var lastLocation = new google.maps.LatLng(<?php echo $explodeKoordinat[0] ?>,<?php echo $explodeKoordinat[1] ?>);
-                            addMarker(lastLocation);
-
-                            // Listen for clicks on the map.
-                            this.map.addListener('click', this.handleClick.bind(this));
-                            };
-
-                            ClickEventHandler.prototype.handleClick = function(event) {
-                            console.log('You clicked on: ' + event.latLng);
-                            // If the event has a placeId, use it.
-                            if (event.placeId) {
-                            console.log('You clicked on place:' + event.placeId);
-
-                            // Calling e.stop() on the event prevents the default info window from
-                            // showing.
-                            // If you call stop here when there is no placeId you will prevent some
-                            // other map click event handlers from receiving the event.
-                            event.stop();
-                            this.calculateAndDisplayRoute(event.placeId);
-                            this.getPlaceInformation(event.placeId);
-                            }
-                            };
-
-                            ClickEventHandler.prototype.calculateAndDisplayRoute = function(placeId) {
-                            var me = this;
-                            this.directionsService.route({
-                            origin: this.origin,
-                            destination: {placeId: placeId},
-                            travelMode: 'WALKING'
-                            }, function(response, status) {
-                            if (status === 'OK') {
-                            me.directionsDisplay.setDirections(response);
-                            } else {
-                            window.alert('Directions request failed due to ' + status);
-                            }
-                            });
-                            };
-
-                            ClickEventHandler.prototype.getPlaceInformation = function(placeId) {
-                            var me = this;
-                            this.placesService.getDetails({placeId: placeId}, function(place, status) {
-                            if (status === 'OK') {
-                            me.infowindow.close();
-                            me.infowindow.setPosition(place.geometry.location);
-                            me.infowindowContent.children['place-icon'].src = place.icon;
-                            me.infowindowContent.children['place-name'].textContent = place.name;
-                            me.infowindowContent.children['place-id'].textContent = place.place_id;
-                            me.infowindowContent.children['place-address'].textContent =
-                              place.formatted_address;
-                            me.infowindow.open(me.map);
-                            }
-                            });
-                            };
-                            </script>
-
-                    <div class="content">
-                        <div class="container-fluid">
-                            <div class="row">
-                                <!-- Start Modal -->
-
-                                <div class="col-md-12">
-                                  <div class="card">
-                                            <div class="card-header">
-                                                <h4 class="card-title">Acara
-                                                </h4>
-                                            </div>
-                                            <div class="card-content">
-                                                <ul class="nav nav-pills nav-pills-primary">
-                                                    <li >
-                                                        <a href="pages.php?page=acara"  >Acara</a>
-                                                    </li>
-                                                    <li class="active">
-                                                        <a >Edit</a>
-                                                    </li>
-                                                    <!-- <li>
-                                                        <a href="pages.php?page=acara&action=confirm">Konfirmasi</a>
-                                                    </li> -->
-                                                </ul>
-                                                <div class="tab-content">
-                                                  <div class="tab-pane active" id="acaraBaru">
-                                                    <div class="row">
-                                                      <div class="col-lg-12">
-                                                          <div class="form-group label-floating" >
-                                                              <label class="control-label">Acara</label>
-                                                              <input type="text" id='namaAcara' name='namaAcara' class="form-control" value='<?php echo $getDataEdit['nama_acara'] ?>'>
-                                                          </div>
-                                                      </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6 col-sm-4">
-                                                            <div class="form-group label-floating">
-                                                                <label class="control-label">Tanggal Acara</label>
-                                                                <input type="text" id='tanggalAcara' class="form-control datepicker " value='<?php echo generateDate($getDataEdit['tanggal']) ?>'>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6 col-sm-6">
-                                                            <div class="form-group label-floating">
-                                                                <label class="control-label">Waktu Acara</label>
-                                                                <input type="text" id='waktuAcara' class="form-control timepicker " value='<?php echo $getDataEdit['jam'] ?>'>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                      <div class="col-md-12 col-sm-12">
-                                                        <div class="form-group label-floating">
-                                                            <label class="control-label">Lokasi</label>
-                                                            <textarea id="lokasi" class="form-control"><?php echo $getDataEdit['lokasi'] ?></textarea>
-                                                            <input type="hidden" id='kordinatX' class="" value='<?php echo $explodeKoordinat[0] ?>'>
-                                                            <input type="hidden" id='kordinatY' class="" value='<?php echo $explodeKoordinat[1] ?>'>
-                                                            <input type="hidden" id='tempKordinat' class="">
-                                                        </div>
-                                                      </div>
-                                                    </div>
-
-                                                      <div class="card">
-                                                        Deskripsi Acara
-                                                          <div class="card-body no-padding">
-                                                              <div id="summernote">
-                                                                <?php echo $getDataEdit['deskripsi'] ?>
-                                                              </div>
-                                                          </div><!--end .card-body -->
-                                                      </div>
-
-                                                    <div class="row">
-                                                      <input id="pac-input" class="controls" type="text"
-                                                      placeholder="Enter a location">
-                                                      <div id="type-selector" class="controls">
-                                                      <input type="radio" name="type" id="changetype-all" checked="checked">
-                                                      </div>
-                                                      <div id="map"></div>
-
-                                                        </div>
-                                                    <div class="row">
-                                                        <div class="col-md-12 col-sm-12">
-                                                            <div class="form-group label-floating">
-                                                                <input type='button' id='submitAcara' value='SIMPAN' class='btn btn-primary' onclick="saveEditAcara(<?php echo $getDataEdit['id'] ?>);" >
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                  </div>
-                                              </div>
-                                                </div>
-                                            </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <?php
-                }elseif($_GET['action'] == 'confirm'){
-                    ?>
-                    <div class="content">
-                        <div class="container-fluid">
-                            <div class="row">
-                                <!-- Start Modal -->
-
-                                <div class="col-md-12">
-                                  <div class="card">
-                                            <div class="card-header">
-                                                <h4 class="card-title">Acara
-                                                </h4>
-                                            </div>
-                                            <div class="card-content">
-                                                <ul class="nav nav-pills nav-pills-primary">
-                                                  <li >
-                                                      <a href="pages.php?page=acara" >Acara</a>
-                                                  </li>
-                                                  <li >
-                                                      <a href="pages.php?page=acara&action=new" >Baru</a>
-                                                  </li>
-                                                  <li class="active" >
-                                                      <a  href="#">Konfirmasi</a>
-                                                  </li>
-                                                </ul>
-                                                <div class="tab-content">
-                                                    <div class="tab-pane active" id="dataAcara">
-                                                      <div class="col-md-12" id='tableAcara'>
-                                                          <div class="card">
-                                                              <div class="card-header card-header-icon" data-background-color="purple">
-                                                                  <i class="material-icons">assignment</i>
-                                                              </div>
-                                                              <div class="card-content">
-                                                                  <h4 class="card-title">Konfirmasi Acara</h4>
-                                                                  <div class="toolbar">
-                                                                      <!--        Here you can write extra buttons/actions for the toolbar              -->
-                                                                  </div>
-                                                                  <div class="material-datatables">
-                                                                      <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
-                                                                          <thead>
-                                                                              <tr>
-                                                                                  <th>Judul</th>
-                                                                                  <th>Posisi</th>
-                                                                                  <th>Tanggal</th>
-                                                                                  <th>Penulis</th>
-                                                                                  <th>Status</th>
-                                                                                  <th class="disabled-sorting text-right">Actions</th>
-                                                                              </tr>
-                                                                          </thead>
-                                                                          <tbody>
-                                                                          </tbody>
-                                                                      </table>
-                                                                  </div>
-                                                              </div>
-                                                          </div>
-                                                      </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php
-                }
-            }
+              }
+          }
          ?>
-
-
-         <div class="modal fade" id="formKonfirmasiAcara" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-             <div class="modal-dialog">
-                 <div class="modal-content">
-                     <div class="modal-header">
-                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-                             <i class="material-icons">clear</i>
-                         </button>
-                         <h4 class="modal-title">Konfirmasi</h4>
-                     </div>
-                     <div class="modal-body">
-
-                         <div class="row">
-                             <div class="col-md-12 col-sm-12">
-                                 <div class="form-group label-floating" id='divForDesc'>
-                                     <label class="control-label">Status</label>
-                                     <span id='spanComboStatus'></span>
-                                 </div>
-                             </div>
-                         </div>
-                         <div class="row">
-                             <div class="col-md-12 col-sm-12">
-                                 <div class="form-group label-floating is-focused" id='divForDesc'>
-                                     <label class="control-label">Jumlah Orang</label>
-                                     <input type='text' id='jumlahOrang' class="form-control">
-                                 </div>
-                             </div>
-                         </div>
-                     <div class="modal-footer">
-                         <button type="button" class="btn btn-simple" id='buttonSubmitKonfirmasi' data-dismiss="modal">Simpan</button>
-                         <button type="button" class="btn btn-danger btn-simple" data-dismiss="modal">Close</button>
-                     </div>
-                 </div>
-             </div>
-         </div>
-
-
 <?php
-
      break;
      }
 

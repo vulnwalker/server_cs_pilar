@@ -1,39 +1,25 @@
 <?php
   $getDataUser = sqlArray(sqlQuery("select * from users where username = '".$_SESSION['username']."'"));
  ?>
-            <div class="sidebar-wrapper">
-                <div class="user">
-                    <div class="photo">
-                        <img src="http://ceukokom.com/img/icons/icon-user.png" />
-                    </div>
-                    <div class="info">
-                        <a data-toggle="collapse" href="#collapseExample" class="collapsed">
-                            <span>
-                                <?php echo $getDataUser['nama']; ?>
-                                <b class="caret"></b>
-                            </span>
-                        </a>
-                        <div class="clearfix"></div>
-                        <div class="collapse" id="collapseExample">
-                            <ul class="nav">
-                                <li>
-                                    <a href="?page=profile">
-                                        <span class="sidebar-mini">></span>
-                                        <span class="sidebar-normal">My Profile</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="logout.php">
-                                        <span class="sidebar-mini">></span>
-                                        <span class="sidebar-normal">Logout</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <ul class="nav">
-                    <?php
+ <!-- BEGIN MENUBAR-->
+ <div id="menubar" class="menubar-inverse ">
+   <div class="menubar-fixed-panel">
+     <div>
+       <a class="btn btn-icon-toggle btn-default menubar-toggle" data-toggle="menubar" href="javascript:void(0);">
+         <i class="fa fa-bars"></i>
+       </a>
+     </div>
+     <div class="expanded">
+       <a href="html/dashboards/dashboard.html">
+         <span class="text-lg text-bold text-primary ">MATERIAL&nbsp;ADMIN</span>
+       </a>
+     </div>
+   </div>
+   <div class="menubar-scroll-panel">
+
+     <!-- BEGIN MAIN MENU -->
+     <ul id="main-menu" class="gui-controls">
+       <?php
                     $page = @$_GET['page'];
                     if ($page == "informasi") {
                         $informasiActive = "active";
@@ -55,64 +41,69 @@
                         $userManagement = "active";
                     }
 
-                        echo "<li class='$userManagement'>
-                                  <a href='?page=userManagement'>
-                                      <i class='material-icons'>dashboard</i>
-                                      <p>User Management</p>
+                        echo "
+                                <li>
+                                  <a href='?page=userManagement' class='$userManagement'>
+                                    <div class='gui-icon'><i class='fa fa-users'></i></div>
+                                    <span class='title'>User Management</span>
                                   </a>
-                              </li>
+                                </li>
+                                <li>
+                                  <a href='?page=produk' class='$produkActive'>
+                                    <div class='gui-icon'><i class='md md-computer'></i></div>
+                                    <span class='title'>Produk</span>
+                                  </a>
+                                </li>
+                                <li>
+                                  <a href='?page=informasi' class='$informasiActive'>
+                                    <div class='gui-icon'><i class='md md-info'></i></div>
+                                    <span class='title'>Informasi</span>
+                                  </a>
+                                </li>
+                                <li>
+                                  <a href='?page=acara' class='$acaraActive'>
+                                    <div class='gui-icon'><i class='md md-alarm-on'></i></div>
+                                    <span class='title'>Acara</span>
+                                  </a>
+                                </li>
+                                <li>
+                                  <a href='?page=slider' class='$sliderActive'>
+                                    <div class='gui-icon'><i class='md md-image'></i></div>
+                                    <span class='title'>Slider</span>
+                                  </a>
+                                </li>
+                                <li>
+                                  <a href='?page=lowonganKerja' class='$lowonganKerjaActive'>
+                                    <div class='gui-icon'><i class='md md-assessment'></i></div>
+                                    <span class='title'>Lowongan Kerja</span>
+                                  </a>
+                                </li>
+                                <li>
+                                  <a href='?page=team' class='$teamActivce'>
+                                    <div class='gui-icon'><i class='md md-quick-contacts-dialer'></i></div>
+                                    <span class='title'>Team</span>
+                                  </a>
+                                </li>
+                                <li>
+                                  <a href='?page=setting' class='$settingActive'>
+                                    <div class='gui-icon'><i class='md md-settings'></i></div>
+                                    <span class='title'>Setting</span>
+                                  </a>
+                                </li>
+                                <li>
+                                  <a href='?page=chating' class='$chatingActive'>
+                                    <div class='gui-icon'><i class='md md-forum'></i></div>
+                                    <span class='title'>Live Chat</span>
+                                  </a>
+                                </li>
 
-                              <li class='$produkActive'>
-                                  <a href='?page=produk'>
-                                       <i class='material-icons'>image</i>
-                                      <p>Produk</p>
-                                  </a>
-                              </li>
-                              <li class='$informasiActive'>
-                                  <a href='?page=informasi'>
-                                      <i class='material-icons'>timeline</i>
-                                      <p>Informasi</p>
-                                  </a>
-                              </li>
-                              <li class='$acaraActive'>
-                                  <a href='?page=acara'>
-                                      <i class='material-icons'>alarm</i>
-                                      <p>Acara</p>
-                                  </a>
-                              </li>
-                              <li class='$sliderActive'>
-                                  <a href='?page=slider'>
-                                      <i class='material-icons'>burst_mode</i>
-                                      <p>Slider</p>
-                                  </a>
-                              </li>
-                              <li class='$lowonganKerjaActive'>
-                                  <a href='?page=lowonganKerja'>
-                                      <i class='material-icons'>person_add</i>
-                                      <p>Lowongan Kerja</p>
-                                  </a>
-                              </li>
-                              <li class='$teamActivce'>
-                                  <a href='?page=team'>
-                                      <i class='material-icons'>supervisor_account</i>
-                                      <p>Team</p>
-                                  </a>
-                              </li>
-                              <li class='$settingActive'>
-                                  <a href='?page=setting'>
-                                      <i class='material-icons'>settings_applications</i>
-                                      <p>Setting</p>
-                                  </a>
-                              </li>
-                              <li class='$chatingActive'>
-                                  <a href='?page=chating'>
-                                      <i class='material-icons'>chat</i>
-                                      <p>Live Chat</p>
-                                  </a>
-                              </li>
+
+
                               ";
 
-
                      ?>
-                </ul>
-            </div>
+     </ul>
+
+   </div><!--end .menubar-scroll-panel-->
+ </div><!--end #menubar-->
+ <!-- END MENUBAR -->

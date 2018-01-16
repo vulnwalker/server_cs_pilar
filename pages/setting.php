@@ -18,18 +18,6 @@ switch($tipe){
     case 'saveSetting':{
 
       if(empty($err)){
-        $dataInformasiTitle = array(
-                'option_value' => $informasiTitle.";".$informasiType.";".$informasiPosisi
-        );
-        sqlQuery(sqlUpdate("general_setting",$dataInformasiTitle,"option_name = 'informasi_title'"));
-        $dataProdukTitle = array(
-                'option_value' => $produkTitle.";".$produkType.";".$produkPosisi
-        );
-        sqlQuery(sqlUpdate("general_setting",$dataProdukTitle,"option_name = 'produk_title'"));
-        $dataAcaraTitle = array(
-                'option_value' => $acaraTitle.";".$acaraType.";".$acaraPosisi
-        );
-        sqlQuery(sqlUpdate("general_setting",$dataAcaraTitle,"option_name = 'acara_title'"));
         $dataInformasiBackground = array(
                 'option_value' => $informasiBackground
         );
@@ -42,6 +30,30 @@ switch($tipe){
                 'option_value' => $acaraBackground
         );
         sqlQuery(sqlUpdate("general_setting",$dataAcaraBackground,"option_name = 'acara_background'"));
+        $dataSlider = array(
+                'option_value' => $sliderBackground
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataSlider,"option_name = 'background_slider'"));
+        $dataTentang = array(
+                'option_value' => $tentangBackground
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataTentang,"option_name = 'background_tentang'"));
+        $dataLowongan = array(
+                'option_value' => $lowonganBackground
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataLowongan,"option_name = 'background_lowongan'"));
+        $dataPopularTitleColor = array(
+                'option_value' => $popularTitleColor
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataPopularTitleColor,"option_name = 'title_popular_color'"));
+        $dataPopularDeskripsiColor = array(
+                'option_value' => $popularDeskripsiColor
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataPopularDeskripsiColor,"option_name = 'deskripsi_popular_color'"));
+        $dataEffectSlider = array(
+                'option_value' => $effectSlider
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataEffectSlider,"option_name = 'effect_slider'"));
 
         $dataKontak = array(
                                 'nama_perusahaan' => $namaPerusahaan,
@@ -53,8 +65,8 @@ switch($tipe){
                                                                 'facebook' => $facebookPerusahaan,
                                                                 'twiter' => $twiterPerusahaan,
                                                                 'instagram' => $instagramPerusahaan,
-                                                                'line' => $linePerusahaan,
-                                                                'bbm' => $bbmPerusahaan,
+                                                                'googlePlus' => $googlePlus,
+                                                                'linkedIn' => $linkedInPerusahaan,
                                                                 'whatsapp' => $waPerusahaan,
                                                               )),
                             );
@@ -68,403 +80,295 @@ switch($tipe){
     break;
     }
 
-    case 'saveEditSetting':{
-      if(empty($namaSetting)){
-          $err = "Isi Nama Setting";
-      }elseif(empty($tanggalSetting)){
-          $err = "Isi tanggal setting";
-      }elseif(empty($waktuSetting)){
-          $err = "Isi waktu setting";
-      }elseif(empty($lokasi)){
-          $err = "Isi lokasi";
+    case 'setMenuEdit':{
+      if($statusMenu == 'index'){
+        $filterinTable = "
+          <ul class='header-nav header-nav-options'>
+            <li class='dropdown'>
+              <div class='row'>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <form class='form' role='form'>
+                    <div class='form-group floating-label' style='padding-top: 0px;'>
+                      <div class='input-group'>
+                        <span class='input-group-addon'></span>
+                        <div class='input-group-content'>
+                          <input type='text' class='form-control' id='searchData' name='searchData' onkeyup=limitData();>
+                          <label for='searchData'>Search</label>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                <form class='form' role='form'>
+                    <div class='form-group floating-label' style='padding-top: 0px;'>
+                      <div class='input-group'>
+                        <div class='input-group-content'>
+                          <input type='text' onkeypress='return event.charCode >= 48 && event.charCode <= 57' class='form-control ' id='jumlahDataPerhalaman' name='jumlahDataPerhalaman' value = '50' onkeyup=limitData();>
+                          <label for='username10'>Data / Halaman</label>
+                        </div>
+                      </div>
+                    </div>
+                </form>
+                </div>
+              </div>
+            </li>
+          </ul>";
+        $header = "
+
+          <ul class='header-nav header-nav-options'>
+            <li class='dropdown'>
+              <div class='row'>
+
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <button type='button' class='btn ink-reaction btn-flat btn-primary' onclick=Baru();>
+                      <i class='fa fa-plus'></i>
+                      baru
+                  </button>
+                </div>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <button type='button' class='btn ink-reaction btn-flat btn-primary' onclick=Edit();>
+                    <i class='fa fa-magic'></i>
+                    edit
+                  </button>
+                </div>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <button type='button' class='btn ink-reaction btn-flat btn-primary' onclick=Hapus();>
+                    <i class='fa fa-close'></i>
+                    hapus
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ul>
+          ";
+      }else{
+        $header = "
+          <ul class='header-nav header-nav-options'>
+
+          </ul>
+          ";
+          $filterinTable = "";
       }
 
-      if(empty($err)){
-        if($kordinatX == ''){
-            $kordinatLocation = getKordinat($lokasi);
-        }else{
-            $kordinatLocation = $kordinatX.",".$kordinatY;
-        }
-        $data = array(
-                'nama_setting' => $namaSetting,
-                'tanggal' => generateDate($tanggalSetting),
-                'jam' => $waktuSetting,
-                'kapasitas' => $kapasitasSetting,
-                'lokasi' => $lokasi,
-                'deskripsi' =>  $deskripsiSetting,
-                'koordinat' => $kordinatLocation
-        );
-        $query = sqlUpdate("setting",$data,"id='$idEdit'");
-        sqlQuery($query);
-        $cek = $query;
-      }
-      $content = array("location" => $kordinatLocation);
-
+      $content = array("header" => $header, 'filterinTable' => $filterinTable);
       echo generateAPI($cek,$err,$content);
     break;
     }
-
-    case 'deleteSetting':{
-      $query = "delete from setting where id = '$id'";
-      sqlQuery($query);
-      $cek = $query;
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-
-    case 'generateLocation':{
-      $explodeKordinat = explode(',',$koordinat);
-      $kordinatX = str_replace("(","",$explodeKordinat[0]);
-      $kordinatY = str_replace(')','',$explodeKordinat[1]);
-      $kordinatY = str_replace(' ','',$kordinatY);
-      $curl = curl_init();
-			curl_setopt($curl,CURLOPT_URL, "https://maps.googleapis.com/maps/api/geocode/json?latlng=".$kordinatX.",".$kordinatY."&key=AIzaSyCJNf9tt4XIkzl5mAaAA0aehyVrdaS6awU");
-			curl_setopt($curl,CURLOPT_POST, sizeof($arrayData));
-			curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36");
-			curl_setopt($curl,CURLOPT_POSTFIELDS, $arrayData);
-			curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-      $result = json_decode(curl_exec($curl));
-      $resultJSON = $result->results;
-      $lokasi = $resultJSON[0]->formatted_address;
-
-
-
-
-
-      $content = array('lat' => str_replace("(","",$explodeKordinat[0]),'lang' => str_replace(')','',$explodeKordinat[1]), 'lokasi' => $lokasi );
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-
-    case 'updateSetting':{
-      $getData = sqlArray(sqlQuery("select * from setting where id = '$id'"));
-      $explodeLocation = explode(',',$getData['koordinat']);
-      $lat = $explodeLocation[0];
-      $lng = $explodeLocation[1];
-      $content = array("namaSetting" => $getData['nama_setting'],
-      "tanggalSetting" => generateDate($getData['tanggal']),
-      "waktuSetting" => $getData['jam'],
-       "kapasitasSetting" => $getData['kapasitas'],
-       "lokasi" => $getData['lokasi'],
-       "deskripsiSetting" => $getData['deskripsi'],
-       "kordinatLocation" => "(".$getData['koordinat'].")",
-       "lat" => $lat,
-       "lng" => $lng,
-    );
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-
-    case 'loadTable':{
-      $getData = sqlQuery("select * from setting");
-      while($dataSetting = sqlArray($getData)){
-        foreach ($dataSetting as $key => $value) {
-            $$key = $value;
-        }
-
-        $data .= "     <tr>
-                          <td>$nama_setting</td>
-                          <td>$lokasi</td>
-                          <td>".generateDate($tanggal)." $jam</td>
-                          <td>$kapasitas</td>
-                          <td class='text-right'>
-                              <a onclick=updateSetting($id) class='btn btn-simple btn-warning btn-icon edit'><i class='material-icons'>dvr</i></a>
-                              <a onclick=deleteSetting($id) class='btn btn-simple btn-danger btn-icon remove'><i class='material-icons'>close</i></a>
-                          </td>
-                      </tr>
-                    ";
-      }
-
-      $tabel = "<table id='datatables' class='table table-striped table-no-bordered table-hover' cellspacing='0' width='100%' style='width:100%'>
-          <thead>
-              <tr>
-                  <th>Nama Setting</th>
-                  <th>Lokasi</th>
-                  <th>Tanggal</th>
-                  <th>Kapasitas</th>
-                  <th class='disabled-sorting text-right'>Actions</th>
-              </tr>
-          </thead>
-          <tbody>
-            $data
-          </tbody>
-      </table>";
-      $content = array("tabelSetting" => $tabel);
-
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-
      default:{
         $getDataKontak = sqlArray(sqlQuery("select * from kontak_web"));
         ?>
         <script>
         var url = "http://"+window.location.hostname+"/api.php?page=setting";
-
         </script>
-
         <script src="js/setting.js"></script>
+        <script src="js/jquery.js"></script>
+        <div id="content">
+          <section>
+            <div class="section-body contain-lg">
+              <form class="form" id='formInformasi'>
+                <div class="card">
+                  <div class="card-body floating-label">
+                    <div class="row">
+                      <div class="col-sm-4">
+                        <div class="form-group">
+                          <?php
+                            $getInformasiBackground = sqlArray(sqlQuery("select * from general_setting where option_name = 'informasi_background'"));
+                          ?>
+                          <input type="color" id='informasiBackground' class='form-control' value='<?php echo $getInformasiBackground['option_value'] ?>' >
+                          <label>Informasi Background</label>
+                        </div>
+                      </div>
+                      <div class="col-sm-4">
+                        <div class="form-group">
+                          <?php
+                            $getProdukBackground = sqlArray(sqlQuery("select * from general_setting where option_name = 'produk_background'"));
+                          ?>
+                          <input type="color" id='produkBackground' class='form-control' value='<?php echo $getProdukBackground['option_value'] ?>' >
+                          <label>Produk Background</label>
+                        </div>
+                      </div>
+                      <div class="col-sm-4">
+                        <div class="form-group">
+                          <?php
+                            $getAcaraBackground = sqlArray(sqlQuery("select * from general_setting where option_name = 'acara_background'"));
+                          ?>
+                          <input type="color" id='acaraBackground' class='form-control' value='<?php echo $getAcaraBackground['option_value'] ?>' >
+                          <label>Acara Background</label>
+                        </div>
+                      </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-4">
+                      <div class="form-group">
+                        <?php
+                          $getSliderBackground = sqlArray(sqlQuery("select * from general_setting where option_name = 'background_slider'"));
+                        ?>
+                        <input type="color" id='sliderBackground' class='form-control' value='<?php echo $getSliderBackground['option_value'] ?>' >
+                        <label>Slider Background</label>
+                      </div>
+                    </div>
+                    <div class="col-sm-4">
+                      <div class="form-group">
+                        <?php
+                          $getTentangBackground = sqlArray(sqlQuery("select * from general_setting where option_name = 'background_tentang'"));
+                        ?>
+                        <input type="color" id='tentangBackground' class='form-control' value='<?php echo $getTentangBackground['option_value'] ?>' >
+                        <label>Tentang Background</label>
+                      </div>
+                    </div>
+                    <div class="col-sm-4">
+                      <div class="form-group">
+                        <?php
+                          $getLowonganBackground = sqlArray(sqlQuery("select * from general_setting where option_name = 'background_lowongan'"));
+                        ?>
+                        <input type="color" id='lowonganBackground' class='form-control' value='<?php echo $getLowonganBackground['option_value'] ?>' >
+                        <label>Lowongan Background</label>
+                      </div>
+                    </div>
+                </div>
+                  <div class="row">
+                    <div class="col-sm-4">
+                      <div class="form-group">
+                        <?php
+                          $getPopularTitleColor = sqlArray(sqlQuery("select * from general_setting where option_name = 'title_popular_color'"));
+                        ?>
+                        <input type="color" id='popularTitleColor' class='form-control' value='<?php echo $getPopularTitleColor['option_value'] ?>' >
+                        <label>Warna Title Popular</label>
+                      </div>
+                    </div>
+                    <div class="col-sm-4">
+                      <div class="form-group">
+                        <?php
+                          $getPopularDeskripsiColor = sqlArray(sqlQuery("select * from general_setting where option_name = 'deskripsi_popular_color'"));
+                        ?>
+                        <input type="color" id='popularDeskripsiColor' class='form-control' value='<?php echo $getPopularDeskripsiColor['option_value'] ?>' >
+                        <label>Warna Deskripsi Popular</label>
+                      </div>
+                    </div>
+                    <div class="col-sm-4">
+                      <div class="form-group">
+                        <?php
+                          $arrayEffect = array(
+                                    array('1','PARTICKELS'),
+                                    array('2','SQUARE'),
+                                    array('3','SNOW'),
+                                    array('4','STARS'),
+                                    array('5','BOKEH'),
+                          );
+                          $getEffectSlider = sqlArray(sqlQuery("select * from general_setting where option_name = 'effect_slider' "));
+                          echo cmbArray("effectSlider",$getEffectSlider['option_value'],$arrayEffect,"- EFFECT SLIDER -","class='form-control'")
+                        ?>
+                        <label>Slider Effect</label>
+                      </div>
+                    </div>
+                </div>
+                  <div class="row">
+                    <div class="col-sm-2">
+                      <div class="form-group">
+                        <input type="text" id='namaPerusahaan' class='form-control' value='<?php echo $getDataKontak['nama_perusahaan'] ?>' >
+                        <label>Nama Perusahaan</label>
+                      </div>
+                    </div>
+                    <div class="col-sm-6">
+                      <div class="form-group">
+                        <input type="text" id='alamatPerusahaan' class='form-control' value='<?php echo $getDataKontak['alamat'] ?>' >
+                        <label>Alamat Perusahaan</label>
+                      </div>
+                    </div>
+                    <div class="col-sm-2">
+                      <div class="form-group">
+                        <input type="text" id='emailPerusahaan' class='form-control' value='<?php echo $getDataKontak['email'] ?>' >
+                        <label>Email</label>
+                      </div>
+                    </div>
+                    <div class="col-sm-2">
+                      <div class="form-group">
+                        <input type="text" id='teleponPerusahaan' class='form-control' value='<?php echo $getDataKontak['telepon'] ?>' >
+                        <label>Telepon</label>
+                      </div>
+                    </div>
+                </div>
+                  <div class="row">
+                    <?php
+                        $dataSosmed = json_decode($getDataKontak['media_sosial']);
+                        $facebookPerusahaan = $dataSosmed->facebook;
+                        $twiterPerusahaan = $dataSosmed->twiter;
+                        $instagramPerusahaan = $dataSosmed->instagram;
+                        $googlePlus = $dataSosmed->googlePlus;
+                        $waPerusahaan = $dataSosmed->whatsapp;
+                        $linkedInPerusahaan = $dataSosmed->linkedIn;
+                     ?>
+                    <div class="col-sm-4">
+                      <div class="form-group">
+                        <input type="text" id='facebookPerusahaan' class='form-control' value='<?php echo $facebookPerusahaan ?>' >
+                        <label>Facebook</label>
+                      </div>
+                    </div>
+                    <div class="col-sm-3">
+                      <div class="form-group">
+                        <input type="text" id='twiterPerusahaan' class='form-control' value='<?php echo $twiterPerusahaan ?>' >
+                        <label>Twiter</label>
+                      </div>
+                    </div>
+                    <div class="col-sm-4">
+                      <div class="form-group">
+                        <input type="text" id='instagramPerusahaan' class='form-control' value='<?php echo $instagramPerusahaan ?>' >
+                        <label>Instagram</label>
+                      </div>
+                    </div>
+                </div>
+                  <div class="row">
+                    <div class="col-sm-4">
+                      <div class="form-group">
+                        <input type="text" id='googlePlus' class='form-control' value='<?php echo $googlePlus ?>' >
+                        <label>Google Plus</label>
+                      </div>
+                    </div>
+                    <div class="col-sm-3">
+                      <div class="form-group">
+                        <input type="text" id='waPerusahaan' class='form-control' value='<?php echo $waPerusahaan ?>' >
+                        <label>WhatsApp</label>
+                      </div>
+                    </div>
+                    <div class="col-sm-4">
+                      <div class="form-group">
+                        <input type="text" id='linkedInPerusahaan' class='form-control' value='<?php echo $linkedInPerusahaan ?>' >
+                        <label>Linked In</label>
+                      </div>
+                    </div>
+                </div>
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <div class="form-group">
+                        <textarea  id='tentang' class='form-control' row='4' ><?php echo $getDataKontak['tentang'] ?></textarea>
+                        <label>Tentang</label>
+                      </div>
+                    </div>
 
-        <div class="content">
-            <div class="container-fluid">
-                <div class="row">
-                    <!-- Start Modal -->
+                </div>
 
-                    <div class="col-md-12">
-                      <div class="card">
-                                <div class="card-header">
-                                    <h4 class="card-title">Setting
-                                    </h4>
-                                </div>
 
-                                        <div class="tab-pane active" id="dataSetting">
-                                          <div class="col-md-12" id='tableSetting'>
-                                              <div class="card">
-                                                  <div class="card-content">
-                                                      <div class="row">
-                                                          <div class="col-md-4 col-sm-4">
-                                                              <div class="form-group label-floating">
-                                                                  <label class="control-label">Title Informasi</label>
-                                                                  <?php
-                                                                    $getDataInformasiTitle = sqlArray(sqlQuery("select * from general_setting where option_name = 'informasi_title'"));
-                                                                    $explodeInformasiTitle = explode(';',$getDataInformasiTitle['option_value']);
-                                                                    $informasiTitle = $explodeInformasiTitle[0];
-                                                                    $informasiType = $explodeInformasiTitle[1];
-                                                                    $informasiPosisi = $explodeInformasiTitle[2];
-                                                                  ?>
-                                                                  <input type="text" id='informasiTitle' class='form-control' value='<?php echo $informasiTitle ?>' >
-                                                              </div>
-                                                          </div>
-                                                      <div class="col-md-2 col-sm-2">
-                                                          <div class="form-group label-floating">
-                                                            <label class="control-label">POSISI</label>
-                                                              <?php
-                                                                  $arrayPosisi = array(
-                                                                            array('LEFT','LEFT'),
-                                                                            array('CENTER','CENTER'),
-                                                                            array('RIGHT','RIGHT'),
-                                                                  );
-                                                                  echo cmbArray("informasiPosisi",$informasiPosisi,$arrayPosisi,"- TYPE -","class='selectpicker' data-style='btn btn-primary btn-round' title='Single Select' data-size='4'")
-                                                               ?>
-                                                          </div>
-                                                      </div>
-                                                      <div class="col-md-2 col-sm-2">
-                                                          <div class="form-group label-floating">
-                                                            <label class="control-label">TYPE</label>
-                                                              <?php
-                                                                  $arrayStatus = array(
-                                                                            array('TEXT','TEXT'),
-                                                                            array('IMAGE','IMAGE'),
-                                                                  );
-                                                                  echo cmbArray("informasiType",$informasiType,$arrayStatus,"- TYPE -","class='selectpicker' data-style='btn btn-primary btn-round' title='Single Select' data-size='4'")
-                                                               ?>
-                                                          </div>
-                                                      </div>
 
-                                                      <div class="col-md-4 col-sm-4">
-                                                          <div class="form-group label-floating">
-                                                            <label class="control-label">Informasi Background</label>
-                                                            <?php
-                                                              $getInformasiBackground = sqlArray(sqlQuery("select * from general_setting where option_name = 'informasi_background'"));
-                                                            ?>
-                                                            <input type="color" id='informasiBackground' class='form-control' value='<?php echo $getInformasiBackground['option_value'] ?>' >
-                                                          </div>
-                                                      </div>
-                                                    </div>
-                                                      <div class="row">
-                                                          <div class="col-md-4 col-sm-4">
-                                                              <div class="form-group label-floating">
-                                                                  <label class="control-label">Title Produk</label>
-                                                                  <?php
-                                                                    $getDataProdukTitle = sqlArray(sqlQuery("select * from general_setting where option_name = 'produk_title'"));
-                                                                    $explodeProdukTitle = explode(';',$getDataProdukTitle['option_value']);
-                                                                    $produkTitle = $explodeProdukTitle[0];
-                                                                    $produkType = $explodeProdukTitle[1];
-                                                                    $produkPosisi = $explodeProdukTitle[2];
-                                                                  ?>
-                                                                  <input type="text" id='produkTitle' class='form-control' value='<?php echo $produkTitle ?>' >
-                                                              </div>
-                                                          </div>
-                                                        <div class="col-md-2 col-sm-2">
-                                                            <div class="form-group label-floating">
-                                                              <label class="control-label">POSISI</label>
-                                                                <?php
-                                                                    $arrayPosisi = array(
-                                                                              array('LEFT','LEFT'),
-                                                                              array('CENTER','CENTER'),
-                                                                              array('RIGHT','RIGHT'),
-                                                                    );
-                                                                    echo cmbArray("produkPosisi",$produkPosisi,$arrayPosisi,"- TYPE -","class='selectpicker' data-style='btn btn-primary btn-round' title='Single Select' data-size='4'")
-                                                                 ?>
-                                                            </div>
-                                                        </div>
-                                                      <div class="col-md-2 col-sm-2">
-                                                          <div class="form-group label-floating">
-                                                            <label class="control-label">TYPE</label>
-                                                              <?php
-                                                                  $arrayStatus = array(
-                                                                            array('TEXT','TEXT'),
-                                                                            array('IMAGE','IMAGE'),
-                                                                  );
-                                                                  echo cmbArray("produkType",$produkType,$arrayStatus,"- TYPE -","class='selectpicker' data-style='btn btn-primary btn-round' title='Single Select' data-size='4'")
-                                                               ?>
-                                                          </div>
-                                                      </div>
+                  <div class="card-actionbar">
+                    <div class="card-actionbar-row">
+                      <button type="button" class="btn ink-reaction btn-raised btn-primary" onclick="saveSetting();">Simpan</button>
+                      <button type="button" class="btn ink-reaction btn-raised btn-danger" onclick="refreshList();">batal</button>
+                    </div>
+                  </div>
+                  </div><!--end .card-body -->
 
-                                                      <div class="col-md-4 col-sm-4">
-                                                          <div class="form-group label-floating">
-                                                            <label class="control-label">Produk Background</label>
-                                                            <?php
-                                                              $getProdukBackground = sqlArray(sqlQuery("select * from general_setting where option_name = 'produk_background'"));
-                                                            ?>
-                                                            <input type="color" id='produkBackground' class='form-control' value='<?php echo $getProdukBackground['option_value'] ?>' >
-                                                          </div>
-                                                      </div>
-                                                    </div>
-                                                      <div class="row">
-                                                          <div class="col-md-4 col-sm-4">
-                                                              <div class="form-group label-floating">
-                                                                  <label class="control-label">Title Acara</label>
-                                                                  <?php
-                                                                    $getDataAcaraTitle = sqlArray(sqlQuery("select * from general_setting where option_name = 'acara_title'"));
-                                                                    $explodeAcaraTitle = explode(';',$getDataAcaraTitle['option_value']);
-                                                                    $acaraTitle = $explodeAcaraTitle[0];
-                                                                    $acaraType = $explodeAcaraTitle[1];
-                                                                    $acaraPosisi = $explodeAcaraTitle[2];
-                                                                  ?>
-                                                                  <input type="text" id='acaraTitle' class='form-control' value='<?php echo $acaraTitle ?>' >
-                                                              </div>
-                                                          </div>
-                                                      <div class="col-md-2 col-sm-2">
-                                                          <div class="form-group label-floating">
-                                                            <label class="control-label">POSISI</label>
-                                                              <?php
-                                                                  $arrayPosisi = array(
-                                                                            array('LEFT','LEFT'),
-                                                                            array('CENTER','CENTER'),
-                                                                            array('RIGHT','RIGHT'),
-                                                                  );
-                                                                  echo cmbArray("acaraPosisi",$acaraPosisi,$arrayPosisi,"- TYPE -","class='selectpicker' data-style='btn btn-primary btn-round' title='Single Select' data-size='4'")
-                                                               ?>
-                                                          </div>
-                                                      </div>
-                                                      <div class="col-md-2 col-sm-2">
-                                                          <div class="form-group label-floating">
-                                                            <label class="control-label">TYPE</label>
-                                                              <?php
-                                                                  $arrayStatus = array(
-                                                                            array('TEXT','TEXT'),
-                                                                            array('IMAGE','IMAGE'),
-                                                                  );
-                                                                  echo cmbArray("acaraType",$acaraType,$arrayStatus,"- TYPE -","class='selectpicker' data-style='btn btn-primary btn-round' title='Single Select' data-size='4'")
-                                                               ?>
-                                                          </div>
-                                                      </div>
-
-                                                      <div class="col-md-4 col-sm-4">
-                                                          <div class="form-group label-floating">
-                                                            <label class="control-label">Acara Background</label>
-                                                            <?php
-                                                              $getAcaraBackground = sqlArray(sqlQuery("select * from general_setting where option_name = 'acara_background'"));
-                                                            ?>
-                                                            <input type="color" id='acaraBackground' class='form-control' value='<?php echo $getAcaraBackground['option_value'] ?>' >
-                                                          </div>
-                                                      </div>
-                                                    </div>
-                                                    <div class="row">
-                                                      <div class="col-md-3 col-sm-3">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Nama Perusahaan</label>
-                                                              <input type="text" id='namaPerusahaan' class='form-control' value='<?php echo $getDataKontak['nama_perusahaan'] ?>' >
-                                                          </div>
-                                                      </div>
-                                                      <div class="col-md-5 col-sm-5">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Alamat</label>
-                                                              <input type="text" id='alamatPerusahaan' class='form-control' value='<?php echo $getDataKontak['alamat'] ?>' >
-                                                          </div>
-                                                      </div>
-                                                      <div class="col-md-2 col-sm-2">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Email</label>
-                                                              <input type="text" id='emailPerusahaan' class='form-control' value='<?php echo $getDataKontak['email'] ?>' >
-                                                          </div>
-                                                      </div>
-                                                      <div class="col-md-2 col-sm-2">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Telepon</label>
-                                                              <input type="text" id='teleponPerusahaan' class='form-control' value='<?php echo $getDataKontak['telepon'] ?>' >
-                                                          </div>
-                                                      </div>
-                                                    </div>
-                                                    <div class="row">
-                                                      <?php
-                                                          $dataSosmed = json_decode($getDataKontak['media_sosial']);
-                                                          $facebookPerusahaan = $dataSosmed->facebook;
-                                                          $twiterPerusahaan = $dataSosmed->twiter;
-                                                          $instagramPerusahaan = $dataSosmed->instagram;
-                                                          $linePerusahaan = $dataSosmed->line;
-                                                          $waPerusahaan = $dataSosmed->whatsapp;
-                                                          $bbmPerusahaan = $dataSosmed->bbm;
-                                                       ?>
-                                                      <div class="col-md-2 col-sm-2">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Facebook</label>
-                                                              <input type="text" id='facebookPerusahaan' class='form-control' value='<?php echo $facebookPerusahaan ?>' >
-                                                          </div>
-                                                      </div>
-                                                      <div class="col-md-2 col-sm-2">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Twiter</label>
-                                                              <input type="text" id='twiterPerusahaan' class='form-control' value='<?php echo $twiterPerusahaan ?>' >
-                                                          </div>
-                                                      </div>
-                                                      <div class="col-md-2 col-sm-2">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Instagram</label>
-                                                              <input type="text" id='instagramPerusahaan' class='form-control' value='<?php echo $instagramPerusahaan ?>' >
-                                                          </div>
-                                                      </div>
-                                                      <div class="col-md-2 col-sm-2">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Line</label>
-                                                              <input type="text" id='linePerusahaan' class='form-control' value='<?php echo $linePerusahaan ?>' >
-                                                          </div>
-                                                      </div>
-                                                      <div class="col-md-2 col-sm-2">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Whats App</label>
-                                                              <input type="text" id='waPerusahaan' class='form-control' value='<?php echo $waPerusahaan ?>' >
-                                                          </div>
-                                                      </div>
-                                                      <div class="col-md-2 col-sm-2">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">BBM</label>
-                                                              <input type="text" id='bbmPerusahaan' class='form-control' value='<?php echo $bbmPerusahaan ?>' >
-                                                          </div>
-                                                      </div>
-                                                    </div>
-                                                    <div class="row">
-                                                      <div class="col-md-12 col-sm-12">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Tentang</label>
-                                                              <textarea  id='tentang' class='form-control' ><?php echo $getDataKontak['tentang'] ?></textarea>
-                                                          </div>
-                                                      </div>
-
-                                                    </div>
-                                                      <div class="row">
-                                                          <div class="col-md-4 col-sm-4">
-                                                              <div class="form-group label-floating">
-                                                                  <input type='button' id='submitSetting' value='SIMPAN' class='btn btn-primary' onclick="saveSetting();" >
-                                                              </div>
-                                                          </div>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                      </div>
+                </div><!--end .card -->
+              </form>
+            </div>
+          </section>
+        </div>
+        <script type="text/javascript">
+          $(document).ready(function() {
+              setMenuEdit('baru');
+              $("#pageTitle").text("SETTING");
+          });
+        </script>
 <?php
 
      break;

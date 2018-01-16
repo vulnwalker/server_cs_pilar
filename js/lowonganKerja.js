@@ -1,45 +1,192 @@
-function saveLowongan(){
-  $("#LoadingImage").attr('style','display:block');
+function loadTable(pageKe,limitTable){
   $.ajax({
     type:'POST',
-    data : $("#formLowongan").serialize()+"&jobDesc="+$("#summernote").code()+"&spesifikasiPekerjaan="+$("#spesifikasiLowongan").val(),
-    url: url+'&tipe=saveLowongan',
+    data : {
+      limitTable : limitTable,
+      pageKe : pageKe,
+      searchData : $("#searchData").val()
+    },
+    url: url+'&tipe=loadTable',
+    success: function(data) {
+      var resp = eval('(' + data + ')');
+      if(resp.err==''){
+        $("#tabelBody").html(resp.content.tabelBody);
+        $("#tabelFooter").html(resp.content.tabelFooter);
+        $("table").fixMe();
+
+      }else{
+        alert(resp.err);
+      }
+    }
+  });
+}
+function loadTableLamaran(pageKe,limitTable,idLowongan){
+  $.ajax({
+    type:'POST',
+    data : {
+      limitTable : limitTable,
+      pageKe : pageKe,
+      searchData : $("#searchData").val(),
+      idLowongan : idLowongan
+    },
+    url: url+'&tipe=loadTableLamaran',
+    success: function(data) {
+      var resp = eval('(' + data + ')');
+      if(resp.err==''){
+        $("#tabelLamaran").html(resp.content.tabelLamaran);
+        $("#tabelFooter").html(resp.content.tabelFooter);
+        $("table").fixMe();
+
+      }else{
+        alert(resp.err);
+      }
+    }
+  });
+}
+function limitData(){
+  $(".fixed").remove();
+  loadTable(1,$("#jumlahDataPerhalaman").val());
+}
+function currentPage(pageKE){
+  $(".fixed").remove();
+  loadTable(pageKE,$("#jumlahDataPerhalaman").val());
+}
+function refreshList(){
+  window.location = "pages.php?page=lowonganKerja" ;
+}
+function Baru(){
+  window.location = "pages.php?page=lowonganKerja&action=baru" ;
+}
+function Batal(){
+  window.location = "pages.php?page=lowonganKerja" ;
+}
+function Edit(){
+  var errMsg = getJumlahChecked("lowonganKerja");
+  if(errMsg == ''){
+    $.ajax({
+      type:'POST',
+      data : $("#formLowonganKerja").serialize(),
+      url: url+'&tipe=Edit',
+      success: function(data) {
+        var resp = eval('(' + data + ')');
+        if(resp.err==''){
+          window.location = "pages.php?page=lowonganKerja&action=edit&idEdit="+resp.content.idEdit;
+        }else{
+          errorAlert(resp.err);
+        }
+      }
+    });
+  }else{
+    errorAlert(errMsg);
+  }
+}
+function Hapus(){
+  var errMsg = getJumlahChecked("lowonganKerja");
+  if(errMsg == '' || errMsg=='Pilih hanya satu data'){
+    swal({
+          title: 'Yakin Hapus Data ?',
+          text: '',
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Ya',
+          cancelButtonText: 'Tidak'
+        }).then((result) => {
+          if (result.value) {
+            $.ajax({
+              type:'POST',
+              data : $("#formLowonganKerja").serialize(),
+              url: url+'&tipe=Hapus',
+              success: function(data) {
+                var resp = eval('(' + data + ')');
+                if(resp.err==''){
+                  suksesAlert("Data Terhapus");
+                }else{
+                  errorAlert(resp.err);
+                }
+              }
+            });
+          } else if (result.dismiss === 'cancel') {
+          }
+        })
+
+    }else{
+      errorAlert(errMsg);
+    }
+  }
+  function getEditorContent(){
+     var editors = textboxio.get('#deskripsiLowongan');
+     var editor = editors[0];
+     return editor.content.get();
+ }
+function saveLowonganKerja(){
+    $.ajax({
+      type:'POST',
+      data : {
+              judulLowongan : $("#judulLowongan").val(),
+              posisiLowongan : $("#posisiLowongan").val(),
+              pendidikan : $("#pendidikan").val(),
+              jenisKelamin : $("#jenisKelamin").val(),
+              jamKerja : $("#jamKerja").val(),
+              usiaMinimal : $("#usiaMinimal").text(),
+              usiaMaximal : $("#usiaMaximal").text(),
+              pengalamanMinimal : $("#pengalamanMinimal").text(),
+              pengalamanMaximal : $("#pengalamanMaximal").text(),
+              salaryMinimum : $("#salaryMinimum").val(),
+              salaryMaximum : $("#salaryMaximum").val(),
+              spesifikasi : $("#spesifikasi").val(),
+              deskripsiLowongan : getEditorContent(),
+      },
+      url: url+'&tipe=saveLowonganKerja',
+        success: function(data) {
+        var resp = eval('(' + data + ')');
+          if(resp.err==''){
+            suksesAlert("Data Tersimpan");
+          }else{
+            errorAlert(resp.err);
+          }
+        }
+    });
+  }
+function saveEditLowonganKerja(idEdit){
+  $.ajax({
+    type:'POST',
+    data : {
+            judulLowongan : $("#judulLowongan").val(),
+            posisiLowongan : $("#posisiLowongan").val(),
+            pendidikan : $("#pendidikan").val(),
+            jenisKelamin : $("#jenisKelamin").val(),
+            jamKerja : $("#jamKerja").val(),
+            usiaMinimal : $("#usiaMinimal").text(),
+            usiaMaximal : $("#usiaMaximal").text(),
+            pengalamanMinimal : $("#pengalamanMinimal").text(),
+            pengalamanMaximal : $("#pengalamanMaximal").text(),
+            salaryMinimum : $("#salaryMinimum").val(),
+            salaryMaximum : $("#salaryMaximum").val(),
+            spesifikasi : $("#spesifikasi").val(),
+            deskripsiLowongan : getEditorContent(),
+            idEdit : idEdit
+    },
+    url: url+'&tipe=saveEditLowonganKerja',
       success: function(data) {
       var resp = eval('(' + data + ')');
-      $("#LoadingImage").hide();
         if(resp.err==''){
-           suksesAlert("Data Tersimpan");
+          suksesAlert("Data Tersimpan");
         }else{
           errorAlert(resp.err);
         }
       }
   });
 }
-
-function refreshList(){
-    window.location = "pages.php?page=lowonganKerja";
-}
-
-function loadTable(){
+function setMenuEdit(statusMenu){
   $.ajax({
     type:'POST',
-    url: url+'&tipe=loadTable',
+    data : {statusMenu : statusMenu},
+    url: url+'&tipe=setMenuEdit',
       success: function(data) {
       var resp = eval('(' + data + ')');
         if(resp.err==''){
-          $("#datatables").html(resp.content.tabelLowongan);
-          $('#datatables').DataTable({
-              "pagingType": "full_numbers",
-              "lengthMenu": [
-                  [10, 25, 50, -1],
-                  [10, 25, 50, "All"]
-              ],
-              responsive: true,
-              language: {
-                  search: "_INPUT_",
-                  searchPlaceholder: "Search records",
-              }
-          });
+          $("#actionArea").html(resp.content.header);
+          $("#filterinTable").html(resp.content.filterinTable);
         }else{
           alert(resp.err);
         }
@@ -47,33 +194,10 @@ function loadTable(){
   });
 }
 
-function loadLamaran(idLamaran){
-  $.ajax({
-    type:'POST',
-    data:{idLamaran : idLamaran},
-    url: url+'&tipe=loadLamaran',
-      success: function(data) {
-      var resp = eval('(' + data + ')');
-        if(resp.err==''){
-          $("#datatables").html(resp.content.tabelLamaran);
-          $('#datatables').DataTable({
-              "pagingType": "full_numbers",
-              "lengthMenu": [
-                  [10, 25, 50, -1],
-                  [10, 25, 50, "All"]
-              ],
-              responsive: true,
-              language: {
-                  search: "_INPUT_",
-                  searchPlaceholder: "Search records",
-              }
-          });
-        }else{
-          alert(resp.err);
-        }
-      }
-  });
+function lamaran(id){
+      window.location = "pages.php?page=lowonganKerja&action=lamaran&idLowongan="+id;
 }
+
 function downloadCV(id){
   $.ajax({
     type:'POST',
@@ -89,99 +213,4 @@ function downloadCV(id){
         }
       }
   });
-}
-
-
-function deleteLowongan(id){
-  swal({
-      title: "Yakin Hapus Data",
-      type: "warning",
-      showCancelButton: true,
-      confirmButtonColor: '#DD6B55',
-      confirmButtonText: 'Ya',
-      cancelButtonText: "Tidak"
-   }).then(
-         function () {
-           $.ajax({
-             type:'POST',
-             data : {id:id},
-             url: url+'&tipe=deleteLowongan',
-               success: function(data) {
-               var resp = eval('(' + data + ')');
-                 if(resp.err==''){
-                   suksesAlert("Data Terhapus");
-                 }else{
-                   errorAlert(resp.err);
-                 }
-               }
-           });
-         },
-         function () { return false; });
-
-}
-function clearTemp(){
-  $("#data2").text("Baru");
-  $("#data2").click();
-}
-function baruLowongan(){
-
-          $("#divForLowonganname").attr("class","form-group label-floating ");
-          $("#divForPassword").attr("class","form-group label-floating ");
-          $("#divForEmail").attr("class","form-group label-floating ");
-          $("#divForNama").attr("class","form-group label-floating ");
-          $("#divForTelepon").attr("class","form-group label-floating ");
-          $("#divForAlamat").attr("class","form-group label-floating ");
-          $("#divForInstansi").attr("class","form-group label-floating ");
-          $("#usernameLowongan").val("");
-          $("#passwordLowongan").val("");
-          $("#emailLowongan").val("");
-          $("#namaLowongan").val("");
-          $("#teleponLowongan").val("");
-          $("#alamatLowongan").text("");
-          $("#instansiLowongan").val("");
-          $("#statusLowongan").val("1");
-          $("#buttonSubmit").attr("onclick","saveLowongan()");
-
-}
-function updateLowongan(id){
-
-  window.location = "pages.php?page=lowonganKerja&edit="+id;
-}
-function listLamaran(id){
-
-  window.location = "pages.php?page=lowonganKerja&action=confirm&idLowongan="+id;
-}
-
-
-function saveEditLowongan(idEdit){
-  $("#LoadingImage").attr('style','display:block');
-  $.ajax({
-    type:'POST',
-    data : $("#formLowongan").serialize()+"&jobDesc="+$("#summernote").code()+"&idEdit="+idEdit+"&spesifikasiPekerjaan="+$("#spesifikasiLowongan").val(),
-    url: url+'&tipe=saveEditLowongan',
-      success: function(data) {
-      var resp = eval('(' + data + ')');
-        $("#LoadingImage").hide();
-        if(resp.err==''){
-          suksesAlert("Data Tersimpan");
-        }else{
-          errorAlert(resp.err);
-        }
-      }
-  });
-}
-
-
-function base64Encode(str) {
-    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
-        function toSolidBytes(match, p1) {
-            return String.fromCharCode('0x' + p1);
-    }));
-}
-
-function base64Decode(str) {
-    // Going backwards: from bytestream, to percent-encoding, to original string.
-    return decodeURIComponent(atob(str).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
 }
