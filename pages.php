@@ -4,7 +4,7 @@ session_start();
 if ($_SESSION['status'] != "login") {
     header("location:index.php");
 }
- ?>
+?>
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -23,7 +23,7 @@ if ($_SESSION['status'] != "login") {
     					<ul class="header-nav header-nav-options">
     						<li class="header-nav-brand" >
     							<div class="brand-holder">
-    								<a href="html/dashboards/dashboard.html">
+    								<a href="#">
     									<span class="text-lg text-bold text-primary" id='pageTitle'>USER MANAGEMENT</span>
     								</a>
     							</div>
@@ -38,30 +38,30 @@ if ($_SESSION['status'] != "login") {
     				<div class="headerbar-left" style="margin-left: 11.1%;" id='filterinTable'>
     					<ul class='header-nav header-nav-options'>
     						<li class='dropdown'>
-                  <div class="row">
-                  	<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
-                  		<div class="form-group floating-label" style="padding-top: 0px;">
-    										<div class="input-group">
-    											<span class="input-group-addon"></span>
-    											<div class="input-group-content">
-    												<input type="text" class="form-control" id="searchData">
-    												<label for="id="searchData"">Search</label>
-    											</div>
-    										</div>
-    									</div>
-                  	</div>
-                  	<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
-                      <div class="form-group floating-label " style="padding-top: 0px;">
-                        <div class="input-group">
-                          <div class="input-group-content">
-                            <input type="number" class="form-control" id="jumlahDataPerhalaman" value="50" name = 'jumlahDataPerhalaman'>
-                            <label for="jumlahDataPerhalaman">Data Perhalaman</label>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
+                              <div class="row">
+                              	<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                              		<div class="form-group floating-label" style="padding-top: 0px;">
+										<div class="input-group">
+											<span class="input-group-addon"></span>
+											<div class="input-group-content">
+												<input type="text" class="form-control" id="searchData">
+												<label for="id="searchData"">Search</label>
+											</div>
+										</div>
+									</div>
+                              	</div>
+                              	<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                                  <div class="form-group floating-label " style="padding-top: 0px;">
+                                    <div class="input-group">
+                                      <div class="input-group-content">
+                                        <input type="number" class="form-control" id="jumlahDataPerhalaman" value="50" name = 'jumlahDataPerhalaman'>
+                                        <label for="jumlahDataPerhalaman">Data Perhalaman</label>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </li>
     					</ul>
     				</div>
     				<div class="headerbar-right" id='actionArea'>
@@ -114,7 +114,7 @@ if ($_SESSION['status'] != "login") {
     					<ul class="header-nav header-nav-options">
     						<li class="header-nav-brand" >
     							<div class="brand-holder">
-    								<a href="html/dashboards/dashboard.html">
+    								<a href="#">
     									<span class="text-lg text-bold text-primary" id='pageTitle'>Live Chat</span>
     								</a>
     							</div>

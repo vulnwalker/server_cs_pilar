@@ -23,7 +23,10 @@
 	<script src="assets/js/core/source/AppNavSearch.js"></script>
 	<script src="assets/js/core/source/AppVendor.js"></script>
 	<script src="js/daftarObject.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.3.5/sweetalert2.min.js"></script>
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.3.5/sweetalert2.min.js"></script> -->
+	<script type="text/javascript" src="https://lipis.github.io/bootstrap-sweetalert/dist/sweetalert.js"></script>
+	<script src="assets/js/core/demo/DemoPageMaps.js"></script>
+	
 	<!-- <script src="assets/js/core/demo/Demo.js"></script>
 	<script src="assets/js/core/demo/DemoFormComponents.js"></script> -->
 

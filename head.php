@@ -1,4 +1,5 @@
 <!-- BEGIN META -->
+		<link rel="icon" type="image/png" href="images/Logo/logoP.png">
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="keywords" content="your,keywords">
@@ -19,46 +20,11 @@
 		<link type="text/css" rel="stylesheet" href="assets/css/theme-default/libs/bootstrap-tagsinput/bootstrap-tagsinput.css?1424887862" />
 		<link type="text/css" rel="stylesheet" href="assets/css/theme-default/libs/typeahead/typeahead.css?1424887863" />
 		<!-- <link type="text/css" rel="stylesheet" href="assets/css/theme-default/libs/dropzone/dropzone-theme.css?1424887864" /> -->
-		<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.3.5/sweetalert2.min.css" />
+		<!-- <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.3.5/sweetalert2.min.css" /> -->
+		<link rel="stylesheet" type="text/css" href="https://lipis.github.io/bootstrap-sweetalert/dist/sweetalert.css">
+		
 		<!-- END STYLESHEETS -->
 		<style type="text/css">
-			/*table tbody, table thead{
-		    display: block;
-			}*/
-			/*table tbody {*/
-		   /*overflow: auto;*/
-		   /*height: 565px;*/
-			/*}*/
-
-
-			/*#thNo{
-				width: 64px;
-			}
-			#thCheck{
-				width: 77px;
-			}
-			#thNama{
-				width: 203px;
-			}
-			#thUsername{
-				width: 148px;
-			}
-			#thEmail{
-				width: 336px;
-			}
-			#thInstansi{
-				width: 235px;
-			}
-			#thTelepon{
-				width: 205px;
-			}
-			#thKategori{
-				width: 139px;
-			}*/
-			/*th{
-				background-color: #0aa89e;
-				color: #fff!important;
-			}*/
 			.card{
 				margin-bottom: 0px;
 			}

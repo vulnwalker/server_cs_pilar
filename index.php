@@ -2,8 +2,8 @@
 <head>
 	<?php include "headLogin.php";
 	session_start();
-	if ($_SESSION['status'] == "login") {
-	    header("location:pages.php");
+	if (isset($_SESSION['username'])) {
+	    header("location:pages.php?page=userManagement");
 	}
 	?>
 </head>
@@ -117,7 +117,12 @@
         if (username != "" && password != "") {
             return true;
         }else{
-            alert("Username atau Password Salah");
+            swal(
+                  'Username atau Password Salah',
+                  '',
+                  'warning'
+                )
+            // alert("Username atau Password Salah");
             return false;
         }
     }

@@ -15,27 +15,63 @@ if(!empty($tipe)){
 
 switch($tipe){
 
-    case 'saveProfile':{
+    case 'saveSetting':{
 
       if(empty($err)){
+        $dataInformasiBackground = array(
+                'option_value' => $informasiBackground
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataInformasiBackground,"option_name = 'informasi_background'"));
+        $dataProdukBackground = array(
+                'option_value' => $produkBackground
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataProdukBackground,"option_name = 'produk_background'"));
+        $dataAcaraBackground = array(
+                'option_value' => $acaraBackground
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataAcaraBackground,"option_name = 'acara_background'"));
+        $dataSlider = array(
+                'option_value' => $sliderBackground
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataSlider,"option_name = 'background_slider'"));
+        $dataTentang = array(
+                'option_value' => $tentangBackground
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataTentang,"option_name = 'background_tentang'"));
+        $dataLowongan = array(
+                'option_value' => $lowonganBackground
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataLowongan,"option_name = 'background_lowongan'"));
+        $dataPopularTitleColor = array(
+                'option_value' => $popularTitleColor
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataPopularTitleColor,"option_name = 'title_popular_color'"));
+        $dataPopularDeskripsiColor = array(
+                'option_value' => $popularDeskripsiColor
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataPopularDeskripsiColor,"option_name = 'deskripsi_popular_color'"));
+        $dataEffectSlider = array(
+                'option_value' => $effectSlider
+        );
+        sqlQuery(sqlUpdate("general_setting",$dataEffectSlider,"option_name = 'effect_slider'"));
 
-        $dataUsers = array(
-                                'email' => $emailUsers,
-                                'nama' => $namaLengkap,
-                                'telepon' => $teleponUsers,
-                                'alamat' => $alamatUsers,
-                                'instansi' => $instansiUsers,
-                                'password' => sha1(md5($passwordUsers)),
+        $dataKontak = array(
+                                'nama_perusahaan' => $namaPerusahaan,
+                                'alamat' => $alamatPerusahaan,
+                                'telepon' => $teleponPerusahaan,
+                                'email' => $emailPerusahaan,
+                                'tentang' => $tentang,
+                                'media_sosial' => json_encode(array(
+                                                                'facebook' => $facebookPerusahaan,
+                                                                'twiter' => $twiterPerusahaan,
+                                                                'instagram' => $instagramPerusahaan,
+                                                                'googlePlus' => $googlePlus,
+                                                                'linkedIn' => $linkedInPerusahaan,
+                                                                'whatsapp' => $waPerusahaan,
+                                                              )),
                             );
-        sqlQuery(sqlUpdate("users",$dataUsers,"username = '".$_SESSION['username']."'"));
-        $cek = sqlUpdate("users",$dataUsers,"username = '".$_SESSION['username']."'");
-        $dataHash = array(
-            'hash' => sha1(md5($passwordUsers)),
-            'password' => $passwordUsers,
-        );
-        if(mysql_num_rows(mysql_query("select * from wordlist where password = '$passwordUsers'")) == 0){
-            sqlQuery(sqlInsert("wordlist",$dataHash));
-        }
+        sqlQuery(sqlUpdate("kontak_web",$dataKontak,"1=1"));
+
 
       }
 
@@ -44,217 +80,138 @@ switch($tipe){
     break;
     }
 
-    case 'saveEditProfile':{
-      if(empty($namaProfile)){
-          $err = "Isi Nama Profile";
-      }elseif(empty($tanggalProfile)){
-          $err = "Isi tanggal setting";
-      }elseif(empty($waktuProfile)){
-          $err = "Isi waktu setting";
-      }elseif(empty($lokasi)){
-          $err = "Isi lokasi";
+    case 'setMenuEdit':{
+      if($statusMenu == 'index'){
+        $filterinTable = "
+          <ul class='header-nav header-nav-options'>
+            <li class='dropdown'>
+              <div class='row'>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <form class='form' role='form'>
+                    <div class='form-group floating-label' style='padding-top: 0px;'>
+                      <div class='input-group'>
+                        <span class='input-group-addon'></span>
+                        <div class='input-group-content'>
+                          <input type='text' class='form-control' id='searchData' name='searchData' onkeyup=limitData();>
+                          <label for='searchData'>Search</label>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                <form class='form' role='form'>
+                    <div class='form-group floating-label' style='padding-top: 0px;'>
+                      <div class='input-group'>
+                        <div class='input-group-content'>
+                          <input type='text' onkeypress='return event.charCode >= 48 && event.charCode <= 57' class='form-control ' id='jumlahDataPerhalaman' name='jumlahDataPerhalaman' value = '50' onkeyup=limitData();>
+                          <label for='username10'>Data / Halaman</label>
+                        </div>
+                      </div>
+                    </div>
+                </form>
+                </div>
+              </div>
+            </li>
+          </ul>";
+        $header = "
+
+          <ul class='header-nav header-nav-options'>
+            <li class='dropdown'>
+              <div class='row'>
+
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <button type='button' class='btn ink-reaction btn-flat btn-primary' onclick=Baru();>
+                      <i class='fa fa-plus'></i>
+                      baru
+                  </button>
+                </div>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <button type='button' class='btn ink-reaction btn-flat btn-primary' onclick=Edit();>
+                    <i class='fa fa-magic'></i>
+                    edit
+                  </button>
+                </div>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                  <button type='button' class='btn ink-reaction btn-flat btn-primary' onclick=Hapus();>
+                    <i class='fa fa-close'></i>
+                    hapus
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ul>
+          ";
+      }else{
+        $header = "
+          <ul class='header-nav header-nav-options'>
+
+          </ul>
+          ";
+          $filterinTable = "";
       }
 
-      if(empty($err)){
-        if($kordinatX == ''){
-            $kordinatLocation = getKordinat($lokasi);
-        }else{
-            $kordinatLocation = $kordinatX.",".$kordinatY;
-        }
-        $data = array(
-                'nama_setting' => $namaProfile,
-                'tanggal' => generateDate($tanggalProfile),
-                'jam' => $waktuProfile,
-                'kapasitas' => $kapasitasProfile,
-                'lokasi' => $lokasi,
-                'deskripsi' =>  $deskripsiProfile,
-                'koordinat' => $kordinatLocation
-        );
-        $query = sqlUpdate("setting",$data,"id='$idEdit'");
-        sqlQuery($query);
-        $cek = $query;
-      }
-      $content = array("location" => $kordinatLocation);
-
+      $content = array("header" => $header, 'filterinTable' => $filterinTable);
       echo generateAPI($cek,$err,$content);
     break;
     }
-
-    case 'deleteProfile':{
-      $query = "delete from setting where id = '$id'";
-      sqlQuery($query);
-      $cek = $query;
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-
-    case 'generateLocation':{
-      $explodeKordinat = explode(',',$koordinat);
-      $kordinatX = str_replace("(","",$explodeKordinat[0]);
-      $kordinatY = str_replace(')','',$explodeKordinat[1]);
-      $kordinatY = str_replace(' ','',$kordinatY);
-      $curl = curl_init();
-			curl_setopt($curl,CURLOPT_URL, "https://maps.googleapis.com/maps/api/geocode/json?latlng=".$kordinatX.",".$kordinatY."&key=AIzaSyCJNf9tt4XIkzl5mAaAA0aehyVrdaS6awU");
-			curl_setopt($curl,CURLOPT_POST, sizeof($arrayData));
-			curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36");
-			curl_setopt($curl,CURLOPT_POSTFIELDS, $arrayData);
-			curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-      $result = json_decode(curl_exec($curl));
-      $resultJSON = $result->results;
-      $lokasi = $resultJSON[0]->formatted_address;
-
-
-
-
-
-      $content = array('lat' => str_replace("(","",$explodeKordinat[0]),'lang' => str_replace(')','',$explodeKordinat[1]), 'lokasi' => $lokasi );
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-
-    case 'updateProfile':{
-      $getData = sqlArray(sqlQuery("select * from setting where id = '$id'"));
-      $explodeLocation = explode(',',$getData['koordinat']);
-      $lat = $explodeLocation[0];
-      $lng = $explodeLocation[1];
-      $content = array("namaProfile" => $getData['nama_setting'],
-      "tanggalProfile" => generateDate($getData['tanggal']),
-      "waktuProfile" => $getData['jam'],
-       "kapasitasProfile" => $getData['kapasitas'],
-       "lokasi" => $getData['lokasi'],
-       "deskripsiProfile" => $getData['deskripsi'],
-       "kordinatLocation" => "(".$getData['koordinat'].")",
-       "lat" => $lat,
-       "lng" => $lng,
-    );
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-
-    case 'loadTable':{
-      $getData = sqlQuery("select * from setting");
-      while($dataProfile = sqlArray($getData)){
-        foreach ($dataProfile as $key => $value) {
-            $$key = $value;
-        }
-
-        $data .= "     <tr>
-                          <td>$nama_setting</td>
-                          <td>$lokasi</td>
-                          <td>".generateDate($tanggal)." $jam</td>
-                          <td>$kapasitas</td>
-                          <td class='text-right'>
-                              <a onclick=updateProfile($id) class='btn btn-simple btn-warning btn-icon edit'><i class='material-icons'>dvr</i></a>
-                              <a onclick=deleteProfile($id) class='btn btn-simple btn-danger btn-icon remove'><i class='material-icons'>close</i></a>
-                          </td>
-                      </tr>
-                    ";
-      }
-
-      $tabel = "<table id='datatables' class='table table-striped table-no-bordered table-hover' cellspacing='0' width='100%' style='width:100%'>
-          <thead>
-              <tr>
-                  <th>Nama Profile</th>
-                  <th>Lokasi</th>
-                  <th>Tanggal</th>
-                  <th>Kapasitas</th>
-                  <th class='disabled-sorting text-right'>Actions</th>
-              </tr>
-          </thead>
-          <tbody>
-            $data
-          </tbody>
-      </table>";
-      $content = array("tabelProfile" => $tabel);
-
-      echo generateAPI($cek,$err,$content);
-    break;
-    }
-
      default:{
-        $getData = sqlArray(sqlQuery("select * from users where username = '".$_SESSION['username']."'"));
-        $getPasswordUser = sqlArray(sqlQuery("select * from wordlist where hash = '".$getData['password']."'"));
-        $passwordUsers = $getPasswordUser['password'];
+        $getDataKontak = sqlArray(sqlQuery("select * from kontak_web"));
         ?>
         <script>
-        var url = "http://"+window.location.hostname+"/api.php?page=profile";
-
+        var url = "http://"+window.location.hostname+"/api.php?page=setting";
         </script>
+        <script src="js/setting.js"></script>
+        <script src="js/jquery.js"></script>
+        <!-- BEGIN CONTENT-->
+      <div id="content">
+          <div class="section-body contain-lg">
 
-        <script src="js/profile.js"></script>
+            <!-- BEGIN BASIC VALIDATION -->
+            <div class="row">
+              <div class="col-md-12">
+                <form class="form form-validate floating-label" novalidate="novalidate">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="form-group">
+                        <input type="text" class="form-control" id="username" name="username" required data-rule-minlength="2">
+                        <label for="username">Username</label>
+                      </div>
+                      <div class="form-group">
+                        <input type="password" class="form-control" id="Password1" name="Password1" required data-rule-minlength="5">
+                        <label for="Password1">Password Sebelumnya</label>
+                      </div>
+                      <div class="form-group">
+                        <input type="password" class="form-control" id="Password2" name="Password2" required data-rule-minlength="5">
+                        <label for="Password2">Password Sekarang</label>
+                      </div>
+                      <div class="form-group">
+                        <input type="password" class="form-control" id="Password3" name="Password3" required data-rule-minlength="5">
+                        <label for="Password3">Confirmation Password</label>
+                      </div>
+                    </div><!--end .card-body -->
+                    <div class="card-actionbar">
+                      <div class="card-actionbar-row">
+                        <button type="submit" class="btn btn-primary ink-reaction btn-raised">Simpan</button>
+                        <button type="submit" class="btn btn-danger ink-reaction btn-raised">Batal</button>
+                      </div>
+                    </div><!--end .card-actionbar -->
+                  </div><!--end .card -->
+                </form>
+              </div><!--end .col -->
+            </div><!--end .row -->
+            <!-- END BASIC VALIDATION -->
 
-        <div class="content">
-            <div class="container-fluid">
-                <div class="row">
-                    <!-- Start Modal -->
-
-                    <div class="col-md-12">
-                      <div class="card">
-                                <div class="card-header">
-                                    <h4 class="card-title">Profile
-                                    </h4>
-                                </div>
-
-                                        <div class="tab-pane active" id="dataProfile">
-                                          <div class="col-md-12" id='tableProfile'>
-                                              <div class="card">
-                                                  <div class="card-content">
-                                                    <div class="row">
-                                                      <div class="col-md-6 col-sm-6">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Nama Lengkap</label>
-                                                              <input type="text" id='namaLengkap' name='namaLengkap' class='form-control' value='<?php echo $getData['nama'] ?>' >
-                                                          </div>
-                                                      </div>
-                                                      <div class="col-md-6 col-sm-6">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Email</label>
-                                                              <input type="text" id='emailUsers' name='emailUsers' class='form-control' value='<?php echo $getData['email'] ?>' >
-                                                          </div>
-                                                      </div>
-
-                                                    </div>
-                                                    <div class="row">
-                                                       <div class="col-md-2 col-sm-2">
-                                                           <div class="form-group label-floating">
-                                                               <label class="control-label">Telepon</label>
-                                                               <input type="text" id='teleponUsers' class='form-control' value='<?php echo $getData['telepon'] ?>' >
-                                                           </div>
-                                                       </div>
-                                                       <div class="col-md-10 col-sm-10">
-                                                           <div class="form-group label-floating">
-                                                               <label class="control-label">Alamat</label>
-                                                               <input type="text" id='alamatUsers' class='form-control' value='<?php echo $getData['alamat'] ?>' >
-                                                           </div>
-                                                       </div>
-                                                    </div>
-                                                    <div class="row">
-                                                      <div class="col-md-6 col-sm-6">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Instansi</label>
-                                                              <input type="text" id='instansiUsers' class='form-control' value='<?php echo $getData['instansi'] ?>' >
-                                                          </div>
-                                                      </div>
-                                                      <div class="col-md-6 col-sm-6">
-                                                          <div class="form-group label-floating">
-                                                              <label class="control-label">Password</label>
-                                                              <input type="password" id='passwordUsers' class='form-control' value='<?php echo $passwordUsers ?>' >
-                                                          </div>
-                                                      </div>
-
-                                                    </div>
-                                                      <div class="row">
-                                                          <div class="col-md-4 col-sm-4">
-                                                              <div class="form-group label-floating">
-                                                                  <input type='button' id='submitProfile' value='SIMPAN' class='btn btn-primary' onclick="saveProfile();" >
-                                                              </div>
-                                                          </div>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                      </div>
+          </div><!--end .section-body -->
+        </section>
+      </div><!--end #content-->
+      <!-- END CONTENT -->
+        <script type="text/javascript">
+          $(document).ready(function() {
+              setMenuEdit('baru');
+              $("#pageTitle").text("PROFILE");
+          });
+        </script>
 <?php
 
      break;

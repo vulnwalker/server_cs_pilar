@@ -1,3 +1,39 @@
+function descChanged(){
+  $("#ascHidden").val('desc');
+  $('.active-tick').click();
+  $('#turun').addClass('active-tick2').siblings().removeClass('active-tick2');
+}
+function ascChanged(){
+  $("#ascHidden").val('');
+  $('.active-tick').click();
+  $('#naik').addClass('active-tick2').siblings().removeClass('active-tick2');
+}
+function sortData(sorter){
+  $(sorter).addClass('active-tick').siblings().removeClass('active-tick');
+  $(".fixed").remove();
+  $.ajax({
+    type:'POST',
+    data : {
+      limitTable : $("#jumlahDataPerhalaman").val(),
+      pageKe : $(".active").text(),
+      searchData : $("#searchData").val(),
+      sorter : sorter.id,
+      ascending : $("#ascHidden").val()
+    },
+    url: url+'&tipe=loadTable',
+    success: function(data) {
+      var resp = eval('(' + data + ')');
+      if(resp.err==''){
+        $("#tabelBody").html(resp.content.tabelBody);
+        $("#tabelFooter").html(resp.content.tabelFooter);
+        $("table").fixMe();
+
+      }else{
+        alert(resp.err);
+      }
+    }
+  });
+}
 function loadTable(pageKe,limitTable){
   $.ajax({
     type:'POST',
@@ -61,15 +97,17 @@ function Hapus(){
   var errMsg = getJumlahChecked("produk");
   if(errMsg == '' || errMsg=='Pilih hanya satu data'){
     swal({
-          title: 'Yakin Hapus Data ?',
-          text: '',
-          type: 'warning',
+          title: "Hapus Data ?",
+          text: "",
+          type: "warning",
           showCancelButton: true,
-          confirmButtonText: 'Ya',
-          cancelButtonText: 'Tidak'
-        }).then((result) => {
-          if (result.value) {
-            $.ajax({
+          confirmButtonClass: "btn-danger",
+          confirmButtonText: "Ya",
+          cancelButtonText: "Tidak",
+          closeOnConfirm: false
+        },
+        function(){
+          $.ajax({
               type:'POST',
               data : $("#formProduk").serialize(),
               url: url+'&tipe=Hapus',
@@ -82,9 +120,7 @@ function Hapus(){
                 }
               }
             });
-          } else if (result.dismiss === 'cancel') {
-          }
-        })
+        });
 
     }else{
       errorAlert(errMsg);
@@ -96,52 +132,77 @@ function Hapus(){
      return editor.content.get();
  }
 function saveProduk(){
+    swal({
+        title: "Simpan Data ?",
+        text: "",
+        type: "info",
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+        showCancelButton: true,
+        closeOnConfirm: false,
+        showLoaderOnConfirm: true
+      }, function () {
+        $.ajax({
+          type:'POST',
+          // data : $("#formProduk").serialize()+"&deskripsiProduk="+$("#summernote").code()+"&baseGambarProduk="+crop,
+          data : {
+                namaProduk : $("#namaProduk").val(),
+                statusKosong : $("#statusKosong").val(),
+                baseGambarProduk : crop,
+                statusPublish : $("#statusPublish").val(),
+                deskripsiProduk : getEditorContent()
+          },
+          url: url+'&tipe=saveProduk',
+            success: function(data) {
+            // $("#LoadingImage").hide();
+            var resp = eval('(' + data + ')');
+              if(resp.err==''){
+                suksesAlert("Data Tersimpan");
+              }else{
+                errorAlert(resp.err);
+              }
+            }
+        });
+      });
     // $("#LoadingImage").attr('style','display:block');
-    $.ajax({
-      type:'POST',
-      // data : $("#formProduk").serialize()+"&deskripsiProduk="+$("#summernote").code()+"&baseGambarProduk="+crop,
-      data : {
-            namaProduk : $("#namaProduk").val(),
-            statusKosong : $("#statusKosong").val(),
-            baseGambarProduk : crop,
-            statusPublish : $("#statusPublish").val(),
-            deskripsiProduk : getEditorContent()
-      },
-      url: url+'&tipe=saveProduk',
-        success: function(data) {
-        // $("#LoadingImage").hide();
-        var resp = eval('(' + data + ')');
-          if(resp.err==''){
-            suksesAlert("Data Tersimpan");
-          }else{
-            errorAlert(resp.err);
-          }
-        }
-    });
+    
   }
 function saveEditProduk(idEdit){
-  $.ajax({
-    type:'POST',
-    // data : $("#formProduk").serialize()+"&deskripsiProduk="+$("#summernote").code()+"&baseGambarProduk="+crop,
-    data : {
-          namaProduk : $("#namaProduk").val(),
-          statusKosong : $("#statusKosong").val(),
-          baseGambarProduk : crop,
-          statusPublish : $("#statusPublish").val(),
-          deskripsiProduk : getEditorContent(),
-          idEdit : idEdit
-    },
-    url: url+'&tipe=saveEditProduk',
-      success: function(data) {
-      // $("#LoadingImage").hide();
-      var resp = eval('(' + data + ')');
-        if(resp.err==''){
-          suksesAlert("Data Tersimpan");
-        }else{
-          errorAlert(resp.err);
-        }
-      }
-  });
+  swal({
+        title: "Simpan Data ?",
+        text: "",
+        type: "info",
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+        showCancelButton: true,
+        closeOnConfirm: false,
+        showLoaderOnConfirm: true
+      }, function () {
+        $.ajax({
+          type:'POST',
+          // data : $("#formProduk").serialize()+"&deskripsiProduk="+$("#summernote").code()+"&baseGambarProduk="+crop,
+          data : {
+                namaProduk : $("#namaProduk").val(),
+                statusKosong : $("#statusKosong").val(),
+                baseGambarProduk : crop,
+                statusPublish : $("#statusPublish").val(),
+                deskripsiProduk : getEditorContent(),
+                idEdit : idEdit
+          },
+          url: url+'&tipe=saveEditProduk',
+            success: function(data) {
+            // $("#LoadingImage").hide();
+            var resp = eval('(' + data + ')');
+              if(resp.err==''){
+                suksesAlert("Data Tersimpan");
+              }else{
+                errorAlert(resp.err);
+              }
+            }
+        });
+      });
+  // $("#LoadingImage").attr('style','display:block');
+  
 }
 function setMenuEdit(statusMenu){
   $.ajax({

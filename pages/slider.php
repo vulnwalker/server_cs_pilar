@@ -91,7 +91,10 @@ switch($tipe){
           }
 
       }
-      $getData = sqlQuery("select * from $tableName $kondisi order by id desc $queryLimit");
+      if (!empty($sorter)) {
+        $kondisiSort = "ORDER BY $sorter $ascending";
+      }
+      $getData = sqlQuery("select * from $tableName $kondisi $kondisiSort $queryLimit");
       $cek = "select * from $tableName $kondisi $queryLimit";
       $nomor = 1;
       $nomorCB = 0;
@@ -172,35 +175,62 @@ switch($tipe){
     }
 
     case 'setMenuEdit':{
+      $sqlNama = sqlArray(sqlQuery("SELECT * from users where username = '".$_SESSION[username]."' "));
+      $getNama = $sqlNama[username];
       if($statusMenu == 'index'){
         $filterinTable = "
           <ul class='header-nav header-nav-options'>
             <li class='dropdown'>
               <div class='row'>
-                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                <div class='col-xs-4 col-sm-2 col-md-2 col-lg-2'>
                   <form class='form' role='form'>
                     <div class='form-group floating-label' style='padding-top: 0px;'>
                       <div class='input-group'>
                         <span class='input-group-addon'></span>
                         <div class='input-group-content'>
-                          <input type='text' class='form-control' id='searchData' name='searchData' onkeyup=limitData(); placeholder='Search'>
+                          <input type='text' class='form-control' id='searchData' name='searchData' onkeyup=limitData(); placeholder='Cari. . .'>
                           <!-- <label for='searchData'>Search</label> -->
                         </div>
                       </div>
                     </div>
                   </form>
                 </div>
-                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
-                <form class='form' role='form'>
-                    <div class='form-group' style='padding-top: 0px;'>
-                      <div class='input-group'>
-                        <div class='input-group-content'>
-                          <input type='text' onkeypress='return event.charCode >= 48 && event.charCode <= 57' class='form-control ' id='jumlahDataPerhalaman' name='jumlahDataPerhalaman' value = '50' onkeyup=limitData(); placeholder='Data / Halaman'>
-                          <label for='username10'>Data</label>
+                <div class='col-xs-4 col-sm-1 col-md-1 col-lg-1'>
+                  <form class='form' role='form'>
+                      <div class='form-group' style='padding-top: 0px;'>
+                        <div class='input-group'>
+                          <div class='input-group-content'>
+                            <input type='text' onkeypress='return event.charCode >= 48 && event.charCode <= 57' class='form-control ' id='jumlahDataPerhalaman' name='jumlahDataPerhalaman' value = '50' onkeyup=limitData(); placeholder='Data / Halaman'>
+                            <label for='username10'>Data</label>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                </form>
+                  </form>
+                </div>
+                <div class='col-xs-4 col-sm-2 col-md-2 col-lg-2'>
+                  <form class='form' role='form'>
+                      <div class='form-group' style='padding-top: 0px;'>
+                        <div class='input-group'>
+                          <div class='input-group-content'>
+                            <div class='btn-group'>
+                              <a class='btn dropdown-toggle' data-toggle='dropdown' href='#'>
+                                <b>
+                                  Urutkan
+                                  <span class='glyphicon glyphicon-sort'></span>
+                                </b>
+                              </a>
+                              <ul class='dropdown-menu'>
+                                <li id='nama' onclick=sortData(this);><a href='#' style='width: 100%;' >Nama</a></li>
+                                <li id='status' onclick=sortData(this);><a href='#' style='width: 100%;' >Publish</a></li>
+                                <li id='naik' class='active-tick2' onclick=ascChanged();><a href='#' style='width: 100%; border-top: 2px solid #0aa89e; font-weight: bold;'>Naik</a></li>
+                                <li id='turun' onclick=descChanged();><a href='#' style='width: 100%; font-weight: bold;'>Turun</a></li>
+                                <input type='hidden' id='ascHidden' name='ascHidden'>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  </form>
                 </div>
               </div>
             </li>
@@ -229,6 +259,17 @@ switch($tipe){
                     hapus
                   </button>
                 </div>
+                <div class='col-sm-3'>
+                  <div class='btn-group'>
+                    <button type='button' class='btn ink-reaction btn-flat dropdown-toggle' data-toggle='dropdown' style='color: #0aa89e;'>
+                       <i class='fa fa-user text-default-light' style='color: #0aa89e;'></i> ".$getNama."
+                    </button>
+                    <ul class='dropdown-menu animation-expand' role='menu'>
+                      <li><a href='#'>Ganti Password</a></li>
+                      <li><a href='#'>Logout</a></li>
+                    </ul>
+                  </div><!--end .btn-group -->
+                </div><!--end .col -->
               </div>
             </li>
           </ul>
@@ -260,6 +301,19 @@ switch($tipe){
         </script>
 
         <style>
+        .active-tick a::after {
+          content: '\f00c';
+          font-family: 'FontAwesome';
+          float: right;
+        }
+        .active-tick2 a::after {
+          content: '\f00c';
+          font-family: 'FontAwesome';
+          float: right;
+        }
+        .header-nav-options .dropdown .dropdown-menu{
+          top: 100%;
+        }
         .form .form-group .input-group-addon:first-child{
           min-width: 0px;
         }
@@ -309,6 +363,11 @@ switch($tipe){
         <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script src="js/slider.js"></script>
         <script>
+          function klik(monkey){
+
+            $(monkey).addClass('active-tick').siblings().removeClass('active-tick');
+
+          }
         (function($) {
           $.fn.fixMe = function() {
             return this.each(function() {
@@ -662,7 +721,17 @@ switch($tipe){
           }
          ?>
 
-
+<div class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="LoadingImage" style="display: none;">
+  <div class="modal-dialog modal-notice" style="height: 100%;">
+      <div class="modal-content" style="background-color: transparent; border: unset; box-shadow: unset; margin-top: 50%;">
+          <div class="modal-body">
+              <!-- <div id="LoadingImage"> -->
+                <img src="img/unnamed.gif" style="width: 30%; height: 30%; display: block; margin: auto;">
+              <!-- </div> -->
+          </div>
+      </div>
+  </div>
+</div>
 
 <?php
 

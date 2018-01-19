@@ -1,40 +1,52 @@
 function saveSetting(){
-  $("#LoadingImage").attr('style','display:block');
-  $.ajax({
-    type:'POST',
-    data : {
-              informasiBackground : $("#informasiBackground").val(),
-              produkBackground : $("#produkBackground").val(),
-              acaraBackground : $("#acaraBackground").val(),
-              sliderBackground : $("#sliderBackground").val(),
-              lowonganBackground : $("#lowonganBackground").val(),
-              tentangBackground : $("#tentangBackground").val(),
-              popularTitleColor : $("#popularTitleColor").val(),
-              popularDeskripsiColor : $("#popularDeskripsiColor").val(),
-              namaPerusahaan : $("#namaPerusahaan").val(),
-              alamatPerusahaan : $("#alamatPerusahaan").val(),
-              emailPerusahaan : $("#emailPerusahaan").val(),
-              teleponPerusahaan : $("#teleponPerusahaan").val(),
-              facebookPerusahaan : $("#facebookPerusahaan").val(),
-              twiterPerusahaan : $("#twiterPerusahaan").val(),
-              instagramPerusahaan : $("#instagramPerusahaan").val(),
-              googlePlus : $("#googlePlus").val(),
-              waPerusahaan : $("#waPerusahaan").val(),
-              linkedInPerusahaan : $("#linkedInPerusahaan").val(),
-              effectSlider : $("#effectSlider").val(),
-              tentang : $("#tentang").val(),
-            },
-    url: url+'&tipe=saveSetting',
-      success: function(data) {
-        $("#LoadingImage").hide();
-      var resp = eval('(' + data + ')');
-        if(resp.err==''){
-          suksesAlert("Data Tersimpan");
-        }else{
-          errorAlert(resp.err);
-        }
-      }
-  });
+  swal({
+        title: "Simpan Data ?",
+        text: "",
+        type: "info",
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+        showCancelButton: true,
+        closeOnConfirm: false,
+        showLoaderOnConfirm: true
+      }, function () {
+        $.ajax({
+          type:'POST',
+          data : {
+                    informasiBackground : $("#informasiBackground").val(),
+                    produkBackground : $("#produkBackground").val(),
+                    acaraBackground : $("#acaraBackground").val(),
+                    sliderBackground : $("#sliderBackground").val(),
+                    lowonganBackground : $("#lowonganBackground").val(),
+                    tentangBackground : $("#tentangBackground").val(),
+                    popularTitleColor : $("#popularTitleColor").val(),
+                    popularDeskripsiColor : $("#popularDeskripsiColor").val(),
+                    namaPerusahaan : $("#namaPerusahaan").val(),
+                    alamatPerusahaan : $("#alamatPerusahaan").val(),
+                    emailPerusahaan : $("#emailPerusahaan").val(),
+                    teleponPerusahaan : $("#teleponPerusahaan").val(),
+                    facebookPerusahaan : $("#facebookPerusahaan").val(),
+                    twiterPerusahaan : $("#twiterPerusahaan").val(),
+                    instagramPerusahaan : $("#instagramPerusahaan").val(),
+                    googlePlus : $("#googlePlus").val(),
+                    waPerusahaan : $("#waPerusahaan").val(),
+                    linkedInPerusahaan : $("#linkedInPerusahaan").val(),
+                    effectSlider : $("#effectSlider").val(),
+                    tentang : $("#tentang").val(),
+                  },
+          url: url+'&tipe=saveSetting',
+            success: function(data) {
+              // $("#LoadingImage").hide();
+            var resp = eval('(' + data + ')');
+              if(resp.err==''){
+                suksesAlert("Data Tersimpan");
+              }else{
+                errorAlert(resp.err);
+              }
+            }
+        });
+      });
+  // $("#LoadingImage").attr('style','display:block');
+  
 }
 
 function refreshList(){

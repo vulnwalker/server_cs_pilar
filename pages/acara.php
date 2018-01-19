@@ -189,7 +189,7 @@ switch($tipe){
    }elseif(empty($lamaAcara)){
        $err = "Isi lama acara";
    }elseif(empty(removeExtHarga($hargaTiket))){
-       $err = "Isi harga tiket";
+       $err = "Isi harga partisipasi";
    }elseif(empty($deadlinePembayaran)){
        $err = "Isi lama deadline pembayaran";
    }elseif(empty($lokasiAcara)){
@@ -204,7 +204,7 @@ switch($tipe){
                'tanggal' => generateDate($tanggalAcara),
                'jam' => removeExtJam($jamAcara),
                'lokasi' =>  $lokasiAcara,
-               'deskripsi' =>  $deskripsiAcara,
+               'deskripsi' =>  base64_encode($deskripsiAcara),
                'koordinat' => $kordinatLocation,
                'kuota' => $kuotaAcara,
                'harga_tiket' => removeExtHarga($hargaTiket),
@@ -234,7 +234,7 @@ switch($tipe){
    }elseif(empty($lamaAcara)){
        $err = "Isi lama acara";
    }elseif(empty(removeExtHarga($hargaTiket))){
-       $err = "Isi harga tiket";
+       $err = "Isi harga partisipasi";
    }elseif(empty($deadlinePembayaran)){
        $err = "Isi lama deadline pembayaran";
    }elseif(empty($lokasiAcara)){
@@ -249,7 +249,7 @@ switch($tipe){
                'tanggal' => generateDate($tanggalAcara),
                'jam' => removeExtJam($jamAcara),
                'lokasi' =>  $lokasiAcara,
-               'deskripsi' =>  $deskripsiAcara,
+               'deskripsi' =>  base64_encode($deskripsiAcara),
                'koordinat' => $kordinatLocation,
                'kuota' => $kuotaAcara,
                'harga_tiket' => removeExtHarga($hargaTiket),
@@ -431,12 +431,19 @@ switch($tipe){
       echo generateAPI($cek,$err,$content);
     break;
     }
+    case 'konfirmasiPembayaran':{
+      $getDataReservasi = sqlArray(sqlQuery("select * from reservasi_acara where id = '$id'"));
+      $getNamaUser = sqlArray(sqlQuery("select * from users where id = '".$getDataReservasi['id']."'"));
+      $content = array("baseImage" => $getDataReservasi['bukti_transfer'], 'caption' => "Bukti Transfer ".$getNamaUser['nama'] );
+      echo generateAPI($cek,$err,$content);
+    break;
+    }
 
     case 'loadTable':{
       if(!empty($searchData)){
         $getColom = sqlQuery("desc $tableName");
         while ($dataColomn = sqlArray($getColom)) {
-          
+
         }
         $arrKondisi[] = "nama_acara like '%$searchData%' ";
         $arrKondisi[] = "lokasi like '%$searchData%' ";
@@ -458,7 +465,10 @@ switch($tipe){
           }
 
       }
-      $getData = sqlQuery("select * from $tableName $kondisi order by id desc $queryLimit");
+      if (!empty($sorter)) {
+            $kondisiSort = "ORDER BY $sorter $ascending";
+      }
+      $getData = sqlQuery("select * from $tableName $kondisi $kondisiSort $queryLimit");
       $cek = "select * from $tableName $kondisi $queryLimit";
       $nomor = 1;
       $nomorCB = 0;
@@ -468,8 +478,9 @@ switch($tipe){
         }
         if(str_replace('-','',generateDate($tanggal)) < str_replace("-","",date("Y-m-d"))){
             $status = "SELESAI";
+            sqlQuery("update acara set status = 'SELESAI' where id = '$id'");
         }else{
-            $status = "BELUM";
+            sqlQuery("update acara set status = 'BELUM' where id = '$id'");
         }
 
         $data .= "     <tr>
@@ -552,12 +563,14 @@ switch($tipe){
     }
 
     case 'setMenuEdit':{
+      $sqlNama = sqlArray(sqlQuery("SELECT * from users where username = '".$_SESSION[username]."' "));
+      $getNama = $sqlNama[username];
       if($statusMenu == 'index'){
         $filterinTable = "
           <ul class='header-nav header-nav-options'>
             <li class='dropdown'>
               <div class='row'>
-                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+                <div class='col-xs-4 col-sm-2 col-md-2 col-lg-2'>
                   <form class='form' role='form'>
                     <div class='form-group floating-label' style='padding-top: 0px;'>
                       <div class='input-group'>
@@ -570,17 +583,47 @@ switch($tipe){
                     </div>
                   </form>
                 </div>
-                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
-                <form class='form' role='form'>
-                    <div class='form-group' style='padding-top: 0px;'>
-                      <div class='input-group'>
-                        <div class='input-group-content'>
-                          <input type='text' onkeypress='return event.charCode >= 48 && event.charCode <= 57' class='form-control ' id='jumlahDataPerhalaman' name='jumlahDataPerhalaman' value = '50' onkeyup=limitData(); placeholder='Data / Halaman'>
-                          <label for='username10'>Data</label>
+                <div class='col-xs-4 col-sm-1 col-md-1 col-lg-1'>
+                  <form class='form' role='form'>
+                      <div class='form-group' style='padding-top: 0px;'>
+                        <div class='input-group'>
+                          <div class='input-group-content'>
+                            <input type='text' onkeypress='return event.charCode >= 48 && event.charCode <= 57' class='form-control ' id='jumlahDataPerhalaman' name='jumlahDataPerhalaman' value = '50' onkeyup=limitData(); placeholder='Data / Halaman'>
+                            <label for='username10'>Data</label>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                </form>
+                  </form>
+                </div>
+                <div class='col-xs-4 col-sm-2 col-md-2 col-lg-2'>
+                  <form class='form' role='form'>
+                      <div class='form-group' style='padding-top: 0px;'>
+                        <div class='input-group'>
+                          <div class='input-group-content'>
+                            <div class='btn-group'>
+                              <a class='btn dropdown-toggle' data-toggle='dropdown' href='#'>
+                                <b>
+                                  Urutkan
+                                  <span class='glyphicon glyphicon-sort'></span>
+                                </b>
+                              </a>
+                              <ul class='dropdown-menu'>
+                                <li id='nama_acara' onclick=sortData(this);><a href='#' style='width: 100%;' >Nama Acara</a></li>
+                                <li id='lokasi' onclick=sortData(this);><a href='#' style='width: 100%;' >Lokasi</a></li>
+                                <li id='tanggal' onclick=sortData(this);><a href='#' style='width: 100%;' >Tanggal</a></li>
+                                <li id='lama_acara' onclick=sortData(this);><a href='#' style='width: 100%;' >Lama Acara</a></li>
+                                <li id='reversed' onclick=sortData(this);><a href='#' style='width: 100%;' >Pendaftaran</a></li>
+                                <li id='kuota' onclick=sortData(this);><a href='#' style='width: 100%;' >Kuota</a></li>
+                                <li id='status' onclick=sortData(this);><a href='#' style='width: 100%;' >Status</a></li>
+                                <li id='naik' class='active-tick2' onclick=ascChanged();><a href='#' style='width: 100%; border-top: 2px solid #0aa89e; font-weight: bold;'>Naik</a></li>
+                                <li id='turun' onclick=descChanged();><a href='#' style='width: 100%; font-weight: bold;'>Turun</a></li>
+                                <input type='hidden' id='ascHidden' name='ascHidden'>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  </form>
                 </div>
               </div>
             </li>
@@ -609,6 +652,17 @@ switch($tipe){
                     hapus
                   </button>
                 </div>
+                <div class='col-sm-3'>
+                  <div class='btn-group'>
+                    <button type='button' class='btn ink-reaction btn-flat dropdown-toggle' data-toggle='dropdown' style='color: #0aa89e;'>
+                       <i class='fa fa-user text-default-light' style='color: #0aa89e;'></i> ".$getNama."
+                    </button>
+                    <ul class='dropdown-menu animation-expand' role='menu'>
+                      <li><a href='#'>Ganti Password</a></li>
+                      <li><a href='#'>Logout</a></li>
+                    </ul>
+                  </div><!--end .btn-group -->
+                </div><!--end .col -->
               </div>
             </li>
           </ul>
@@ -689,6 +743,31 @@ switch($tipe){
         </script>
 
         <style>
+        .active-tick2 a::after {
+          content: '\f00c';
+          font-family: 'FontAwesome';
+          float: right;
+        }
+        .active-tick a::after {
+          content: '\f00c';
+          font-family: 'FontAwesome';
+          float: right;
+        }
+        th.datepicker-switch{
+          color: black;
+        }
+        th.next{
+          color: black;
+        }
+        th.prev{
+          color: black;
+        }
+        th.dow{
+          color: black;
+        }
+        .header-nav-options .dropdown .dropdown-menu{
+          top: 100%;
+        }
         .form .form-group .input-group-addon:first-child{
           min-width: 0px;
         }
@@ -711,12 +790,12 @@ switch($tipe){
         th,td{
           padding:5px 0;
         }
-        tbody tr:nth-child(even){
+        /*tbody tr:nth-child(even){
           background:#ECF0F1;
-        }
-        tbody tr:hover{
+        }*/
+        /*tbody tr:hover{
         background:#BDC3C7;
-        }
+        }*/
         .fixed {
             top: 65px;
             position: fixed;
@@ -735,6 +814,11 @@ switch($tipe){
         <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script src="js/acara.js"></script>
         <script>
+          function klik(monkey){
+
+            $(monkey).addClass('active-tick').siblings().removeClass('active-tick');
+
+          }
         (function($) {
           $.fn.fixMe = function() {
             return this.each(function() {
@@ -860,7 +944,9 @@ switch($tipe){
           }else{
               if($_GET['action'] == 'baru'){
                 ?>
+                <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons" />
                 <script type="text/javascript" src="js/textboxio/textboxio.js"></script>
+
                 <div id="content">
           				<section>
           					<div class="section-body contain-lg">
@@ -876,55 +962,58 @@ switch($tipe){
       												</div>
                             </div>
       											<div class="row">
-      												<div class="col-sm-1">
+      												<div class="col-sm-12 col-xs-12 col-md-3 col-lg-3">
                                 <div class="form-group date" >
         														<input type="text" id='tanggalAcara' name='tanggalAcara' class="form-control">
-        														<label>Tanggal</label>
+        														<label>Tanggal Mulai</label>
         													<span class="input-group-addon"></span>
         												</div>
       												</div>
-      												<div class="col-sm-1">
+      												<div class="col-sm-12 col-xs-12 col-md-3 col-lg-3">
                                 <div class="form-group">
           												<input type="text" id='jamAcara' name='jamAcara' class="form-control time-mask">
-          												<label>Jam</label>
+          												<label>Jam Mulai</label>
           											</div>
       												</div>
-      												<div class="col-sm-1">
+      												<div class="col-sm-12 col-xs-12 col-md-3 col-lg-3">
                                 <div class="form-group">
           												<input type="number" id='kuotaAcara' name='kuotaAcara' class="form-control">
           												<label>Kuota</label>
           											</div>
       												</div>
-      												<div class="col-sm-1">
+      												<div class="col-sm-12 col-xs-12 col-md-3 col-lg-3">
                                 <div class="form-group">
           												<input type="number" id='lamaAcara' name='lamaAcara' class="form-control">
           												<label>Lama</label>
           											</div>
       												</div>
-      												<div class="col-sm-2">
+                            </div>
+                            <div class="row">
+                              <div class="col-sm-12 col-xs-12 col-md-3 col-lg-3">
+                                <div class="form-group date" >
+                                    <input type="text" id='tanggalAcara' name='tanggalAcara' class="form-control">
+                                    <label>Tanggal Selesai</label>
+                                  <span class="input-group-addon"></span>
+                                </div>
+                              </div>
+                              <div class="col-sm-12 col-xs-12 col-md-3 col-lg-3">
                                 <div class="form-group">
-          												<input type="text" id='hargaTiket' name='hargaTiket' class="form-control">
-          												<label>Harga Tiket</label>
-          											</div>
-      												</div>
-      												<div class="col-sm-2">
+                                  <input type="text" id='jamAcara' name='jamAcara' class="form-control time-mask">
+                                  <label>Jam Selesai</label>
+                                </div>
+                              </div>
+                              <div class="col-sm-12 col-xs-12 col-md-3 col-lg-3">
                                 <div class="form-group">
-          												<input type="text" id='hargaKamar' name='hargaKamar' class="form-control">
-          												<label>Harga Kamar</label>
-          											</div>
-      												</div>
-      												<div class="col-sm-2">
+                                  <input type="text" id='hargaTiket' name='hargaTiket' class="form-control">
+                                  <label>Harga Partisipasi</label>
+                                </div>
+                              </div>
+                              <div class="col-sm-12 col-xs-12 col-md-3 col-lg-3">
                                 <div class="form-group">
-          												<input type="text" id='hargaExtraBed' name='hargaExtraBed' class="form-control">
-          												<label>Harga Extra Bed</label>
-          											</div>
-      												</div>
-                              <div class="col-sm-2">
-                                <div class="form-group">
-          												<input type="number" id='deadlinePembayaran' name='deadlinePembayaran' class="form-control">
-          												<label>Deadline Pembayaran</label>
-          											</div>
-      												</div>
+                                  <input type="number" id='deadlinePembayaran' name='deadlinePembayaran' class="form-control">
+                                  <label>Deadline Pembayaran</label>
+                                </div>
+                              </div>
                             </div>
                             <div class="row">
                               <div class="col-sm-12">
@@ -933,6 +1022,18 @@ switch($tipe){
                                   <label>Lokasi Acara</label>
                                 </div>
                               </div>
+                            </div>
+                            <div class="row">
+                              <!-- BEGIN MARKER MAP -->
+                              <div class="col-md-12 col-lg-12">
+                                <div class="card">
+                                  <div class="card-body no-padding">
+                                     <div id="map" style="height: 400px;width: 100%;"></div>
+                                  </div>
+                                </div><!--end .card -->
+                                <em class="text-caption">Map with marker</em>
+                              </div><!--end .col -->
+                              <!-- END MARKER MAP -->
                             </div>
                             <div class="row">
                               <div class="col-sm-12">
@@ -951,6 +1052,20 @@ switch($tipe){
       							</div>
           				</section>
           			</div>
+                <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCwJqGylmwWguljWAO6QfZLWrz-StuMbw8&callback=initMap"></script>
+                <script>
+                  function initMap() {
+                    var uluru = {lat: -25.363, lng: 131.044};
+                    var map = new google.maps.Map(document.getElementById('map'), {
+                      zoom: 4,
+                      center: uluru
+                    });
+                    var marker = new google.maps.Marker({
+                      position: uluru,
+                      map: map
+                    });
+                  }
+                </script>
                 <script type="text/javascript">
                   $(document).ready(function() {
                       setMenuEdit('baru');
@@ -995,56 +1110,61 @@ switch($tipe){
         												</div>
                               </div>
         											<div class="row">
-        												<div class="col-sm-1">
+        												<div class="col-sm-3 col-xs-12 col-md-3 col-lg-3">
                                   <div class="form-group date" >
           														<input type="text" id='tanggalAcara' name='tanggalAcara' class="form-control" value="<?php echo generateDate($getData['tanggal']) ?>">
-          														<label>Tanggal</label>
+          														<label>Tanggal Mulai</label>
           													<span class="input-group-addon"></span>
           												</div>
         												</div>
-        												<div class="col-sm-1">
+        												<div class="col-sm-3 col-xs-12 col-md-3 col-lg-3">
                                   <div class="form-group">
             												<input type="text" id='jamAcara' name='jamAcara' class="form-control time-mask" value="<?php echo $getData['jam'] ?>">
-            												<label>Jam</label>
+            												<label>Jam Mulai</label>
             											</div>
         												</div>
-        												<div class="col-sm-1">
+        												<div class="col-sm-3 col-xs-12 col-md-3 col-lg-3">
                                   <div class="form-group">
             												<input type="number" id='kuotaAcara' name='kuotaAcara' class="form-control" value="<?php echo $getData['kuota'] ?>">
             												<label>Kuota</label>
             											</div>
         												</div>
-        												<div class="col-sm-1">
+        												<div class="col-sm-3 col-xs-12 col-md-3 col-lg-3">
                                   <div class="form-group">
             												<input type="number" id='lamaAcara' name='lamaAcara' class="form-control" value="<?php echo $getData['lama_acara'] ?>">
             												<label>Lama</label>
             											</div>
         												</div>
-        												<div class="col-sm-2">
-                                  <div class="form-group">
-            												<input type="text" id='hargaTiket' name='hargaTiket' class="form-control" value="<?php echo $getData['harga_tiket'] ?>">
-            												<label>Harga Tiket</label>
-            											</div>
-        												</div>
-        												<div class="col-sm-2">
-                                  <div class="form-group">
-            												<input type="text" id='hargaKamar' name='hargaKamar' class="form-control" value="<?php echo $getData['harga_kamar'] ?>">
-            												<label>Harga Kamar</label>
-            											</div>
-        												</div>
-        												<div class="col-sm-2">
-                                  <div class="form-group">
-            												<input type="text" id='hargaExtraBed' name='hargaExtraBed' class="form-control" value="<?php echo $getData['extra_bed'] ?>">
-            												<label>Harga Extra Bed</label>
-            											</div>
-        												</div>
-                                <div class="col-sm-2">
-                                  <div class="form-group">
-            												<input type="number" id='deadlinePembayaran' name='deadlinePembayaran' class="form-control" value="<?php echo $getData['deadline_pembayaran'] ?>">
-            												<label>Deadline Pembayaran</label>
-            											</div>
-        												</div>
                               </div>
+
+                              <div class="row">
+                                <div class="col-sm-3 col-xs-12 col-md-3 col-lg-3">
+                                  <div class="form-group date" >
+                                      <input type="text" id='tanggalAcara' name='tanggalAcara' class="form-control" value="<?php echo generateDate($getData['tanggal']) ?>">
+                                      <label>Tanggal Selesai</label>
+                                    <span class="input-group-addon"></span>
+                                  </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-12 col-md-3 col-lg-3">
+                                  <div class="form-group">
+                                    <input type="text" id='jamAcara' name='jamAcara' class="form-control time-mask" value="<?php echo $getData['jam'] ?>">
+                                    <label>Jam Selesai</label>
+                                  </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-12 col-md-3 col-lg-3">
+                                  <div class="form-group">
+                                    <input type="text" id='hargaTiket' name='hargaTiket' class="form-control" value="<?php echo $getData['harga_tiket'] ?>">
+                                    <label>Harga Partisipasi</label>
+                                  </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-12 col-md-3 col-lg-3">
+                                  <div class="form-group">
+                                    <input type="number" id='deadlinePembayaran' name='deadlinePembayaran' class="form-control" value="<?php echo $getData['deadline_pembayaran'] ?>">
+                                    <label>Deadline Pembayaran</label>
+                                  </div>
+                                </div>
+                              </div>
+
                               <div class="row">
                                 <div class="col-sm-12">
                                   <div class="form-group">
@@ -1054,8 +1174,22 @@ switch($tipe){
                                 </div>
                               </div>
                               <div class="row">
+                                <div class="row">
+                                  <!-- BEGIN MARKER MAP -->
+                                  <div class="col-md-12 col-lg-12">
+                                    <div class="card">
+                                      <div class="card-body no-padding">
+                                         <div id="map" style="height: 400px;width: 100%;"></div>
+                                      </div>
+                                    </div><!--end .card -->
+                                    <em class="text-caption">Map with marker</em>
+                                  </div><!--end .col -->
+                                  <!-- END MARKER MAP -->
+                                </div>
+                              </div>
+                              <div class="row">
                                 <div class="col-sm-12">
-                                    <textarea id='deskripsiAcara' style="height:400px;"><?php echo $getData['deskripsi'] ?></textarea>
+                                    <textarea id='deskripsiAcara' style="height:400px;"><?php echo base64_decode($getData['deskripsi']) ?></textarea>
                                 </div>
                               </div>
                               <div class="card-actionbar">
@@ -1070,6 +1204,20 @@ switch($tipe){
         							</div>
             				</section>
             			</div>
+                  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCwJqGylmwWguljWAO6QfZLWrz-StuMbw8&callback=initMap"></script>
+                  <script>
+                    function initMap() {
+                      var uluru = {lat: -25.363, lng: 131.044};
+                      var map = new google.maps.Map(document.getElementById('map'), {
+                        zoom: 4,
+                        center: uluru
+                      });
+                      var marker = new google.maps.Marker({
+                        position: uluru,
+                        map: map
+                      });
+                    }
+                  </script>
                   <script type="text/javascript">
                     $(document).ready(function() {
                         setMenuEdit('baru');
@@ -1104,6 +1252,78 @@ switch($tipe){
                         $("#pageTitle").text("PENDAFTARAN ACARA");
                     });
                   </script>
+                  <style>
+                  /*popup image*/
+
+                          #myImg {
+                      border-radius: 5px;
+                      cursor: pointer;
+                      transition: 0.3s;
+                  }
+
+                  #myImg:hover {opacity: 0.7;}
+
+                  /* The Modal (background) */
+                  .modal {
+                      display: none; /* Hidden by default */
+                      position: fixed; /* Stay in place */
+                      z-index: 1; /* Sit on top */
+                      padding-top: 100px; /* Location of the box */
+                      left: 0;
+                      top: 0;
+                      width: 100%; /* Full width */
+                      height: 100%; /* Full height */
+                      overflow: auto; /* Enable scroll if needed */
+                      background-color: rgb(0,0,0); /* Fallback color */
+                      background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+                  }
+
+                  /* Modal Content (image) */
+                  .modal-content {
+                      margin: auto;
+                      display: block;
+                      width: 80%;
+                      max-width: 700px;
+                  }
+
+                  /* Caption of Modal Image */
+                  #captionImage {
+                      margin: auto;
+                      display: block;
+                      width: 80%;
+                      max-width: 700px;
+                      text-align: center;
+                      color: #ccc;
+                      padding: 10px 0;
+                      height: 150px;
+                  }
+
+                  /* Add Animation */
+                  .modal-content, #captionImage {
+                      -webkit-animation-name: zoom;
+                      -webkit-animation-duration: 0.6s;
+                      animation-name: zoom;
+                      animation-duration: 0.6s;
+                  }
+
+                  @-webkit-keyframes zoom {
+                      from {-webkit-transform:scale(0)}
+                      to {-webkit-transform:scale(1)}
+                  }
+
+                  @keyframes zoom {
+                      from {transform:scale(0)}
+                      to {transform:scale(1)}
+                  }
+
+
+
+                  @media only screen and (max-width: 700px){
+                      .modal-content {
+                          width: 100%;
+                      }
+                  }
+                  </style>
                   <div id="content">
             				<section>
             					<div class="section-body contain-lg">
@@ -1179,11 +1399,31 @@ switch($tipe){
 
                     </div>
                   </div>
+
+
+                  <div id="myModalImage" class="modal" onclick="closeImage();">
+                    <img class="modal-content" id="img01">
+                    <div id="captionImage"></div>
+                  </div>
+
             			</div>
                   <?php
               }
           }
          ?>
+
+<div class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="LoadingImage" style="display: none;">
+  <div class="modal-dialog modal-notice" style="height: 100%;">
+      <div class="modal-content" style="background-color: transparent; border: unset; box-shadow: unset; margin-top: 50%;">
+          <div class="modal-body">
+              <!-- <div id="LoadingImage"> -->
+                <img src="img/unnamed.gif" style="width: 30%; height: 30%; display: block; margin: auto;">
+              <!-- </div> -->
+          </div>
+      </div>
+  </div>
+</div>
+
 <?php
      break;
      }

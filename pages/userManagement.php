@@ -25,6 +25,8 @@ switch($tipe){
           $err = "Isi password ";
       }elseif(empty($namaUser)){
           $err = "Isi nama ";
+      }elseif(empty($hakAkses)){
+          $err = "Pilih hak akses ";
       }
 
       if(empty($err)){
@@ -37,6 +39,7 @@ switch($tipe){
                   'alamat' =>  $alamatUser,
                   'instansi' =>  $instansiUser,
                   'jenis_user' =>  $statusUser,
+                  'hak_akses' =>  implode(";",$hakAkses),
           );
           $query = sqlInsert("$tableName",$data);
           sqlQuery($query);
@@ -68,8 +71,9 @@ switch($tipe){
           $err = "Isi password ";
       }elseif(empty($namaUser)){
           $err = "Isi nama ";
+      }elseif(empty($hakAkses)){
+          $err = "Pilih hak akses ";
       }
-
       if(empty($err)){
         $data = array(
                 'email' => $emailUser,
@@ -80,6 +84,7 @@ switch($tipe){
                 'alamat' =>  $alamatUser,
                 'instansi' =>  $instansiUser,
                 'jenis_user' =>  $statusUser,
+                'hak_akses' =>  implode(";",$hakAkses),
         );
         $query = sqlUpdate("$tableName",$data,"id = '$idEdit'");
         sqlQuery($query);
@@ -121,7 +126,7 @@ switch($tipe){
       if(!empty($searchData)){
         $getColom = sqlQuery("desc $tableName");
         while ($dataColomn = sqlArray($getColom)) {
-          
+
         }
         $arrKondisi[] = "nama like '%$searchData%' ";
         $arrKondisi[] = "username like '%$searchData%' ";
@@ -142,8 +147,11 @@ switch($tipe){
           }
 
       }
-      $getData = sqlQuery("select * from $tableName $kondisi $queryLimit");
-      $cek = "select * from $tableName $kondisi $queryLimit";
+      if (!empty($sorter)) {
+        $kondisiSort = "ORDER BY $sorter $ascending";
+      }
+      $getData = sqlQuery("select * from $tableName $kondisi $kondisiSort $queryLimit");
+      // $cek = "select * from $tableName $kondisi $queryLimit $kondisiSort";
       $nomor = 1;
       $nomorCB = 0;
       while($dataUser = sqlArray($getData)){
@@ -181,7 +189,7 @@ switch($tipe){
 
         <thead>
           <tr>
-            <th class='text-center'>No</th>
+            <th class='text-center' onclick='sortTable(0)'>No</th>
             <th class='text-center'>
              <div class='checkbox checkbox-inline checkbox-styled' >
               <label>
@@ -190,12 +198,12 @@ switch($tipe){
             </label>
           </div>
             </th>
-            <th class='col-lg-2'>Nama</th>
-            <th class='col-lg-2'>Username</th>
-            <th class='col-lg-2'>Email</th>
-            <th class='col-lg-3'>Instansi</th>
-            <th class='col-lg-2'>Telepon</th>
-            <th class='col-lg-2'>Kategori</th>
+            <th class='col-lg-2' onclick='sortTable(1)'>Nama</th>
+            <th class='col-lg-2' onclick='sortTable(2)'>Username</th>
+            <th class='col-lg-2' onclick='sortTable(3)'>Email</th>
+            <th class='col-lg-3' onclick='sortTable(4)'>Instansi</th>
+            <th class='col-lg-2' onclick='sortTable(5)'>Telepon</th>
+            <th class='col-lg-2' onclick='sortTable(6)'>Kategori</th>
           </tr>
         </thead>
         <tbody>
@@ -229,25 +237,27 @@ switch($tipe){
     }
 
     case 'setMenuEdit':{
+      $sqlNama = sqlArray(sqlQuery("SELECT * from users where username = '".$_SESSION[username]."' "));
+      $getNama = $sqlNama[username];
       if($statusMenu == 'index'){
         $filterinTable = "
           <ul class='header-nav header-nav-options'>
             <li class='dropdown'>
               <div class='row'>
-                <div class='col-xs-2 col-sm-2 col-md-2 col-lg-2'>
+                <div class='col-xs-4 col-sm-2 col-md-2 col-lg-3'>
                   <form class='form' role='form'>
                     <div class='form-group floating-label' style='padding-top: 0px;'>
                       <div class='input-group'>
                         <span class='input-group-addon'></span>
                         <div class='input-group-content'>
-                          <input type='text' class='form-control' id='searchData' name='searchData' onkeyup=limitData(); placeholder='Search'>
+                          <input type='text' class='form-control' id='searchData' name='searchData' onkeyup=limitData(); placeholder='Cari. . .'>
                           <!-- <label for='searchData'>Search</label> -->
                         </div>
                       </div>
                     </div>
                   </form>
                 </div>
-                <div class='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
+                <div class='col-xs-4 col-sm-1 col-md-1 col-lg-1'>
                   <form class='form' role='form'>
                       <div class='form-group' style='padding-top: 0px;'>
                         <div class='input-group'>
@@ -259,16 +269,30 @@ switch($tipe){
                       </div>
                   </form>
                 </div>
-                <div class='col-xs-2 col-sm-2 col-md-2 col-lg-2'>
+                <div class='col-xs-4 col-sm-2 col-md-2 col-lg-2'>
                   <form class='form' role='form'>
                       <div class='form-group' style='padding-top: 0px;'>
                         <div class='input-group'>
                           <div class='input-group-content'>
-                            <select class='form-control select2-list' data-placeholder='Select an item'>
-                                <option value='AK'>Alaska</option>
-                                <option value='HI'>Hawaii</option>
-                            </select>
-                            <label>Urutkan</label>
+                            <div class='btn-group'>
+                              <a class='btn dropdown-toggle' data-toggle='dropdown' href='#'>
+                                <b>
+                                  Urutkan
+                                  <span class='glyphicon glyphicon-sort'></span>
+                                </b>
+                              </a>
+                              <ul class='dropdown-menu'>
+                                <li id='nama' onclick=sortData(this);><a href='#' style='width: 100%;' >Nama</a></li>
+                                <li id='username' onclick=sortData(this);><a href='#' style='width: 100%;' >Username</a></li>
+                                <li id='email' onclick=sortData(this);><a href='#' style='width: 100%;' >Email</a></li>
+                                <li id='instansi' onclick=sortData(this);><a href='#' style='width: 100%;' >Instansi</a></li>
+                                <li id='telepon' onclick=sortData(this);><a href='#' style='width: 100%;' >Telepon</a></li>
+                                <li id='jenis_user' onclick=sortData(this);><a href='#' style='width: 100%;' >Kategori</a></li>
+                                <li id='naik' class='active-tick2' onclick=ascChanged();><a href='#' style='width: 100%; border-top: 2px solid #0aa89e; font-weight: bold;'>Naik</a></li>
+                                <li id='turun' onclick=descChanged();><a href='#' style='width: 100%; font-weight: bold;'>Turun</a></li>
+                                <input type='hidden' id='ascHidden' name='ascHidden'>
+                              </ul>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -301,6 +325,17 @@ switch($tipe){
                     hapus
                   </button>
                 </div>
+                <div class='col-sm-3'>
+                  <div class='btn-group'>
+                    <button type='button' class='btn ink-reaction btn-flat dropdown-toggle' data-toggle='dropdown' style='color: #0aa89e;'>
+                       <i class='fa fa-user text-default-light' style='color: #0aa89e;'></i> ".$getNama."
+                    </button>
+                    <ul class='dropdown-menu animation-expand' role='menu'>
+                      <li><a href='#'>Ganti Password</a></li>
+                      <li><a href='#'>Logout</a></li>
+                    </ul>
+                  </div><!--end .btn-group -->
+                </div><!--end .col -->
               </div>
             </li>
           </ul>
@@ -326,6 +361,22 @@ switch($tipe){
         </script>
 
         <style>
+        .active-tick a::after {
+          content: '\f00c';
+          font-family: 'FontAwesome';
+          float: right;
+        }
+        .active-tick2 a::after {
+          content: '\f00c';
+          font-family: 'FontAwesome';
+          float: right;
+        }
+        /*th{
+          cursor: pointer;
+        }*/
+        .header-nav-options .dropdown .dropdown-menu{
+          top: 100%;
+        }
         .form .form-group .input-group-addon:first-child{
           min-width: 0px;
         }
@@ -373,6 +424,67 @@ switch($tipe){
         </style>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script src="js/userManagement.js"></script>
+        <script type="text/javascript">
+          // $('li').click(function(e) {
+          //     $(this).addClass('active-tick').siblings().removeClass('active-tick');
+          // });
+
+
+          function sortTable(n) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("tabelBody");
+            switching = true;
+            //Set the sorting direction to ascending:
+            dir = "asc";
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+              //start by saying: no switching is done:
+              switching = false;
+              rows = table.getElementsByTagName("TR");
+              /*Loop through all table rows (except the
+              first, which contains table headers):*/
+              for (i = 1; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                  if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                    //if so, mark as a switch and break the loop:
+                    shouldSwitch= true;
+                    break;
+                  }
+                } else if (dir == "desc") {
+                  if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                    //if so, mark as a switch and break the loop:
+                    shouldSwitch= true;
+                    break;
+                  }
+                }
+              }
+              if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount ++;
+              } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                  dir = "desc";
+                  switching = true;
+                }
+              }
+            }
+          }
+        </script>
         <script>
         (function($) {
           $.fn.fixMe = function() {
@@ -498,12 +610,7 @@ switch($tipe){
           }else{
               if($_GET['action'] == 'baru'){
                 ?>
-                <script type="text/javascript">
-                  $(document).ready(function() {
-                      setMenuEdit('baru');
-                      $("#pageTitle").text("USERS");
-                  });
-                </script>
+
                 <div id="content">
           				<section>
           					<div class="section-body contain-lg">
@@ -550,6 +657,17 @@ switch($tipe){
         												  <input type="text" id='instansiUser' name='instansiUser' class="form-control">
         												  <label for="instansiUser">Instansi</label>
           											</div>
+                                <div class="form-group floating-label">
+                                  <select class="form-control select2-list" id='hakAkses' name='hakAkses'  multiple="" tabindex="-1" style="display: none;">
+                                    <?php
+                                       $getHakAkses = sqlQuery("select * from ref_modul");
+                                       while ($dataModul = sqlArray($getHakAkses)) {
+                                           echo "<option value='".$dataModul['id']."'>".$dataModul['modul']."</option>";
+                                       }
+                                    ?>
+                                 </select>
+                                 <label>Hak Akses</label>
+          											</div>
           										</form>
           									</div>
           									<div class="card-actionbar">
@@ -564,15 +682,36 @@ switch($tipe){
           					</div>
           				</section>
           			</div>
+
+                <script type="text/javascript">
+                  $(document).ready(function() {
+                      setMenuEdit('baru');
+                      $("#pageTitle").text("USERS");
+                      $(".select2-list").select2({
+                        allowClear: true
+                      });
+                      $(".select2-list").select2({
+                        allowClear: true
+                      });
+                  });
+                </script>
                 <?php
               }elseif($_GET['action']=='edit'){
                   $getData = sqlArray(sqlQuery("select * from $tableName where id = '".$_GET['idEdit']."'"));
                   $getRealPassword = sqlArray(sqlQuery("select * from wordlist where hash = '".$getData['password']."'"));
+                  $arrayHakAkses = explode(";",$getData['hak_akses']);
                   ?>
+
                   <script type="text/javascript">
                     $(document).ready(function() {
                         setMenuEdit('baru');
                         $("#pageTitle").text("USERS");
+                        $(".select2-list").select2({
+                          allowClear: true
+                        });
+                        $(".select2-list").select2({
+                          allowClear: true
+                        });
                     });
                   </script>
                   <div id="content">
@@ -621,6 +760,21 @@ switch($tipe){
           												  <input type="text" id='instansiUser' name='instansiUser' class="form-control" value="<?php echo $getData['instansi'] ?>">
           												  <label for="instansiUser">Instansi</label>
             											</div>
+                                  <div class="form-group floating-label">
+                                    <select class="form-control select2-list" id='hakAkses' name='hakAkses'  multiple="" tabindex="-1" style="display: none;">
+                                      <?php
+                                         $getHakAkses = sqlQuery("select * from ref_modul");
+                                         while ($dataModul = sqlArray($getHakAkses)) {
+                                            if(in_array($dataModul['id'],$arrayHakAkses)){
+                                              echo "<option value='".$dataModul['id']."' selected>".$dataModul['modul']."</option>";
+                                            }else{
+                                              echo "<option value='".$dataModul['id']."'>".$dataModul['modul']."</option>";
+                                            }
+                                         }
+                                      ?>
+                                   </select>
+                                   <label>Hak Akses</label>
+            											</div>
             										</form>
             									</div>
             									<div class="card-actionbar">
@@ -640,7 +794,17 @@ switch($tipe){
           }
          ?>
 
-
+<div class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="LoadingImage" style="display: none;">
+  <div class="modal-dialog modal-notice" style="height: 100%;">
+      <div class="modal-content" style="background-color: transparent; border: unset; box-shadow: unset; margin-top: 50%;">
+          <div class="modal-body">
+              <!-- <div id="LoadingImage"> -->
+                <img src="img/unnamed.gif" style="width: 30%; height: 30%; display: block; margin: auto;">
+              <!-- </div> -->
+          </div>
+      </div>
+  </div>
+</div>
 
 <?php
 

@@ -56,18 +56,28 @@ function thisChecked(idCheckbox,elJmlCek){
 
 
   function suksesAlert(pesan){
+        // swal({
+        // title: pesan,
+        // type: "success"
+        // }).then(function() {
+        //     refreshList();
+        // });
         swal({
-        title: pesan,
-        type: "success"
-        }).then(function() {
-            refreshList();
+          title: pesan,
+          text: "",
+          type: "success",
+          showCancelButton: false,
+          closeOnConfirm: false
+        }, function () {
+          refreshList();
         });
     }
 
     function errorAlert(pesan){
-        swal({
-        title: pesan,
-        type: "warning"
-        }).then(function() {
-        });
+        // swal({
+        // title: pesan,
+        // type: "warning"
+        // }).then(function() {
+        // });
+        swal(pesan, "", "warning");
     }

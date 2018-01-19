@@ -37,6 +37,8 @@
                         $lowonganKerjaActive = "active";
                     }elseif ($page == "team") {
                         $teamActivce = "active";
+                    }elseif ($page == "profile") {
+                        $profileActive = "active";
                     }else{
                         $userManagement = "active";
                     }
@@ -45,7 +47,7 @@
                                 <li>
                                   <a href='?page=userManagement' class='$userManagement'>
                                     <div class='gui-icon'><i class='fa fa-users'></i></div>
-                                    <span class='title'>User Management</span>
+                                    <span class='title'>Users</span>
                                   </a>
                                 </li>
                                 <li>
@@ -75,7 +77,7 @@
                                 <li>
                                   <a href='?page=lowonganKerja' class='$lowonganKerjaActive'>
                                     <div class='gui-icon'><i class='md md-assessment'></i></div>
-                                    <span class='title'>Lowongan Kerja</span>
+                                    <span class='title'>Loker</span>
                                   </a>
                                 </li>
                                 <li>
@@ -91,11 +93,17 @@
                                   </a>
                                 </li>
                                 <li>
+                                  <a href='?page=profile' class='$profileActive'>
+                                    <div class='gui-icon'><i class='md md-timer-auto'></i></div>
+                                    <span class='title'>Profile</span>
+                                  </a>
+                                </li>
+                                <!-- <li>
                                   <a href='?page=chating' class='$chatingActive'>
                                     <div class='gui-icon'><i class='md md-forum'></i></div>
                                     <span class='title'>Live Chat</span>
                                   </a>
-                                </li>
+                                </li> -->
 
 
 
