@@ -151,8 +151,9 @@ function saveTeam(){
                 twiter : $("#twiter").val(),
                 instagram : $("#instagram").val(),
                 linkedIn : $("#linkedIn").val(),
-                facebook : $("#facebook").val(),
+                facebook : $("#faceBook").val(),
                 tentang : $("#tentang").val(),
+                statusPublish : $("#statusPublish").val(),
           },
           url: url+'&tipe=saveTeam',
             success: function(data) {
@@ -167,7 +168,7 @@ function saveTeam(){
         });
       });
   // $("#LoadingImage").attr('style','display:block');
-  
+
 }
 function saveEditTeam(idEdit){
   swal({
@@ -193,8 +194,9 @@ function saveEditTeam(idEdit){
                 twiter : $("#twiter").val(),
                 instagram : $("#instagram").val(),
                 linkedIn : $("#linkedIn").val(),
-                facebook : $("#facebook").val(),
+                facebook : $("#faceBook").val(),
                 tentang : $("#tentang").val(),
+                statusPublish : $("#statusPublish").val(),
                 idEdit : idEdit
           },
           url: url+'&tipe=saveEditTeam',
@@ -210,7 +212,7 @@ function saveEditTeam(idEdit){
         });
       });
   // $("#LoadingImage").attr('style','display:block');
-  
+
 }
 function setMenuEdit(statusMenu){
   $.ajax({

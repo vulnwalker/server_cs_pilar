@@ -150,7 +150,6 @@ function saveUser(){
                   instansiUser : $("#instansiUser").val(),
                   teleponUser : $("#teleponUser").val(),
                   hakAkses : $("#hakAkses").val(),
-                  idEdit : idEdit,
           },
           url: url+'&tipe=saveUser',
             success: function(data) {

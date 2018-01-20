@@ -265,8 +265,8 @@ switch($tipe){
                        <i class='fa fa-user text-default-light' style='color: #0aa89e;'></i> ".$getNama."
                     </button>
                     <ul class='dropdown-menu animation-expand' role='menu'>
-                      <li><a href='#'>Ganti Password</a></li>
-                      <li><a href='#'>Logout</a></li>
+                      <li><a href='pages.php?page=profile'>Ganti Password</a></li>
+                      <li><a href='logout.php'>Logout</a></li>
                     </ul>
                   </div><!--end .btn-group -->
                 </div><!--end .col -->

@@ -34,6 +34,60 @@ function sortData(sorter){
     }
   });
 }
+function sortDataPendaftaran(sorter){
+  $(sorter).addClass('active-tick').siblings().removeClass('active-tick');
+  $(".fixed").remove();
+  $.ajax({
+    type:'POST',
+    data : {
+      limitTable : $("#jumlahDataPerhalaman").val(),
+      pageKe : $(".active").text(),
+      searchData : $("#searchData").val(),
+      sorter : sorter.id,
+      ascending : $("#ascHidden").val(),
+      idAcara : $("#hiddenIdAcara").val()
+    },
+    url: url+'&tipe=loadTablePendaftaran',
+    success: function(data) {
+      var resp = eval('(' + data + ')');
+      if(resp.err==''){
+        $("#tabelPendaftaran").html(resp.content.tabelPendaftaran);
+        $("#tabelFooter").html(resp.content.tabelFooter);
+        $("table").fixMe();
+
+      }else{
+        alert(resp.err);
+      }
+    }
+  });
+}
+function filterStatus(sorter){
+  $(sorter).addClass('active-tick').siblings().removeClass('active-tick');
+  $(".fixed").remove();
+  $.ajax({
+    type:'POST',
+    data : {
+      limitTable : $("#jumlahDataPerhalaman").val(),
+      pageKe : $(".active").text(),
+      searchData : $("#searchData").val(),
+      statusPendaftaran : sorter.id,
+      ascending : $("#ascHidden").val(),
+      idAcara : $("#hiddenIdAcara").val()
+    },
+    url: url+'&tipe=loadTablePendaftaran',
+    success: function(data) {
+      var resp = eval('(' + data + ')');
+      if(resp.err==''){
+        $("#tabelPendaftaran").html(resp.content.tabelPendaftaran);
+        $("#tabelFooter").html(resp.content.tabelFooter);
+        $("table").fixMe();
+
+      }else{
+        alert(resp.err);
+      }
+    }
+  });
+}
 function loadTable(pageKe,limitTable){
   $.ajax({
     type:'POST',
@@ -59,6 +113,10 @@ function loadTable(pageKe,limitTable){
 function limitData(){
   $(".fixed").remove();
   loadTable(1,$("#jumlahDataPerhalaman").val());
+}
+function limitDataPendaftaran(){
+  $(".fixed").remove();
+  loadTablePendaftaran(1,$("#jumlahDataPerhalaman").val(),$("#hiddenIdAcara").val());
 }
 function currentPage(pageKE){
   $(".fixed").remove();
@@ -133,87 +191,95 @@ function Hapus(){
      return editor.content.get();
  }
 function saveAcara(){
-    swal({
-        title: "Simpan Data ?",
-        text: "",
-        type: "info",
-        confirmButtonText: "Ya",
-        cancelButtonText: "Tidak",
-        showCancelButton: true,
-        closeOnConfirm: false,
-        showLoaderOnConfirm: true
-      }, function () {
-        $.ajax({
-          type:'POST',
-          data : {
-                  namaAcara : $("#namaAcara").val(),
-                  tanggalAcara : $("#tanggalAcara").val(),
-                  jamAcara : $("#jamAcara").val(),
-                  kuotaAcara : $("#kuotaAcara").val(),
-                  lamaAcara : $("#lamaAcara").val(),
-                  hargaTiket : $("#hargaTiket").val(),
-                  hargaKamar : $("#hargaKamar").val(),
-                  hargaExtraBed : $("#hargaExtraBed").val(),
-                  deadlinePembayaran : $("#deadlinePembayaran").val(),
-                  lokasiAcara : $("#lokasiAcara").val(),
-                  deskripsiAcara : getEditorContent(),
-          },
-          url: url+'&tipe=saveAcara',
-            success: function(data) {
-            // $("#LoadingImage").hide();
-            var resp = eval('(' + data + ')');
-              if(resp.err==''){
-                suksesAlert("Data Tersimpan");
-              }else{
-                errorAlert(resp.err);
-              }
+  swal({
+      title: "Simpan Data ?",
+      text: "",
+      type: "info",
+      confirmButtonText: "Ya",
+      cancelButtonText: "Tidak",
+      showCancelButton: true,
+      closeOnConfirm: false,
+      showLoaderOnConfirm: true
+    }, function () {
+      $.ajax({
+        type:'POST',
+        data : {
+                namaAcara : $("#namaAcara").val(),
+                tanggalAcara : $("#tanggalAcara").val(),
+                jamAcara : $("#jamAcara").val(),
+                tanggalAcaraSelesai : $("#tanggalAcaraSelesai").val(),
+                jamAcaraSelesai : $("#jamAcaraSelesai").val(),
+                kuotaAcara : $("#kuotaAcara").val(),
+                hargaTiket : $("#hargaTiket").val(),
+                deadlinePembayaran : $("#deadlinePembayaran").val(),
+                lokasiAcara : $("#lokasiAcara").val(),
+                deskripsiAcara : getEditorContent(),
+                kordinatX : $("#kordinatX").val(),
+                kordinatY : $("#kordinatY").val(),
+                baseUndangan : $("#baseUndangan").val(),
+                namaFile : $("#fileUndangan").val(),
+                baseImageTitle : crop,
+                tempKordinat : $("#tempKordinat").val(),
+                statusPublish : $("#statusPublish").val(),
+        },
+        url: url+'&tipe=saveAcara',
+          success: function(data) {
+          var resp = eval('(' + data + ')');
+            if(resp.err==''){
+              suksesAlert("Data Tersimpan");
+            }else{
+              errorAlert(resp.err);
             }
-        });
+          }
       });
-    // $("#LoadingImage").attr('style','display:block');
-    
+    });
+
   }
 function saveEditAcara(idEdit){
   swal({
-        title: "Simpan Data ?",
-        text: "",
-        type: "info",
-        confirmButtonText: "Ya",
-        cancelButtonText: "Tidak",
-        showCancelButton: true,
-        closeOnConfirm: false,
-        showLoaderOnConfirm: true
-      }, function () {
-        $.ajax({
-          type:'POST',
-          data : {
-                  namaAcara : $("#namaAcara").val(),
-                  tanggalAcara : $("#tanggalAcara").val(),
-                  jamAcara : $("#jamAcara").val(),
-                  kuotaAcara : $("#kuotaAcara").val(),
-                  lamaAcara : $("#lamaAcara").val(),
-                  hargaTiket : $("#hargaTiket").val(),
-                  hargaKamar : $("#hargaKamar").val(),
-                  hargaExtraBed : $("#hargaExtraBed").val(),
-                  deadlinePembayaran : $("#deadlinePembayaran").val(),
-                  lokasiAcara : $("#lokasiAcara").val(),
-                  deskripsiAcara : getEditorContent(),
-                  idEdit : idEdit
-          },
-          url: url+'&tipe=saveEditAcara',
-            success: function(data) {
-            // $("#LoadingImage").hide();
-            var resp = eval('(' + data + ')');
-              if(resp.err==''){
-                suksesAlert("Data Tersimpan");
-              }else{
-                errorAlert(resp.err);
-              }
+      title: "Simpan Data ?",
+      text: "",
+      type: "info",
+      confirmButtonText: "Ya",
+      cancelButtonText: "Tidak",
+      showCancelButton: true,
+      closeOnConfirm: false,
+      showLoaderOnConfirm: true
+    }, function () {
+      $.ajax({
+        type:'POST',
+        data : {
+                namaAcara : $("#namaAcara").val(),
+                tanggalAcara : $("#tanggalAcara").val(),
+                jamAcara : $("#jamAcara").val(),
+                tanggalAcaraSelesai : $("#tanggalAcaraSelesai").val(),
+                jamAcaraSelesai : $("#jamAcaraSelesai").val(),
+                kuotaAcara : $("#kuotaAcara").val(),
+                hargaTiket : $("#hargaTiket").val(),
+                deadlinePembayaran : $("#deadlinePembayaran").val(),
+                lokasiAcara : $("#lokasiAcara").val(),
+                deskripsiAcara : getEditorContent(),
+                kordinatX : $("#kordinatX").val(),
+                kordinatY : $("#kordinatY").val(),
+                baseUndangan : $("#baseUndangan").val(),
+                namaFile : $("#fileUndangan").val(),
+                baseImageTitle : crop,
+                tempKordinat : $("#tempKordinat").val(),
+                idEdit : idEdit,
+                statusPublish : $("#statusPublish").val()
+        },
+        url: url+'&tipe=saveEditAcara',
+          success: function(data) {
+          var resp = eval('(' + data + ')');
+            if(resp.err==''){
+              suksesAlert("Data Tersimpan");
+            }else{
+              errorAlert(resp.err);
             }
-        });
+          }
       });
-  // $("#LoadingImage").attr('style','display:block');
-  
+    });
+
 }
 function setMenuEdit(statusMenu){
   $.ajax({
@@ -361,4 +427,62 @@ function suksesAlertPendaftaran(pesan){
     var span = document.getElementsByClassName("close")[0];
       var modal = document.getElementById('myModalImage');
         modal.style.display = "none";
+  }
+
+
+  function getAlamat(koordinat){
+     $("#tempKordinat").val(koordinat);
+    //  alert($("#tempKordinat").val());
+    $.ajax({
+      type:'POST',
+      data : {
+                koordinat : $("#tempKordinat").val()
+              },
+      url: url+'&tipe=generateLocation',
+        success: function(data) {
+        var resp = eval('(' + data + ')');
+          if(resp.err==''){
+
+               $("#lokasiAcara").val(resp.content.lokasi);
+              $("#kordinatX").val(resp.content.lat);
+              $("#kordinatY").val(resp.content.lang);
+          }else{
+            alert(resp.err);
+          }
+        }
+    });
+  }
+
+  function imageChanged(){
+    var me= this;
+    var filesSelected = document.getElementById("imageAcara").files;
+    if (filesSelected.length > 0)
+    {
+      var fileToLoad = filesSelected[0];
+      var fileReader = new FileReader();
+      fileReader.onload = function(fileLoadedEvent)
+      {
+        $("#gambarAcara").attr('src',fileLoadedEvent.target.result);
+        resizeableImage($('#gambarAcara'));
+        $('.component').show();
+        // $("#statusKosong").val('1');
+      };
+
+      fileReader.readAsDataURL(fileToLoad);
+    }
+  }
+  function undanganChanged(){
+    var me= this;
+    var filesSelected = document.getElementById("fileUndangan").files;
+    if (filesSelected.length > 0)
+    {
+      var fileToLoad = filesSelected[0];
+      var fileReader = new FileReader();
+      fileReader.onload = function(fileLoadedEvent)
+      {
+        $("#baseUndangan").val(fileLoadedEvent.target.result);
+
+      };
+      fileReader.readAsDataURL(fileToLoad);
+    }
   }

@@ -38,7 +38,9 @@ switch($tipe){
           for ($i=0; $i < sizeof($expodeSpesifikasi) ; $i++) {
             $listSpesifikasi .= "<li>".$expodeSpesifikasi[$i]."</li>";
           }
+          $imageTitle = baseToImage($baseImageTitle,"images/loker/".md5(date("Y-m-d")).md5(date("H:i:s")));
           $data = array(
+                  'publish' => $statusPublish,
                   'judul' => $judulLowongan,
                   'tanggal_buat' => date("Y-m-d"),
                   'posisi' => $posisiLowongan,
@@ -50,6 +52,7 @@ switch($tipe){
                   'spesifikasi' =>  $listSpesifikasi,
                   'usia' => $usiaMinimal."-".$usiaMaximal,
                   'gender' => $jenisKelamin,
+                  'image_title' => "images/loker/".md5(date("Y-m-d")).md5(date("H:i:s")),
           );
           $query = sqlInsert($tableName,$data);
           sqlQuery($query);
@@ -76,7 +79,11 @@ switch($tipe){
        for ($i=0; $i < sizeof($expodeSpesifikasi) ; $i++) {
          $listSpesifikasi .= "<li>".$expodeSpesifikasi[$i]."</li>";
        }
+       $getDataSebelumnya = sqlArray(sqlQuery("select * from lowongan_kerja where id ='$idEdit'"));
+       unlink($getDataSebelumnya['image_title']);
+       $imageTitle = baseToImage($baseImageTitle,"images/loker/".md5(date("Y-m-d")).md5(date("H:i:s")));
        $data = array(
+               'publish' => $statusPublish,
                'judul' => $judulLowongan,
                'tanggal_buat' => date("Y-m-d"),
                'posisi' => $posisiLowongan,
@@ -88,6 +95,7 @@ switch($tipe){
                'spesifikasi' =>  $listSpesifikasi,
                'usia' => $usiaMinimal."-".$usiaMaximal,
                'gender' => $jenisKelamin,
+               'image_title' => "images/loker/".md5(date("Y-m-d")).md5(date("H:i:s")),
        );
        $query = sqlUpdate($tableName,$data,"id = '$idEdit'");
        sqlQuery($query);
@@ -163,7 +171,12 @@ switch($tipe){
               $listPendidikan = $getNamaPendidikan['tingkat'];
           }
           $explodeSalary = explode("-",$salary);
-
+          if($publish == '1'){
+              $statusPublish = "YA";
+          }elseif($publish == '2'){
+              $statusPublish = "TIDAK";
+          }
+          $jumlahLamaran = sqlNumRow(sqlQuery("select * from lamaran where id_lowongan = '$id'"));
 
         $data .= "     <tr>
                           <td class='text-center' width='20px;'  style='vertical-align:middle;'>$nomor</td>
@@ -180,6 +193,8 @@ switch($tipe){
                           <td style='vertical-align:middle;'>$listPendidikan</td>
                           <td style='vertical-align:middle;'>".numberFormat($explodeSalary[0])."~".numberFormat($explodeSalary[1])."</td>
                           <td style='vertical-align:middle;'>$jam_kerja</td>
+                          <td style='vertical-align:middle;text-align:center'>$statusPublish</td>
+                          <td style='vertical-align:middle;'>$jumlahLamaran</td>
                           <td style='vertical-align:middle;text-align:center;'><div class='demo-icon-hover' style='cursor:pointer;' onclick=lamaran($id);>
         											<i class='md md-launch'></i>
         										</div></td>
@@ -187,6 +202,7 @@ switch($tipe){
                     ";
           $nomor += 1;
           $nomorCB += 1;
+          $listPendidikan = "";
       }
 
       $tabelBody = "
@@ -204,9 +220,11 @@ switch($tipe){
             </th>
             <th class='col-lg-3'>Judul</th>
             <th class='col-lg-1'>Posisi</th>
-            <th class='col-lg-4'>Pendidikan</th>
-            <th class='col-lg-2 '>Salary</th>
+            <th class='col-lg-2'>Pendidikan</th>
+            <th class='col-lg-2 text-center '>Salary</th>
             <th class='col-lg-1'>Jam Kerja</th>
+            <th class='col-lg-1 text-center'>Publish</th>
+            <th class='col-lg-1'>Lamaran</th>
             <th class='col-lg-1 text-center'>Action</th>
           </tr>
         </thead>
@@ -432,8 +450,8 @@ switch($tipe){
                        <i class='fa fa-user text-default-light' style='color: #0aa89e;'></i> ".$getNama."
                     </button>
                     <ul class='dropdown-menu animation-expand' role='menu'>
-                      <li><a href='#'>Ganti Password</a></li>
-                      <li><a href='#'>Logout</a></li>
+                      <li><a href='pages.php?page=profile'>Ganti Password</a></li>
+                      <li><a href='logout.php'>Logout</a></li>
                     </ul>
                   </div><!--end .btn-group -->
                 </div><!--end .col -->
@@ -656,9 +674,9 @@ switch($tipe){
           }else{
               if($_GET['action'] == 'baru'){
                 ?>
-                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/component.css" />
-                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demo.css" />
-                <script src="js/ImageResizeCropCanvas/js/component.js"></script>
+                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/componentLowongan.css" />
+                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demoLowongan.css" />
+                <script src="js/ImageResizeCropCanvas/js/componentLowongan.js"></script>
                 <script type="text/javascript" src="js/textboxio/textboxio.js"></script>
                 <div id="content">
           				<section>
@@ -667,7 +685,19 @@ switch($tipe){
       									<div class="card">
       										<div class="card-body floating-label">
       											<div class="row">
-      												<div class="col-sm-12">
+                              <div class="col-sm-1">
+      													<div class="form-group">
+                                  <?php
+                                    $arrayStatus = array(
+                                              array('1','YA'),
+                                              array('2','TIDAK'),
+                                    );
+                                    echo cmbArrayEmpty("statusPublish","",$arrayStatus,"-- PUBLISH --","class='form-control' ")
+                                  ?>
+      														<label for="Firstname2">PUBLISH</label>
+      													</div>
+      												</div>
+      												<div class="col-sm-11">
       													<div class="form-group">
       														<input type="text" class="form-control" id="judulLowongan" name='judulLowongan'>
       														<label for="judulLowongan">Judul Lowongan</label>
@@ -861,9 +891,9 @@ switch($tipe){
                   $spesifikasiLowongan = str_replace('<li>',"",$getData['spesifikasi']);
                   $spesifikasiLowongan = str_replace('</li>',"\n",$spesifikasiLowongan);
                   ?>
-                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/component.css" />
-                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demo.css" />
-                  <script src="js/ImageResizeCropCanvas/js/component.js"></script>
+                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/componentLowongan.css" />
+                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demoLowongan.css" />
+                  <script src="js/ImageResizeCropCanvas/js/componentLowongan.js"></script>
                   <script type="text/javascript" src="js/textboxio/textboxio.js"></script>
                   <div id="content">
             				<section>
@@ -872,7 +902,19 @@ switch($tipe){
         									<div class="card">
         										<div class="card-body floating-label">
         											<div class="row">
-        												<div class="col-sm-12">
+                                <div class="col-sm-1">
+        													<div class="form-group">
+                                    <?php
+                                      $arrayStatus = array(
+                                                array('1','YA'),
+                                                array('2','TIDAK'),
+                                      );
+                                      echo cmbArrayEmpty("statusPublish",$getData['publish'],$arrayStatus,"-- PUBLISH --","class='form-control' ")
+                                    ?>
+        														<label for="Firstname2">PUBLISH</label>
+        													</div>
+        												</div>
+        												<div class="col-sm-11">
         													<div class="form-group">
         														<input type="text" class="form-control" id="judulLowongan" name='judulLowongan' value='<?php echo $getData['judul'] ?>'>
         														<label for="judulLowongan">Judul Lowongan</label>
@@ -988,7 +1030,7 @@ switch($tipe){
                                       <div class="overlay-inner">
                                       </div>
                                     </div>
-                                    <img class="resize-image" id='gambarSlider' alt="image for resizing">
+                                    <img class="resize-image" id='gambarSlider' src="<?php echo $getData['image_title'] ?>"  alt="image for resizing">
                                   </div>
                                 </div>
                               </div>
@@ -1052,6 +1094,8 @@ switch($tipe){
                           });
                         $("#salaryMinimum").inputmask('Rp 999.999.999', {numericInput: true, rightAlignNumerics: false});
                         $("#salaryMaximum").inputmask('Rp 999.999.999', {numericInput: true, rightAlignNumerics: false});
+                        resizeableImage($('#gambarSlider'));
+                        $('.component').show();
                     });
                   </script>
                   <?php

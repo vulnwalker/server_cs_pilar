@@ -168,6 +168,7 @@ function saveLowonganKerja(){
         $.ajax({
           type:'POST',
           data : {
+                  statusPublish : $("#statusPublish").val(),
                   judulLowongan : $("#judulLowongan").val(),
                   posisiLowongan : $("#posisiLowongan").val(),
                   pendidikan : $("#pendidikan").val(),
@@ -181,6 +182,7 @@ function saveLowonganKerja(){
                   salaryMaximum : $("#salaryMaximum").val(),
                   spesifikasi : $("#spesifikasi").val(),
                   deskripsiLowongan : getEditorContent(),
+                  baseImageTitle : crop
           },
           url: url+'&tipe=saveLowonganKerja',
             success: function(data) {
@@ -195,7 +197,7 @@ function saveLowonganKerja(){
         });
       });
     // $("#LoadingImage").attr('style','display:block');
-    
+
   }
 function saveEditLowonganKerja(idEdit){
   swal({
@@ -211,6 +213,7 @@ function saveEditLowonganKerja(idEdit){
         $.ajax({
           type:'POST',
           data : {
+                  statusPublish : $("#statusPublish").val(),
                   judulLowongan : $("#judulLowongan").val(),
                   posisiLowongan : $("#posisiLowongan").val(),
                   pendidikan : $("#pendidikan").val(),
@@ -224,6 +227,7 @@ function saveEditLowonganKerja(idEdit){
                   salaryMaximum : $("#salaryMaximum").val(),
                   spesifikasi : $("#spesifikasi").val(),
                   deskripsiLowongan : getEditorContent(),
+                  baseImageTitle : crop,
                   idEdit : idEdit
           },
           url: url+'&tipe=saveEditLowonganKerja',
@@ -239,7 +243,7 @@ function saveEditLowonganKerja(idEdit){
         });
       });
   // $("#LoadingImage").attr('style','display:block');
-  
+
 }
 function setMenuEdit(statusMenu){
   $.ajax({

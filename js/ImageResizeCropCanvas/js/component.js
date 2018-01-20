@@ -184,8 +184,8 @@ var resizeableImage = function(image_target) {
     var crop_canvas,
         left = $('.overlay').offset().left - $container.offset().left,
         top =  $('.overlay').offset().top - $container.offset().top,
-        width = $('.overlay').width(),
-        height = $('.overlay').height();
+        width = $('.overlay').width()  + 35,
+        height = $('.overlay').height() + 40 ;
 
     crop_canvas = document.createElement('canvas');
     crop_canvas.width = width;

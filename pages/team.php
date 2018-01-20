@@ -25,6 +25,8 @@ switch($tipe){
           $err = "Isi tanggal lahir ";
       }elseif(empty($tentang)){
           $err = "Isi tentang ";
+      }elseif(empty($statusPublish)){
+          $err = "Pilih status publish";
       }
 
       if(empty($err)){
@@ -44,6 +46,7 @@ switch($tipe){
                 'foto' => "images/team/$namaLengkap.jpg",
                 'tentang' =>  base64_encode($tentang),
                 'sosial_media' =>  json_encode($arraySosmed),
+                'publish' => $statusPublish,
           );
           $query = sqlInsert($tableName,$data);
           sqlQuery($query);
@@ -65,6 +68,8 @@ switch($tipe){
           $err = "Isi tanggal lahir ";
       }elseif(empty($tentang)){
           $err = "Isi tentang ";
+      }elseif(empty($statusPublish)){
+          $err = "Pilih status publish";
       }
 
       if(empty($err)){
@@ -84,6 +89,7 @@ switch($tipe){
                 'foto' => "images/team/$namaLengkap.jpg",
                 'tentang' =>  base64_encode($tentang),
                 'sosial_media' =>  json_encode($arraySosmed),
+                'publish' => $statusPublish,
           );
           $query = sqlUpdate($tableName,$data,"id = '$idEdit'");
           sqlQuery($query);
@@ -151,6 +157,11 @@ switch($tipe){
         }
         $getJabatan = sqlArray(sqlQuery("select * from ref_posisi where id = '$posisi'"));
         $jabatan = $getJabatan['posisi'];
+        if($publish == '1'){
+            $statusPublish = "YA";
+        }else{
+            $statusPublish = "TIDAK";
+        }
         $data .= "     <tr>
                           <td class='text-center'>$nomor</td>
                           <td class='text-center'>
@@ -164,6 +175,7 @@ switch($tipe){
                           <td>$nama</td>
                           <td>$jabatan</td>
                           <td>$tempat_lahir</td>
+                          <td style='text-align:center;'>$statusPublish</td>
                           <td>".generateDate($tanggal_lahir)."</td>
                           <td class='text-center'><img src='$foto' onclick = imageClicked(this); alt='$nama' class='materialboxed' style='width:100px;height:100px;cursor:pointer;'></img></td>
                        </tr>
@@ -189,6 +201,7 @@ switch($tipe){
             <th class='col-lg-2'>Jabatan</th>
             <th class='col-lg-2'>Tempat Lahir</th>
             <th class='col-lg-2'>Tanggal Lahir</th>
+            <th class='col-lg-1 text-center'>Publish</th>
             <th class='col-lg-1 text-center'>Foto</th>
           </tr>
         </thead>
@@ -315,8 +328,8 @@ switch($tipe){
                        <i class='fa fa-user text-default-light' style='color: #0aa89e;'></i> ".$getNama."
                     </button>
                     <ul class='dropdown-menu animation-expand' role='menu'>
-                      <li><a href='#'>Ganti Password</a></li>
-                      <li><a href='#'>Logout</a></li>
+                      <li><a href='pages.php?page=profile'>Ganti Password</a></li>
+                      <li><a href='logout.php'>Logout</a></li>
                     </ul>
                   </div><!--end .btn-group -->
                 </div><!--end .col -->
@@ -613,9 +626,9 @@ switch($tipe){
           }else{
               if($_GET['action'] == 'baru'){
                 ?>
-                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/component.css" />
-                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demo.css" />
-                <script src="js/ImageResizeCropCanvas/js/component.js"></script>
+                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/componentTeam.css" />
+                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demoTeam.css" />
+                <script src="js/ImageResizeCropCanvas/js/componentTeam.js"></script>
                 <script type="text/javascript">
                   $(document).ready(function() {
                       $(".component").hide();
@@ -630,8 +643,21 @@ switch($tipe){
                       <form class="form" id='formProduk'>
       									<div class="card">
       										<div class="card-body floating-label">
+
       											<div class="row">
-                              <div class="col-sm-10">
+                              <div class="col-sm-1">
+      													<div class="form-group">
+                                  <?php
+                                    $arrayStatus = array(
+                                              array('1','YA'),
+                                              array('2','TIDAK'),
+                                    );
+                                    echo cmbArrayEmpty("statusPublish","",$arrayStatus,"-- PUBLISH --","class='form-control' ")
+                                  ?>
+      														<label for="Firstname2">PUBLISH</label>
+      													</div>
+      												</div>
+                              <div class="col-sm-9">
                                 <div class="form-group">
                                   <input type="text" class="form-control" id="namaLengkap" name='namaLengkap'>
                                   <label for="namaLengkap">Nama Lengkap</label>
@@ -742,9 +768,9 @@ switch($tipe){
                   $linkedIn = $dataSosmed->linkedIn;
                   $googlePlus = $dataSosmed->googlePlus;
                   ?>
-                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/component.css" />
-                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demo.css" />
-                  <script src="js/ImageResizeCropCanvas/js/component.js"></script>
+                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/componentTeam.css" />
+                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demoTeam.css" />
+                  <script src="js/ImageResizeCropCanvas/js/componentTeam.js"></script>
                   <script type="text/javascript">
                     $(document).ready(function() {
                         resizeableImage($('#fotoTeam'));
@@ -760,7 +786,19 @@ switch($tipe){
         									<div class="card">
         										<div class="card-body floating-label">
         											<div class="row">
-                                <div class="col-sm-10">
+                                <div class="col-sm-1">
+        													<div class="form-group">
+                                    <?php
+                                      $arrayStatus = array(
+                                                array('1','YA'),
+                                                array('2','TIDAK'),
+                                      );
+                                      echo cmbArrayEmpty("statusPublish",$getData['publish'],$arrayStatus,"-- PUBLISH --","class='form-control' ")
+                                    ?>
+        														<label for="Firstname2">PUBLISH</label>
+        													</div>
+        												</div>
+                                <div class="col-sm-9">
                                   <div class="form-group">
                                     <input type="text" class="form-control" id="namaLengkap" name='namaLengkap' value="<?php echo $getData['nama'] ?>">
                                     <label for="namaLengkap">Nama Lengkap</label>

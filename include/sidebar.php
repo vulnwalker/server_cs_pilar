@@ -10,7 +10,7 @@
        </a>
      </div>
      <div class="expanded">
-       <a href="html/dashboards/dashboard.html">
+       <a href="#">
          <span class="text-lg text-bold text-primary ">MATERIAL&nbsp;ADMIN</span>
        </a>
      </div>
@@ -39,57 +39,99 @@
                         $teamActivce = "active";
                     }elseif ($page == "profile") {
                         $profileActive = "active";
+                    }elseif ($page == "popular") {
+                        $popularActive = "active";
                     }else{
                         $userManagement = "active";
                     }
 
+
+                    $modulUserManagement = "
+                    <li>
+                      <a href='?page=userManagement' class='$userManagement'>
+                        <div class='gui-icon'><i class='fa fa-users'></i></div>
+                        <span class='title'>Users</span>
+                      </a>
+                    </li>";
+                    $modulProduk = "
+                    <li>
+                      <a href='?page=produk' class='$produkActive'>
+                        <div class='gui-icon'><i class='md md-computer'></i></div>
+                        <span class='title'>Produk</span>
+                      </a>
+                    </li>
+                    ";
+                    $modulInformasi = "
+                    <li>
+                      <a href='?page=informasi' class='$informasiActive'>
+                        <div class='gui-icon'><i class='md md-info'></i></div>
+                        <span class='title'>Informasi</span>
+                      </a>
+                    </li>
+                    ";
+                    $modulAcara = "
+                    <li>
+                      <a href='?page=acara' class='$acaraActive'>
+                        <div class='gui-icon'><i class='md md-alarm-on'></i></div>
+                        <span class='title'>Acara</span>
+                      </a>
+                    </li>
+                    ";
+                    $modulSlider = "
+                    <li>
+                      <a href='?page=slider' class='$sliderActive'>
+                        <div class='gui-icon'><i class='md md-image'></i></div>
+                        <span class='title'>Slider</span>
+                      </a>
+                    </li>
+                    <li>
+                    ";
+                    $modulKerja = "
+                    <li>
+                      <a href='?page=lowonganKerja' class='$lowonganKerjaActive'>
+                        <div class='gui-icon'><i class='md md-assessment'></i></div>
+                        <span class='title'>Loker</span>
+                      </a>
+                    </li>
+                    ";
+                    $modulTeam = "
+                    <li>
+                      <a href='?page=team' class='$teamActivce'>
+                        <div class='gui-icon'><i class='md md-quick-contacts-dialer'></i></div>
+                        <span class='title'>Team</span>
+                      </a>
+                    </li>
+                    ";
+                    $modulSetting = "
+                    <li>
+                      <a href='?page=setting' class='$settingActive'>
+                        <div class='gui-icon'><i class='md md-settings'></i></div>
+                        <span class='title'>Setting</span>
+                      </a>
+                    </li>
+                    ";
+                    $arrayHakAkses = explode(";",$getDataUser['hak_akses']);
+
+                    if(in_array(1,$arrayHakAkses))echo $modulUserManagement;
+                    if(in_array(2,$arrayHakAkses))echo $modulProduk;
+                    if(in_array(3,$arrayHakAkses))echo $modulInformasi;
+                    if(in_array(4,$arrayHakAkses))echo $modulAcara;
+                    if(in_array(5,$arrayHakAkses))echo $modulSlider;
+                    if(in_array(6,$arrayHakAkses))echo $modulKerja;
+                    if(in_array(7,$arrayHakAkses))echo $modulTeam;
+                    if(in_array(8,$arrayHakAkses))echo $modulSetting;
                         echo "
+
+
+
+
+
+
+
                                 <li>
-                                  <a href='?page=userManagement' class='$userManagement'>
-                                    <div class='gui-icon'><i class='fa fa-users'></i></div>
-                                    <span class='title'>Users</span>
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href='?page=produk' class='$produkActive'>
-                                    <div class='gui-icon'><i class='md md-computer'></i></div>
-                                    <span class='title'>Produk</span>
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href='?page=informasi' class='$informasiActive'>
-                                    <div class='gui-icon'><i class='md md-info'></i></div>
-                                    <span class='title'>Informasi</span>
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href='?page=acara' class='$acaraActive'>
-                                    <div class='gui-icon'><i class='md md-alarm-on'></i></div>
-                                    <span class='title'>Acara</span>
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href='?page=slider' class='$sliderActive'>
-                                    <div class='gui-icon'><i class='md md-image'></i></div>
-                                    <span class='title'>Slider</span>
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href='?page=lowonganKerja' class='$lowonganKerjaActive'>
-                                    <div class='gui-icon'><i class='md md-assessment'></i></div>
-                                    <span class='title'>Loker</span>
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href='?page=team' class='$teamActivce'>
-                                    <div class='gui-icon'><i class='md md-quick-contacts-dialer'></i></div>
-                                    <span class='title'>Team</span>
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href='?page=setting' class='$settingActive'>
-                                    <div class='gui-icon'><i class='md md-settings'></i></div>
-                                    <span class='title'>Setting</span>
+                                  <a href='?page=popular' class='$popularActive'>
+                                    <div class='gui-icon'><i class='md md-star-rate'></i></div>
+                                    <span class='title'>Popular</span>
                                   </a>
                                 </li>
                                 <li>

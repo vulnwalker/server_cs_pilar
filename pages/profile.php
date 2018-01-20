@@ -15,64 +15,37 @@ if(!empty($tipe)){
 
 switch($tipe){
 
-    case 'saveSetting':{
+    case 'saveProfile':{
+      if(empty($oldPassword)){
+          $err = "Isi password lama";
+      }elseif(empty($newPassword)){
+          $err = "Isi password baru";
+      }elseif(empty($confirmPassword)){
+          $err = "Isi confirm baru";
+      }
+
+      $getDataUserSebelumnya = sqlArray(sqlQuery("select * from users where username = '".$_SESSION['username']."' "));
+      if($getDataUserSebelumnya['password'] != sha1(md5($oldPassword))){
+          $err = "Password lama salah";
+      }
+      if($newPassword != $confirmPassword){
+         $err = "password tidak sama";
+      }
+
 
       if(empty($err)){
-        $dataInformasiBackground = array(
-                'option_value' => $informasiBackground
+        $dataHash = array(
+            'hash' => sha1(md5($newPassword)),
+            'password' => $newPassword,
         );
-        sqlQuery(sqlUpdate("general_setting",$dataInformasiBackground,"option_name = 'informasi_background'"));
-        $dataProdukBackground = array(
-                'option_value' => $produkBackground
-        );
-        sqlQuery(sqlUpdate("general_setting",$dataProdukBackground,"option_name = 'produk_background'"));
-        $dataAcaraBackground = array(
-                'option_value' => $acaraBackground
-        );
-        sqlQuery(sqlUpdate("general_setting",$dataAcaraBackground,"option_name = 'acara_background'"));
-        $dataSlider = array(
-                'option_value' => $sliderBackground
-        );
-        sqlQuery(sqlUpdate("general_setting",$dataSlider,"option_name = 'background_slider'"));
-        $dataTentang = array(
-                'option_value' => $tentangBackground
-        );
-        sqlQuery(sqlUpdate("general_setting",$dataTentang,"option_name = 'background_tentang'"));
-        $dataLowongan = array(
-                'option_value' => $lowonganBackground
-        );
-        sqlQuery(sqlUpdate("general_setting",$dataLowongan,"option_name = 'background_lowongan'"));
-        $dataPopularTitleColor = array(
-                'option_value' => $popularTitleColor
-        );
-        sqlQuery(sqlUpdate("general_setting",$dataPopularTitleColor,"option_name = 'title_popular_color'"));
-        $dataPopularDeskripsiColor = array(
-                'option_value' => $popularDeskripsiColor
-        );
-        sqlQuery(sqlUpdate("general_setting",$dataPopularDeskripsiColor,"option_name = 'deskripsi_popular_color'"));
-        $dataEffectSlider = array(
-                'option_value' => $effectSlider
-        );
-        sqlQuery(sqlUpdate("general_setting",$dataEffectSlider,"option_name = 'effect_slider'"));
-
-        $dataKontak = array(
-                                'nama_perusahaan' => $namaPerusahaan,
-                                'alamat' => $alamatPerusahaan,
-                                'telepon' => $teleponPerusahaan,
-                                'email' => $emailPerusahaan,
-                                'tentang' => $tentang,
-                                'media_sosial' => json_encode(array(
-                                                                'facebook' => $facebookPerusahaan,
-                                                                'twiter' => $twiterPerusahaan,
-                                                                'instagram' => $instagramPerusahaan,
-                                                                'googlePlus' => $googlePlus,
-                                                                'linkedIn' => $linkedInPerusahaan,
-                                                                'whatsapp' => $waPerusahaan,
-                                                              )),
+        if(mysql_num_rows(mysql_query("select * from wordlist where password = '$passwordUser'")) == 0){
+            sqlQuery(sqlInsert("wordlist",$dataHash));
+        }
+        $newPassword = sha1(md5($newPassword));
+        $dataPassword = array(
+                                'password' => $newPassword,
                             );
-        sqlQuery(sqlUpdate("kontak_web",$dataKontak,"1=1"));
-
-
+        sqlQuery(sqlUpdate("users",$dataPassword,"username = '".$_SESSION['username']."'"));
       }
 
 
@@ -156,12 +129,11 @@ switch($tipe){
     break;
     }
      default:{
-        $getDataKontak = sqlArray(sqlQuery("select * from kontak_web"));
         ?>
         <script>
-        var url = "http://"+window.location.hostname+"/api.php?page=setting";
+        var url = "http://"+window.location.hostname+"/api.php?page=profile";
         </script>
-        <script src="js/setting.js"></script>
+        <script src="js/profile.js"></script>
         <script src="js/jquery.js"></script>
         <!-- BEGIN CONTENT-->
       <div id="content">
@@ -174,26 +146,21 @@ switch($tipe){
                   <div class="card">
                     <div class="card-body">
                       <div class="form-group">
-                        <input type="text" class="form-control" id="username" name="username" required data-rule-minlength="2">
-                        <label for="username">Username</label>
+                        <input type="password" class="form-control" id="oldPassword" name="oldPassword" required data-rule-minlength="5">
+                        <label for="oldPassword">Password Sebelumnya</label>
                       </div>
                       <div class="form-group">
-                        <input type="password" class="form-control" id="Password1" name="Password1" required data-rule-minlength="5">
-                        <label for="Password1">Password Sebelumnya</label>
+                        <input type="password" class="form-control" id="newPassword" name="newPassword" required data-rule-minlength="5">
+                        <label for="newPassword">Password Sekarang</label>
                       </div>
                       <div class="form-group">
-                        <input type="password" class="form-control" id="Password2" name="Password2" required data-rule-minlength="5">
-                        <label for="Password2">Password Sekarang</label>
-                      </div>
-                      <div class="form-group">
-                        <input type="password" class="form-control" id="Password3" name="Password3" required data-rule-minlength="5">
-                        <label for="Password3">Confirmation Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required data-rule-minlength="5">
+                        <label for="confirmPassword">Confirmation Password</label>
                       </div>
                     </div><!--end .card-body -->
                     <div class="card-actionbar">
                       <div class="card-actionbar-row">
-                        <button type="submit" class="btn btn-primary ink-reaction btn-raised">Simpan</button>
-                        <button type="submit" class="btn btn-danger ink-reaction btn-raised">Batal</button>
+                        <button type="button" class="btn btn-primary ink-reaction btn-raised" onclick="saveChangePassword();">Simpan</button>
                       </div>
                     </div><!--end .card-actionbar -->
                   </div><!--end .card -->
