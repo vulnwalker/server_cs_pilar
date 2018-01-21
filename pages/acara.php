@@ -153,13 +153,11 @@ switch($tipe){
                         <td style='vertical-align:middle;text-align:right;'>".numberFormat($getDataAcara['harga_tiket'])."</td>
                         <td style='vertical-align:middle;text-align:right;'>".numberFormat($totalTiket)."</td>
                         <td style='vertical-align:middle;text-align:center;'>$statusPendaftaran</td>
-
                              </tr>
                   ";
         $nomor += 1;
         $nomorCB += 1;
         $totalSumTiket += $totalTiket;
-        // <td style='vertical-align:middle;text-align:center;'>$keterangan</td>
     }
 
     $tabelBody = "
@@ -179,10 +177,10 @@ switch($tipe){
           <th class='col-lg-2'>Instansi</th>
           <th class='col-lg-1'>Tanggal Pendaftaran</th>
           <th class='col-lg-1'>Nomor Invoice</th>
-          <th class='col-lg-1' style='text-align:center;'>Jumlah Daftar</th>
-          <th class='col-lg-1' style='text-align:center;'>Harga Partisipasi</th>
+          <th class='col-lg-1' style='text-align:center;'>Jumlah Orang</th>
+          <th class='col-lg-1' style='text-align:center;'>Harga Tiket</th>
           <th class='col-lg-2' style='text-align:center;'>Total</th>
-          <th class='col-lg-2 text-center' >Status
+          <th class='col-lg-2' >Status
 <input type='hidden' name='hiddenIdAcara' id='hiddenIdAcara' value='$idAcara'>
 <button type='button' id='pemicuPopup' style='display:none;' data-toggle='modal' data-target='#myModal'>SHOW</button>
 </th>
@@ -865,7 +863,7 @@ switch($tipe){
                 <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
                   <button type='button' class='btn ink-reaction btn-flat btn-primary' onclick=konfirmasiPendaftaran();>
                       <i class='md md-link'></i>
-                      Action
+                      UPDATE PEMBAYARAN
                   </button>
 
                 </div>

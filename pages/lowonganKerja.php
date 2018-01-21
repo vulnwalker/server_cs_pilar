@@ -45,7 +45,7 @@ switch($tipe){
                   'tanggal_buat' => date("Y-m-d"),
                   'posisi' => $posisiLowongan,
                   'pendidikan' => implode(";",$pendidikan),
-                  'salary' => removeExtHarga($salaryMinimum)."-".removeExtHarga($salaryMaximum),
+                  // 'salary' => removeExtHarga($salaryMinimum)."-".removeExtHarga($salaryMaximum),
                   'jam_kerja' => $jamKerja,
                   'pengalaman' => $pengalamanMinimal."-".$pengalamanMaximal,
                   'deskripsi' =>  base64_encode($deskripsiLowongan),
@@ -88,7 +88,7 @@ switch($tipe){
                'tanggal_buat' => date("Y-m-d"),
                'posisi' => $posisiLowongan,
                'pendidikan' => implode(";",$pendidikan),
-               'salary' => removeExtHarga($salaryMinimum)."-".removeExtHarga($salaryMaximum),
+              //  'salary' => removeExtHarga($salaryMinimum)."-".removeExtHarga($salaryMaximum),
                'jam_kerja' => $jamKerja,
                'pengalaman' => $pengalamanMinimal."-".$pengalamanMaximal,
                'deskripsi' =>  base64_encode($deskripsiLowongan),
@@ -132,7 +132,7 @@ switch($tipe){
         $arrKondisi[] = "judul like '%$searchData%' ";
         $arrKondisi[] = "posisi like '%$searchData%' ";
         $arrKondisi[] = "pendidikan like '%$searchData%' ";
-        $arrKondisi[] = "salary like '%$searchData%' ";
+        // $arrKondisi[] = "salary like '%$searchData%' ";
         $arrKondisi[] = "jam_kerja like '%$searchData%' ";
         $kondisi = join(" or ",$arrKondisi);
         $kondisi = " where $kondisi ";
@@ -191,7 +191,7 @@ switch($tipe){
                           <td style='vertical-align:middle;'>$judul</td>
                           <td style='vertical-align:middle;'>$namaPosisi</td>
                           <td style='vertical-align:middle;'>$listPendidikan</td>
-                          <td style='vertical-align:middle;'>".numberFormat($explodeSalary[0])."~".numberFormat($explodeSalary[1])."</td>
+                          <!-- <td style='vertical-align:middle;'>".numberFormat($explodeSalary[0])."~".numberFormat($explodeSalary[1])."</td> -->
                           <td style='vertical-align:middle;'>$jam_kerja</td>
                           <td style='vertical-align:middle;text-align:center'>$statusPublish</td>
                           <td style='vertical-align:middle;'>$jumlahLamaran</td>
@@ -220,8 +220,8 @@ switch($tipe){
             </th>
             <th class='col-lg-3'>Judul</th>
             <th class='col-lg-1'>Posisi</th>
-            <th class='col-lg-2'>Pendidikan</th>
-            <th class='col-lg-2 text-center '>Salary</th>
+            <th class='col-lg-4'>Pendidikan</th>
+            <!-- <th class='col-lg-2 text-center '>Salary</th> -->
             <th class='col-lg-1'>Jam Kerja</th>
             <th class='col-lg-1 text-center'>Publish</th>
             <th class='col-lg-1'>Lamaran</th>
@@ -713,7 +713,7 @@ switch($tipe){
                                   <label for="posisiLowongan">Posisi</label>
                                 </div>
                               </div>
-      												<div class="col-sm-6">
+      												<div class="col-sm-8">
                                 <div class="form-group">
                                    <select class="form-control select2-list" id='pendidikan' name='pendidikan'  multiple="" tabindex="-1" style="display: none;">
                                      <?php
@@ -739,21 +739,10 @@ switch($tipe){
                                   <label for="jenisKelamin">Jenis Kelamin</label>
                                 </div>
                               </div>
-                              <div class="col-sm-2">
-                                <div class="form-group">
-                                  <?php
-                                  $arrayJamKerja = array(
-                                                          array('FULL TIME','FULL TIME'),
-                                                          array('PART TIME','PART TIME'),
-                                                        );
-                                  echo cmbArray("jamKerja","1",$arrayJamKerja,"-- JAM KERJA --","class='form-control'")
-                                  ?>
-                                  <label for="jamKerja">Jam Kerja</label>
-                                </div>
-                              </div>
+
                             </div>
                             <div class="row">
-                              <div class="col-sm-3">
+                              <div class="col-sm-5">
                                 <div class="form-group">
                                   <label >Usia</label><br>
           												<div class="input-group">
@@ -766,7 +755,7 @@ switch($tipe){
 
           											</div>
                               </div>
-                              <div class="col-sm-3">
+                              <div class="col-sm-5">
                                 <div class="form-group">
                                   <label>Pengalaman</label>
                                   <br>
@@ -780,7 +769,21 @@ switch($tipe){
 
           											</div>
                               </div>
-                              <div class="col-sm-3">
+                              <div class="col-sm-2">
+                                <div class="form-group">
+                                  <?php
+                                  $arrayJamKerja = array(
+                                                          array('FULL TIME','FULL TIME'),
+                                                          array('PART TIME','PART TIME'),
+                                                        );
+                                  echo cmbArray("jamKerja","FULL TIME",$arrayJamKerja,"-- JAM KERJA --","class='form-control'")
+                                  ?>
+                                  <label for="jamKerja">Jam Kerja</label>
+                                </div>
+                              </div>
+
+
+                              <!-- <div class="col-sm-3">
                                 <div class="form-group">
           												<input type="text" id='salaryMinimum' name='salaryMinimum' class="form-control">
           												<label>Salary Minimum</label>
@@ -791,7 +794,7 @@ switch($tipe){
           												<input type="text" id='salaryMaximum' name='salaryMaximum' class="form-control">
           												<label>Salary Maximum</label>
           											</div>
-                              </div>
+                              </div> -->
                             </div>
                             <div class="row">
                               <div class="col-sm-12">
@@ -930,7 +933,7 @@ switch($tipe){
                                     <label for="posisiLowongan">Posisi</label>
                                   </div>
                                 </div>
-        												<div class="col-sm-6">
+        												<div class="col-sm-8">
                                   <div class="form-group">
                                      <select class="form-control select2-list" id='pendidikan' name='pendidikan'  multiple="" tabindex="-1" style="display: none;">
                                        <?php
@@ -948,19 +951,7 @@ switch($tipe){
             												<label>Pendidikan</label>
             											</div>
         												</div>
-                                <div class="col-sm-2">
-                                  <div class="form-group">
-                                    <?php
-                                    $arrayJenisKelamin = array(
-                                                            array('1','LAKI-LAKI'),
-                                                            array('2','PEREMPUAN'),
-                                                            array('3','LAKI-LAKI DAN PEREMPUAN'),
-                                                          );
-                                    echo cmbArray("jenisKelamin",$getData['gender'],$arrayJenisKelamin,"-- JENIS KELAMIN --","class='form-control'")
-                                    ?>
-                                    <label for="jenisKelamin">Jenis Kelamin</label>
-                                  </div>
-                                </div>
+
                                 <div class="col-sm-2">
                                   <div class="form-group">
                                     <?php
@@ -975,7 +966,7 @@ switch($tipe){
                                 </div>
                               </div>
                               <div class="row">
-                                <div class="col-sm-3">
+                                <div class="col-sm-5">
                                   <div class="form-group">
                                     <label >Usia</label><br>
             												<div class="input-group">
@@ -988,7 +979,7 @@ switch($tipe){
 
             											</div>
                                 </div>
-                                <div class="col-sm-3">
+                                <div class="col-sm-5">
                                   <div class="form-group">
                                     <label>Pengalaman</label>
                                     <br>
@@ -1002,7 +993,20 @@ switch($tipe){
 
             											</div>
                                 </div>
-                                <div class="col-sm-3">
+                                <div class="col-sm-2">
+                                  <div class="form-group">
+                                    <?php
+                                    $arrayJenisKelamin = array(
+                                                            array('1','LAKI-LAKI'),
+                                                            array('2','PEREMPUAN'),
+                                                            array('3','LAKI-LAKI DAN PEREMPUAN'),
+                                                          );
+                                    echo cmbArray("jenisKelamin",$getData['gender'],$arrayJenisKelamin,"-- JENIS KELAMIN --","class='form-control'")
+                                    ?>
+                                    <label for="jenisKelamin">Jenis Kelamin</label>
+                                  </div>
+                                </div>
+                                <!-- <div class="col-sm-3">
                                   <div class="form-group">
             												<input type="text" id='salaryMinimum' name='salaryMinimum' value="<?php echo $salaryMinimum ?>" class="form-control">
             												<label>Salary Minimum</label>
@@ -1013,7 +1017,7 @@ switch($tipe){
             												<input type="text" id='salaryMaximum' name='salaryMaximum' value="<?php echo $salaryMaximum ?>" class="form-control">
             												<label>Salary Maximum</label>
             											</div>
-                                </div>
+                                </div> -->
                               </div>
                               <div class="row">
                                 <div class="col-sm-12">
@@ -1030,7 +1034,7 @@ switch($tipe){
                                       <div class="overlay-inner">
                                       </div>
                                     </div>
-                                    <img class="resize-image" id='gambarSlider' src="<?php echo $getData['image_title'] ?>"  alt="image for resizing">
+                                    <img class="resize-image"  id='gambarSlider' src="<?php echo $getData['image_title'] ?>"  alt="image for resizing">
                                   </div>
                                 </div>
                               </div>

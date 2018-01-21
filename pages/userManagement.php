@@ -71,8 +71,6 @@ switch($tipe){
           $err = "Isi password ";
       }elseif(empty($namaUser)){
           $err = "Isi nama ";
-      }elseif(empty($hakAkses)){
-          $err = "Pilih hak akses ";
       }elseif(empty($hakAkses) && $jenisUser == '2'){
           $err = "Pilih hak akses ";
       }
