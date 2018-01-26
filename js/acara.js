@@ -221,6 +221,7 @@ function saveAcara(){
                 baseImageTitle : crop,
                 tempKordinat : $("#tempKordinat").val(),
                 statusPublish : $("#statusPublish").val(),
+                statusPendaftaran : $("#statusPendaftaran").val(),
         },
         url: url+'&tipe=saveAcara',
           success: function(data) {
@@ -266,7 +267,8 @@ function saveEditAcara(idEdit){
                 baseImageTitle : crop,
                 tempKordinat : $("#tempKordinat").val(),
                 idEdit : idEdit,
-                statusPublish : $("#statusPublish").val()
+                statusPublish : $("#statusPublish").val(),
+                statusPendaftaran : $("#statusPendaftaran").val(),
         },
         url: url+'&tipe=saveEditAcara',
           success: function(data) {

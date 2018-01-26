@@ -3,8 +3,8 @@
     display: inline-block;
     cursor: move;
     margin: 0 auto;
-    top: 78.797px;
-     left: 518.578px;
+    top: -4.24962px;
+    left: 517.578px;
 }
 
 .resize-container img {
@@ -54,20 +54,20 @@
 
 .overlay {
 	position: absolute;
-	left: 40%;
-	top: 30%;
+  left: 40%;
+  top: 30%;
 	margin-left: -100px;
 	margin-top: -100px;
 	z-index: 999;
-	width: 330px;
-	height: 475px;
+	width: 555px;
+	height: 345px;
     border: solid 2px rgba(222,60,80,.9);
 	box-sizing: content-box;
 	pointer-events: none;
 }
 
 .overlay:after,
-.overlay:before {
+/*.overlay:before {
 	content: '';
 	position: absolute;
 	display: block;
@@ -75,7 +75,7 @@
 	height: 40px;
     border-left: dashed 2px rgba(222,60,80,.9);
 	border-right: dashed 2px rgba(222,60,80,.9);
-}
+}*/
 
 .overlay:before {
 	top: 0;

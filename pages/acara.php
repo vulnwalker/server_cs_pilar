@@ -281,6 +281,8 @@ switch($tipe){
        $err = "Isi deskripsi acara";
    }elseif(empty($statusPublish)){
        $err = "pilih status publish";
+   }elseif(empty($statusPendaftaran)){
+       $err = "pilih status pendaftaran";
    }
    if(empty($err)){
      if(!empty($tempKordinat)){
@@ -307,7 +309,8 @@ switch($tipe){
                'deadline_pembayaran' => $deadlinePembayaran,
                'image_title' => "images/acara/".md5(date("Y-m-d")).md5(date("H:i:s")),
                'undangan' => "images/acara/".md5(date("Y-m-d")).md5(date("H:i:s")).".pdf",
-               'publish' => $statusPublish
+               'publish' => $statusPublish,
+               'status_pendaftaran' => $statusPendaftaran,
      );
      $query = sqlInsert("acara",$data);
      sqlQuery($query);
@@ -340,6 +343,8 @@ switch($tipe){
        $err = "Isi deskripsi acara";
    }elseif(empty($statusPublish)){
        $err = "pilih status publish";
+   }elseif(empty($statusPendaftaran)){
+       $err = "pilih status pendaftaran";
    }
    if(empty($err)){
      if(!empty($tempKordinat)){
@@ -366,7 +371,8 @@ switch($tipe){
                'deadline_pembayaran' => $deadlinePembayaran,
                'image_title' => "images/acara/".md5(date("Y-m-d")).md5(date("H:i:s")),
                'undangan' => "images/acara/".md5(date("Y-m-d")).md5(date("H:i:s")).".pdf",
-               'publish' => $statusPublish
+               'publish' => $statusPublish,
+               'status_pendaftaran' => $statusPendaftaran,
      );
      $query = sqlUpdate("acara",$data,"id = '$idEdit'");
      sqlQuery($query);
@@ -569,6 +575,11 @@ switch($tipe){
         foreach ($dataAcara as $key => $value) {
             $$key = $value;
         }
+        if($status_pendaftaran == '2'){
+          $statusPendaftaran = "DITUTUP";
+        }else{
+          $statusPendaftaran = "DIBUKA";
+        }
         if(str_replace('-','',$tanggal_selesai) < str_replace("-","",date("Y-m-d"))){
             $status = "SELESAI ";
             sqlQuery("update acara set status = 'SELESAI' where id = '$id'");
@@ -601,6 +612,7 @@ switch($tipe){
                           <td class='text-center' style='vertical-align:middle;'>$kuota</td>
                           <td class='text-center' style='vertical-align:middle;'>$statusPublish</td>
                           <td class='text-center' style='vertical-align:middle;'>$status</td>
+                          <td class='text-center' style='vertical-align:middle;'>$statusPendaftaran</td>
                           <td class='text-center' style='vertical-align:middle;'><div class='demo-icon-hover' style='cursor:pointer;' onclick=pendaftaran($id);>
         											<i class='md md-launch'></i>
         										</div></td>
@@ -632,6 +644,7 @@ switch($tipe){
             <th class='col-lg-1 text-center'>Kuota</th>
             <th class='col-lg-1 text-center'>Publish</th>
             <th class='col-lg-1 text-center'>Status</th>
+            <th class='col-lg-1 text-center'>Pendaftaran</th>
             <th class='col-lg-1 text-center'>Action</th>
           </tr>
         </thead>
@@ -1124,6 +1137,18 @@ switch($tipe){
       														<label for="Firstname2">PUBLISH</label>
       													</div>
       												</div>
+                              <div class="col-sm-3">
+      													<div class="form-group">
+                                  <?php
+                                    $arrayStatus = array(
+                                              array('1','PENDAFTARAN DIBUKA'),
+                                              array('2','PENDAFTARAN DI TUTUP'),
+                                    );
+                                    echo cmbArrayEmpty("statusPendaftaran","",$arrayStatus,"-- PENDAFTARAN --","class='form-control' ")
+                                  ?>
+      														<label for="Firstname2">STATUS</label>
+      													</div>
+      												</div>
                             </div>
       											<div class="row">
       												<div class="col-sm-12">
@@ -1543,6 +1568,18 @@ switch($tipe){
                                       echo cmbArrayEmpty("statusPublish",$getData['publish'],$arrayStatus,"-- PUBLISH --","class='form-control' ")
                                     ?>
         														<label for="Firstname2">PUBLISH</label>
+        													</div>
+        												</div>
+                                <div class="col-sm-3">
+        													<div class="form-group">
+                                    <?php
+                                      $arrayStatus = array(
+                                                array('1','PENDAFTARAN DIBUKA'),
+                                                array('2','PENDAFTARAN DI TUTUP'),
+                                      );
+                                      echo cmbArrayEmpty("statusPendaftaran",$getData['status_pendaftaran'],$arrayStatus,"-- PENDAFTARAN --","class='form-control' ")
+                                    ?>
+        														<label for="Firstname2">STATUS</label>
         													</div>
         												</div>
                               </div>

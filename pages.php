@@ -141,25 +141,43 @@ if ($_SESSION['status'] != "login") {
 
 		<div id="base">
 <?php
+$getDataUser = sqlArray(sqlQuery("select * from users where username = '".$_SESSION['username']."'"));
+$arrayHakAkses = explode(';',$getDataUser['hak_akses']);
 		$page = @$_GET['page'];
 		if ($page == "informasi") {
-		  include 'pages/informasi.php';
+      if(in_array('2',$arrayHakAkses)){
+        include 'pages/informasi.php';
+      }
 		}elseif ($page == "produk") {
-		  include 'pages/produk.php';
+      if(in_array('2',$arrayHakAkses)){
+        include 'pages/produk.php';
+      }
 		}elseif ($page == "acara") {
-		  include 'pages/acara.php';
+      if(in_array('4',$arrayHakAkses)){
+        include 'pages/acara.php';
+      }
 		}elseif ($page == "slider") {
-		  include 'pages/slider.php';
+      if(in_array('5',$arrayHakAkses)){
+        include 'pages/slider.php';
+      }
 		}elseif ($page == "setting") {
-		  include 'pages/setting.php';
+      if(in_array('8',$arrayHakAkses)){
+        include 'pages/setting.php';
+      }
 		}elseif ($page == "chating") {
 		  include 'pages/chating.php';
 		}elseif ($page == "userManagement") {
-		  include 'pages/userManagement.php';
+      if(in_array('1',$arrayHakAkses)){
+        include 'pages/userManagement.php';
+      }
 		}elseif ($page == "lowonganKerja") {
-		  include 'pages/lowonganKerja.php';
+      if(in_array('6',$arrayHakAkses)){
+        include 'pages/lowonganKerja.php';
+      }
 		}elseif ($page == "team") {
-		  include 'pages/team.php';
+      if(in_array('7',$arrayHakAkses)){
+        include 'pages/team.php';
+      }
 		}elseif ($page == "profile") {
 		  include 'pages/profile.php';
 		}elseif ($page == "popular") {

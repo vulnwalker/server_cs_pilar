@@ -19,9 +19,11 @@ switch($tipe){
           $err = "Pilih status user";
       }elseif(empty($usernameUser)){
           $err = "Isi username";
-      }elseif(empty($emailUser)){
-          $err = "Isi email";
-      }elseif(empty($passwordUser)){
+      }
+      // elseif(empty($emailUser)){
+      //     $err = "Isi email";
+      // }
+      elseif(empty($passwordUser)){
           $err = "Isi password ";
       }elseif(empty($namaUser)){
           $err = "Isi nama ";
@@ -65,9 +67,11 @@ switch($tipe){
           $err = "Pilih status user";
       }elseif(empty($usernameUser)){
           $err = "Isi username";
-      }elseif(empty($emailUser)){
-          $err = "Isi email";
-      }elseif(empty($passwordUser)){
+      }
+      // elseif(empty($emailUser)){
+      //     $err = "Isi email";
+      // }
+      elseif(empty($passwordUser)){
           $err = "Isi password ";
       }elseif(empty($namaUser)){
           $err = "Isi nama ";
