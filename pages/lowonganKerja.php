@@ -14,7 +14,34 @@ if(!empty($tipe)){
 
 
 switch($tipe){
-
+  case 'upUrutan':{
+    $getData = sqlArray(sqlQuery("select * from lowongan_kerja where id = '$id'"));
+    if($getData['nomor_urut'] == 1){
+       $err = "Urutan sudah teratas";
+    }
+    if(empty($err)){
+      $nomorUrut = $getData['nomor_urut'] - 1;
+      $getDataUrutSebelumnya = sqlArray(sqlQuery("select * from lowongan_kerja where nomor_urut='$nomorUrut'"));
+      sqlQuery("update lowongan_kerja set nomor_urut = '$nomorUrut' where id ='$id'");
+      sqlQuery("update lowongan_kerja set nomor_urut = '".$getData['nomor_urut']."' where id ='".$getDataUrutSebelumnya['id']."'");
+    }
+    echo generateAPI($cek,$err,$content);
+  break;
+  }
+  case 'downUrutan':{
+    $getData = sqlArray(sqlQuery("select * from lowongan_kerja where id = '$id'"));
+    if($getData['nomor_urut'] == sqlNumRow(sqlQuery("select * from lowongan_kerja where publish='1'"))){
+       $err = "Urutan sudah terbawah";
+    }
+    if(empty($err)){
+      $nomorUrut = $getData['nomor_urut'] + 1;
+      $getDataUrutSebelumnya = sqlArray(sqlQuery("select * from lowongan_kerja where nomor_urut='$nomorUrut'"));
+      sqlQuery("update lowongan_kerja set nomor_urut = '$nomorUrut' where id ='$id'");
+      sqlQuery("update lowongan_kerja set nomor_urut = '".$getData['nomor_urut']."' where id ='".$getDataUrutSebelumnya['id']."'");
+    }
+    echo generateAPI($cek,$err,$content);
+  break;
+  }
   case 'downloadCV':{
     $getData = sqlArray(sqlQuery("select * from lamaran where id = '$id'"));
     $content = array('cv' => "http://pilar.web.id/cv/".$getData['cv']);
@@ -177,7 +204,8 @@ switch($tipe){
               $statusPublish = "TIDAK";
           }
           $jumlahLamaran = sqlNumRow(sqlQuery("select * from lamaran where id_lowongan = '$id'"));
-
+          $iconUp  = "<i class='fa fa-angle-double-up' style='cursor:pointer;' onclick=upUrutan($id);></i>";
+          $iconDown  = "<i class='fa fa-angle-double-down' style='cursor:pointer;' onclick=downUrutan($id);></i>";
         $data .= "     <tr>
                           <td class='text-center' width='20px;'  style='vertical-align:middle;'>$nomor</td>
                           <td class='text-center' width='20px;'  style='vertical-align:middle;'>
@@ -198,6 +226,7 @@ switch($tipe){
                           <td style='vertical-align:middle;text-align:center;'><div class='demo-icon-hover' style='cursor:pointer;' onclick=lamaran($id);>
         											<i class='md md-launch'></i>
         										</div></td>
+                          <td class='text-center' style='vertical-align:middle;'>$iconUp &nbsp $iconDown</td>
                                </tr>
                     ";
           $nomor += 1;
@@ -226,6 +255,7 @@ switch($tipe){
             <th class='col-lg-1 text-center'>Publish</th>
             <th class='col-lg-1'>Lamaran</th>
             <th class='col-lg-1 text-center'>Action</th>
+            <th class='col-lg-1 text-center'>Urutan</th>
           </tr>
         </thead>
         <tbody>
@@ -407,6 +437,7 @@ switch($tipe){
                                 <li id='pendidikan' onclick=sortData(this);><a href='#' style='width: 100%;' >Pendidikan</a></li>
                                 <li id='salary' onclick=sortData(this);><a href='#' style='width: 100%;' >Salary</a></li>
                                 <li id='jam_kerja' onclick=sortData(this);><a href='#' style='width: 100%;' >Jam Kerja</a></li>
+                                <li id='nomor_urut' onclick=sortData(this);><a href='#' style='width: 100%;' >Nomor Urut</a></li>
                                 <li id='naik' class='active-tick2' onclick=ascChanged();><a href='#' style='width: 100%; border-top: 2px solid #0aa89e; font-weight: bold;'>Naik</a></li>
                                 <li id='turun' onclick=descChanged();><a href='#' style='width: 100%; font-weight: bold;'>Turun</a></li>
                                 <input type='hidden' id='ascHidden' name='ascHidden'>
@@ -444,7 +475,7 @@ switch($tipe){
                     hapus
                   </button>
                 </div>
-                <div class='col-sm-3'>
+                <div class='col-sm-3 col-xs-3 col-md-3 col-lg-3'>
                   <div class='btn-group'>
                     <button type='button' class='btn ink-reaction btn-flat dropdown-toggle' data-toggle='dropdown' style='color: #0aa89e;'>
                        <i class='fa fa-user text-default-light' style='color: #0aa89e;'></i> ".$getNama."
@@ -674,9 +705,8 @@ switch($tipe){
           }else{
               if($_GET['action'] == 'baru'){
                 ?>
-                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/componentLowongan.css" />
-                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demoLowongan.css" />
-                <script src="js/ImageResizeCropCanvas/js/componentLowongan.js"></script>
+                <link rel="stylesheet" href="js/cropper/dist/cropper.css">
+                <script src="js/cropper/dist/cropper.js"></script>
                 <script type="text/javascript" src="js/textboxio/textboxio.js"></script>
                 <div id="content">
           				<section>
@@ -806,13 +836,7 @@ switch($tipe){
                             </div>
                             <div class="row">
                               <div class="col-sm-12">
-                                <div class="component" style="display: none;">
-                                  <div class="overlay">
-                                    <div class="overlay-inner">
-                                    </div>
-                                  </div>
-                                  <img class="resize-image" id='gambarSlider' alt="image for resizing">
-                                </div>
+                                  <img  id='gambarSlider' alt="image for resizing">
                               </div>
                             </div>
                             <div class="row">
@@ -894,9 +918,8 @@ switch($tipe){
                   $spesifikasiLowongan = str_replace('<li>',"",$getData['spesifikasi']);
                   $spesifikasiLowongan = str_replace('</li>',"\n",$spesifikasiLowongan);
                   ?>
-                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/componentLowongan.css" />
-                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demoLowongan.css" />
-                  <script src="js/ImageResizeCropCanvas/js/componentLowongan.js"></script>
+                  <link rel="stylesheet" href="js/cropper/dist/cropper.css">
+                  <script src="js/cropper/dist/cropper.js"></script>
                   <script type="text/javascript" src="js/textboxio/textboxio.js"></script>
                   <div id="content">
             				<section>
@@ -1029,13 +1052,7 @@ switch($tipe){
                               </div>
                               <div class="row">
                                 <div class="col-sm-12">
-                                  <div class="component" style="display: none;">
-                                    <div class="overlay">
-                                      <div class="overlay-inner">
-                                      </div>
-                                    </div>
-                                    <img class="resize-image"  id='gambarSlider' src="<?php echo $getData['image_title'] ?>"  alt="image for resizing">
-                                  </div>
+                                    <img   id='gambarSlider' src="<?php echo $getData['image_title'] ?>"  alt="image for resizing">
                                 </div>
                               </div>
                               <div class="row">
@@ -1098,8 +1115,20 @@ switch($tipe){
                           });
                         $("#salaryMinimum").inputmask('Rp 999.999.999', {numericInput: true, rightAlignNumerics: false});
                         $("#salaryMaximum").inputmask('Rp 999.999.999', {numericInput: true, rightAlignNumerics: false});
-                        resizeableImage($('#gambarSlider'));
-                        $('.component').show();
+                        $("#gambarSlider").cropper({
+                            aspectRatio: 1392/880,
+                            minCropBoxWidth: 1392,
+                            minCropBoxHeight: 880,
+                            resizable: true,
+                            autoCropArea: 0,
+                            strict: false,
+                            guides: false,
+                            highlight: false,
+                            dragCrop: false,
+                            cropBoxMovable: true,
+                            cropBoxResizable: false,
+                            dragMode: 'move',
+                        });
                     });
                   </script>
                   <?php

@@ -61,6 +61,34 @@ if(!empty($tipe)){
 }
 
 switch($tipe){
+  case 'upUrutan':{
+    $getData = sqlArray(sqlQuery("select * from produk where id = '$id'"));
+    if($getData['nomor_urut'] == 1){
+       $err = "Urutan sudah teratas";
+    }
+    if(empty($err)){
+      $nomorUrut = $getData['nomor_urut'] - 1;
+      $getDataUrutSebelumnya = sqlArray(sqlQuery("select * from produk where nomor_urut='$nomorUrut'"));
+      sqlQuery("update produk set nomor_urut = '$nomorUrut' where id ='$id'");
+      sqlQuery("update produk set nomor_urut = '".$getData['nomor_urut']."' where id ='".$getDataUrutSebelumnya['id']."'");
+    }
+    echo generateAPI($cek,$err,$content);
+  break;
+  }
+  case 'downUrutan':{
+    $getData = sqlArray(sqlQuery("select * from produk where id = '$id'"));
+    if($getData['nomor_urut'] == sqlNumRow(sqlQuery("select * from produk where status='1'"))){
+       $err = "Urutan sudah terbawah";
+    }
+    if(empty($err)){
+      $nomorUrut = $getData['nomor_urut'] + 1;
+      $getDataUrutSebelumnya = sqlArray(sqlQuery("select * from produk where nomor_urut='$nomorUrut'"));
+      sqlQuery("update produk set nomor_urut = '$nomorUrut' where id ='$id'");
+      sqlQuery("update produk set nomor_urut = '".$getData['nomor_urut']."' where id ='".$getDataUrutSebelumnya['id']."'");
+    }
+    echo generateAPI($cek,$err,$content);
+  break;
+  }
   case 'saveDescSreenshot':{
       $fileDesc = fopen( "temp/".$_SESSION['username']."/$namaFile".".desc", 'wb' );
       fwrite( $fileDesc, $descSreenShot );
@@ -104,6 +132,7 @@ switch($tipe){
       $data = array(
               'nama_produk' => $namaProduk,
               'status' => $statusPublish,
+              'link_demo' => $linkDemo,
               'tanggal' =>  date("Y-m-d"),
               'image_title' => "images/produk/$namaProduk/title.jpg",
               'deskripsi' => base64_encode($deskripsiProduk),
@@ -131,12 +160,13 @@ switch($tipe){
       $getOldProduk = sqlArray(sqlQuery("select * from produk where id = '$idEdit'"));
       unlinkDir("images/produk/".$getOldProduk['nama_produk']);
       $listImage = getImage("temp/".$_SESSION['username'],"images/produk/$namaProduk");
-      $imageTitle = baseToImage($baseGambarProduk,"images/produk/$namaProduk/title.jpg");
+      $imageTitle = baseToImage($baseGambarProduk,"images/produk/$namaProduk/title".md5(date("Y-m-d").date("H:i")).".jpg");
       $data = array(
               'nama_produk' => $namaProduk,
               'status' => $statusPublish,
+              'link_demo' => $linkDemo,
               'tanggal' =>  date("Y-m-d"),
-              'image_title' => "images/produk/$namaProduk/title.jpg",
+              'image_title' => "images/produk/$namaProduk/title".md5(date("Y-m-d").date("H:i")).".jpg",
               'deskripsi' => base64_encode($deskripsiProduk),
               'screen_shot' => $listImage,
       );
@@ -193,6 +223,8 @@ switch($tipe){
       }
       if (!empty($sorter)) {
         $kondisiSort = "ORDER BY $sorter $ascending";
+      }else{
+        $kondisiSort = "ORDER BY nomor_urut";
       }
       $getData = sqlQuery("select * from $tableName $kondisi $kondisiSort $queryLimit");
       $cek = "select * from $tableName $kondisi $queryLimit";
@@ -207,6 +239,8 @@ switch($tipe){
         }else{
             $status = "TIDAK";
         }
+        $iconUp  = "<i class='fa fa-angle-double-up' style='cursor:pointer;' onclick=upUrutan($id);></i>";
+        $iconDown  = "<i class='fa fa-angle-double-down' style='cursor:pointer;' onclick=downUrutan($id);></i>";
         $data .= "     <tr>
                           <td class='text-center' width='20px;'  style='vertical-align:middle;'>$nomor</td>
                           <td class='text-center' width='20px;'  style='vertical-align:middle;'>
@@ -220,6 +254,7 @@ switch($tipe){
                             <td  class='col-lg-2 text-center' style='vertical-align:middle;'><img src='$image_title' onclick = imageClicked(this); alt='$nama_produk' class='materialboxed' style='width:100px;height:100px;'></img></td>
                           <td  class='col-lg-2' style='vertical-align:middle;'>$nama_produk</td>
                           <td  class='col-lg-2 text-center' style='vertical-align:middle;'>$status</td>
+                          <td class='text-center' style='vertical-align:middle;'>$iconUp &nbsp $iconDown</td>
                         <!--  <td  class='col-lg-2  text-center' style='vertical-align:middle;'><input type='button' class='btn ink-reaction btn-raised btn-primary' onclick=showGambarProduk($id); value='Lihat'></td> -->
                        </tr>
                     ";
@@ -241,8 +276,9 @@ switch($tipe){
           </div>
             </th>
             <th class='col-lg-1 text-center'>Gambar</th>
-            <th class='col-lg-10'>Nama</th>
+            <th class='col-lg-9'>Nama</th>
             <th class='col-lg-1 text-center'>Publish</th>
+            <th class='col-lg-1 text-center'>Urutan</th>
           <!--  <th class='col-lg-3 text-center'>Screen Shot</th> -->
           </tr>
         </thead>
@@ -324,6 +360,7 @@ switch($tipe){
                               <ul class='dropdown-menu'>
                                 <li id='nama_produk' onclick=sortData(this);><a href='#' style='width: 100%;' >Nama</a></li>
                                 <li id='status' onclick=sortData(this);><a href='#' style='width: 100%;' >Publish</a></li>
+                                <li id='nomor_urut' onclick=sortData(this);><a href='#' style='width: 100%;' >Nomor Urut</a></li>
                                 <li id='naik' class='active-tick2' onclick=ascChanged();><a href='#' style='width: 100%; border-top: 2px solid #0aa89e; font-weight: bold;'>Naik</a></li>
                                 <li id='turun' onclick=descChanged();><a href='#' style='width: 100%; font-weight: bold;'>Turun</a></li>
                                 <input type='hidden' id='ascHidden' name='ascHidden'>
@@ -361,7 +398,7 @@ switch($tipe){
                     hapus
                   </button>
                 </div>
-                <div class='col-sm-3'>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
                   <div class='btn-group'>
                     <button type='button' class='btn ink-reaction btn-flat dropdown-toggle' data-toggle='dropdown' style='color: #0aa89e;'>
                        <i class='fa fa-user text-default-light' style='color: #0aa89e;'></i> ".$getNama."
@@ -677,18 +714,9 @@ switch($tipe){
               if($_GET['action'] == 'baru'){
                 clearDirectory("temp/".$_SESSION['username']);
                 ?>
-                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/componentProduk.css" />
-                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demoProduk.css" />
-            		<script src="js/ImageResizeCropCanvas/js/component.js"></script>
 
-                <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.css">
-                <link href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.7.3/css/froala_editor.pkgd.min.css" rel="stylesheet" type="text/css" />
-                <link href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.7.3/css/froala_style.min.css" rel="stylesheet" type="text/css" />
-                <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-                <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.js"></script>
-                <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/mode/xml/xml.min.js"></script>
-                <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.7.3/js/froala_editor.pkgd.min.js"></script> -->
+                <link rel="stylesheet" href="js/cropper/dist/cropper.css">
+                <script src="js/cropper/dist/cropper.js"></script>
                 <script type="text/javascript" src="js/textboxio/textboxio.js"></script>
 
 
@@ -726,13 +754,21 @@ switch($tipe){
       												</div>
       											</div>
       											<div class="row">
+      												<div class="col-sm-10">
+      													<div class="form-group">
+      														<input type="text" class="form-control" id="linkDemo" name='linkDemo'>
+      														<label for="namaProduk">Link Demo</label>
+      													</div>
+      												</div>
+      											</div>
+      											<div class="row">
       												<div class="col-sm-12">
                                 <div class="component">
                                   <div class="overlay">
                                     <div class="overlay-inner">
                                     </div>
                                   </div>
-                                  <img class="resize-image" id='gambarProduk' alt="image for resizing">
+                                  <img  id='gambarProduk' alt="image for resizing">
                                 </div>
       												</div>
       											</div>
@@ -814,7 +850,7 @@ switch($tipe){
           			</div>
                 <script type="text/javascript">
                   $(document).ready(function() {
-                      $('.component').hide();
+
                       setMenuEdit('baru');
                       $("#pageTitle").text("PRODUK");
                       textboxio.replaceAll('#deskripsiProduk', {
@@ -869,18 +905,8 @@ switch($tipe){
                    }
 
                   ?>
-                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/componentProduk.css" />
-                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demoProduk.css" />
-              		<script src="js/ImageResizeCropCanvas/js/component.js"></script>
-
-                  <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-                  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.css">
-                  <link href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.7.3/css/froala_editor.pkgd.min.css" rel="stylesheet" type="text/css" />
-                  <link href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.7.3/css/froala_style.min.css" rel="stylesheet" type="text/css" />
-                  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-                  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.js"></script>
-                  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/mode/xml/xml.min.js"></script>
-                  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.7.3/js/froala_editor.pkgd.min.js"></script> -->
+                  <link rel="stylesheet" href="js/cropper/dist/cropper.css">
+                  <script src="js/cropper/dist/cropper.js"></script>
                   <script type="text/javascript" src="js/textboxio/textboxio.js"></script>
 
 
@@ -914,6 +940,14 @@ switch($tipe){
         													<div class="form-group">
         														<input type="text" class="form-control" id="namaProduk" name='namaProduk' value="<?php echo $getData['nama_produk'] ?>">
         														<label for="namaProduk">Nama Produk</label>
+        													</div>
+        												</div>
+        											</div>
+                              <div class="row">
+        												<div class="col-sm-10">
+        													<div class="form-group">
+        														<input type="text" class="form-control" id="linkDemo" name='linkDemo' value="<?php echo $getData['link_demo'] ?>">
+        														<label for="namaProduk">Link Demo</label>
         													</div>
         												</div>
         											</div>
@@ -1006,7 +1040,20 @@ switch($tipe){
             			</div>
                   <script type="text/javascript">
                     $(document).ready(function() {
-                        resizeableImage($('#gambarProduk'));
+                        $("#gambarProduk").cropper({
+                            aspectRatio: 1392/880,
+                            minCropBoxWidth: 1392,
+                            minCropBoxHeight: 880,
+                            resizable: true,
+                            autoCropArea: 0,
+                            strict: false,
+                            guides: false,
+                            highlight: false,
+                            dragCrop: false,
+                            cropBoxMovable: true,
+                            cropBoxResizable: false,
+                            dragMode: 'move',
+                        });
                         setMenuEdit('baru');
                         $("#pageTitle").text("PRODUK");
                         textboxio.replaceAll('#deskripsiProduk', {

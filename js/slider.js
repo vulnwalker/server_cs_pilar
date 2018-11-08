@@ -144,7 +144,7 @@ function saveSlider(){
           data : {
                 namaSlider : $("#namaSlider").val(),
                 statusKosong : $("#statusKosong").val(),
-                baseGambarSlider : crop,
+                baseGambarSlider : $('#gambarSlider').cropper('getCroppedCanvas').toDataURL(),
                 statusPublish : $("#statusPublish").val()
           },
           url: url+'&tipe=saveSlider',
@@ -159,7 +159,7 @@ function saveSlider(){
             }
         });
       });
-    
+
   }
 function saveEditSlider(idEdit){
   swal({
@@ -179,7 +179,7 @@ function saveEditSlider(idEdit){
           data : {
                 namaSlider : $("#namaSlider").val(),
                 statusKosong : $("#statusKosong").val(),
-                baseGambarSlider : crop,
+                baseGambarSlider : $('#gambarSlider').cropper('getCroppedCanvas').toDataURL(),
                 idEdit : idEdit,
                 statusPublish : $("#statusPublish").val()
           },
@@ -195,7 +195,7 @@ function saveEditSlider(idEdit){
             }
         });
       });
-  
+
 }
 function setMenuEdit(statusMenu){
   $.ajax({
@@ -243,8 +243,21 @@ function imageChanged(){
     fileReader.onload = function(fileLoadedEvent)
     {
       $("#gambarSlider").attr('src',fileLoadedEvent.target.result);
-      resizeableImage($('#gambarSlider'));
-      $('.component').show();
+      $('#gambarSlider').cropper('destroy');
+      $("#gambarSlider").cropper({
+          aspectRatio: 1392/880,
+          minCropBoxWidth: 1392,
+          minCropBoxHeight: 880,
+          resizable: true,
+          autoCropArea: 0,
+          strict: false,
+          guides: false,
+          highlight: false,
+          dragCrop: false,
+          cropBoxMovable: true,
+          cropBoxResizable: false,
+          dragMode: 'move',
+      });
       $("#statusKosong").val('1');
     };
 

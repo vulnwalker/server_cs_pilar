@@ -291,7 +291,7 @@ switch($tipe){
                     hapus
                   </button>
                 </div>
-                <div class='col-sm-3'>
+                <div class='col-sm-3 col-xs-3 col-md-3 col-lg-3'>
                   <div class='btn-group'>
                     <button type='button' class='btn ink-reaction btn-flat dropdown-toggle' data-toggle='dropdown' style='color: #0aa89e;'>
                        <i class='fa fa-user text-default-light' style='color: #0aa89e;'></i> ".$getNama."

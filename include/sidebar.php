@@ -41,6 +41,8 @@
                         $profileActive = "active";
                     }elseif ($page == "popular") {
                         $popularActive = "active";
+                    }elseif ($page == "member"){
+                        $memberActive = "active";
                     }else{
                         $userManagement = "active";
                     }
@@ -53,6 +55,14 @@
                         <span class='title'>Users</span>
                       </a>
                     </li>";
+                    $modulMember = "
+                    <li>
+                      <a href='?page=member' class='$memberActive'>
+                        <div class='gui-icon'><i class='md md-account-child'></i></div>
+                        <span class='title'>Member</span>
+                      </a>
+                    </li>
+                    ";
                     $modulProduk = "
                     <li>
                       <a href='?page=produk' class='$produkActive'>
@@ -113,6 +123,7 @@
                     $arrayHakAkses = explode(";",$getDataUser['hak_akses']);
 
                     if(in_array(1,$arrayHakAkses))echo $modulUserManagement;
+                    if(in_array(9,$arrayHakAkses))echo $modulMember;
                     if(in_array(2,$arrayHakAkses))echo $modulProduk;
                     if(in_array(3,$arrayHakAkses))echo $modulInformasi;
                     if(in_array(4,$arrayHakAkses))echo $modulAcara;
@@ -121,12 +132,6 @@
                     if(in_array(7,$arrayHakAkses))echo $modulTeam;
                     if(in_array(8,$arrayHakAkses))echo $modulSetting;
                         echo "
-
-
-
-
-
-
 
                                 <li>
                                   <a href='?page=popular' class='$popularActive'>

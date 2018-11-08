@@ -30,11 +30,6 @@ if ($_SESSION['status'] != "login") {
     								</a>
     							</div>
     						</li>
-    						<li class="hidden-lg hidden-md hidden-sm">
-    							<a class="btn btn-icon-toggle menubar-toggle" data-toggle="menubar" href="javascript:void(0);">
-    								<i class="fa fa-bars"></i>
-    							</a>
-    						</li>
     					</ul>
     				</div>
     				<div class="headerbar-left" style="margin-left: 11.1%;" id='filterinTable'>
@@ -170,7 +165,11 @@ $arrayHakAkses = explode(';',$getDataUser['hak_akses']);
       if(in_array('1',$arrayHakAkses)){
         include 'pages/userManagement.php';
       }
-		}elseif ($page == "lowonganKerja") {
+		}elseif ($page == "member") {
+      if (in_array('9',$arrayHakAkses)) {
+        include 'pages/member.php';
+      }
+    }elseif ($page == "lowonganKerja") {
       if(in_array('6',$arrayHakAkses)){
         include 'pages/lowonganKerja.php';
       }

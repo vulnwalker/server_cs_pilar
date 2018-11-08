@@ -218,7 +218,7 @@ function saveAcara(){
                 kordinatY : $("#kordinatY").val(),
                 baseUndangan : $("#baseUndangan").val(),
                 namaFile : $("#fileUndangan").val(),
-                baseImageTitle : crop,
+                baseImageTitle : $('#gambarAcara').cropper('getCroppedCanvas').toDataURL(),
                 tempKordinat : $("#tempKordinat").val(),
                 statusPublish : $("#statusPublish").val(),
                 statusPendaftaran : $("#statusPendaftaran").val(),
@@ -264,7 +264,7 @@ function saveEditAcara(idEdit){
                 kordinatY : $("#kordinatY").val(),
                 baseUndangan : $("#baseUndangan").val(),
                 namaFile : $("#fileUndangan").val(),
-                baseImageTitle : crop,
+                baseImageTitle : $('#gambarAcara').cropper('getCroppedCanvas').toDataURL(),
                 tempKordinat : $("#tempKordinat").val(),
                 idEdit : idEdit,
                 statusPublish : $("#statusPublish").val(),
@@ -465,9 +465,22 @@ function suksesAlertPendaftaran(pesan){
       fileReader.onload = function(fileLoadedEvent)
       {
         $("#gambarAcara").attr('src',fileLoadedEvent.target.result);
-        resizeableImage($('#gambarAcara'));
-        $('.component').show();
-        // $("#statusKosong").val('1');
+        $('#gambarAcara').cropper('destroy');
+        $("#gambarAcara").cropper({
+            aspectRatio: 1392/880,
+            minCropBoxWidth: 1392,
+            minCropBoxHeight: 880,
+            resizable: true,
+            autoCropArea: 0,
+            strict: false,
+            guides: false,
+            highlight: false,
+            dragCrop: false,
+            cropBoxMovable: true,
+            cropBoxResizable: false,
+            dragMode: 'move',
+        });
+
       };
 
       fileReader.readAsDataURL(fileToLoad);
@@ -487,4 +500,40 @@ function suksesAlertPendaftaran(pesan){
       };
       fileReader.readAsDataURL(fileToLoad);
     }
+  }
+
+
+  function upUrutan(id){
+    $.ajax({
+      type:'POST',
+      data : {
+              id : id
+      },
+      url: url+'&tipe=upUrutan',
+        success: function(data) {
+        var resp = eval('(' + data + ')');
+          if(resp.err==''){
+            $(".active-tick").click();
+          }else{
+            errorAlert(resp.err);
+          }
+        }
+    });
+  }
+  function downUrutan(id){
+    $.ajax({
+      type:'POST',
+      data : {
+              id : id
+      },
+      url: url+'&tipe=downUrutan',
+        success: function(data) {
+        var resp = eval('(' + data + ')');
+          if(resp.err==''){
+            $(".active-tick").click();
+          }else{
+            errorAlert(resp.err);
+          }
+        }
+    });
   }

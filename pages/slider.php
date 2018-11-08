@@ -73,7 +73,7 @@ switch($tipe){
       if(!empty($searchData)){
         $getColom = sqlQuery("desc $tableName");
         while ($dataColomn = sqlArray($getColom)) {
-          
+
         }
         $arrKondisi[] = "gambar like '%$searchData%' ";
         $arrKondisi[] = "nama like '%$searchData%' ";
@@ -259,7 +259,7 @@ switch($tipe){
                     hapus
                   </button>
                 </div>
-                <div class='col-sm-3'>
+                <div class='col-sm-3 col-xs-3 col-md-3 col-lg-3'>
                   <div class='btn-group'>
                     <button type='button' class='btn ink-reaction btn-flat dropdown-toggle' data-toggle='dropdown' style='color: #0aa89e;'>
                        <i class='fa fa-user text-default-light' style='color: #0aa89e;'></i> ".$getNama."
@@ -574,9 +574,8 @@ switch($tipe){
           }else{
               if($_GET['action'] == 'baru'){
                 ?>
-                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/component.css" />
-                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demo.css" />
-            		<script src="js/ImageResizeCropCanvas/js/component.js"></script>
+                <link rel="stylesheet" href="js/cropper/dist/cropper.css">
+                <script src="js/cropper/dist/cropper.js"></script>
                 <div id="content">
           				<section>
           					<div class="section-body contain-lg">
@@ -610,7 +609,7 @@ switch($tipe){
                                     <div class="overlay-inner">
                                     </div>
                                   </div>
-                                  <img class="resize-image" id='gambarSlider' alt="image for resizing">
+                                  <img  id='gambarSlider' alt="image for resizing">
                                 </div>
       												</div>
       											</div>
@@ -638,7 +637,7 @@ switch($tipe){
           			</div>
                 <script type="text/javascript">
                   $(document).ready(function() {
-                      $('.component').hide();
+
                       setMenuEdit('baru');
                       $("#pageTitle").text("SLIDER");
                   });
@@ -647,8 +646,8 @@ switch($tipe){
               }elseif($_GET['action']=='edit'){
                   $getData = sqlArray(sqlQuery("select * from $tableName where id = '".$_GET['idEdit']."'"));
                   ?>
-                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/component.css" />
-                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demo.css" />
+                  <link rel="stylesheet" href="js/cropper/dist/cropper.css">
+                  <script src="js/cropper/dist/cropper.js"></script>
               		<script src="js/ImageResizeCropCanvas/js/component.js"></script>
                   <div id="content">
             				<section>
@@ -711,7 +710,20 @@ switch($tipe){
             			</div>
                   <script type="text/javascript">
                     $(document).ready(function() {
-                        resizeableImage($('#gambarSlider'));
+                      $("#gambarSlider").cropper({
+                          aspectRatio: 1392/880,
+                          minCropBoxWidth: 1392,
+                          minCropBoxHeight: 880,
+                          resizable: true,
+                          autoCropArea: 0,
+                          strict: false,
+                          guides: false,
+                          highlight: false,
+                          dragCrop: false,
+                          cropBoxMovable: true,
+                          cropBoxResizable: false,
+                          dragMode: 'move',
+                      });
                         setMenuEdit('baru');
                         $("#pageTitle").text("SLIDER");
                     });

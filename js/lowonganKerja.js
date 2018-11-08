@@ -182,7 +182,7 @@ function saveLowonganKerja(){
                   salaryMaximum : $("#salaryMaximum").val(),
                   spesifikasi : $("#spesifikasi").val(),
                   deskripsiLowongan : getEditorContent(),
-                  baseImageTitle : crop
+                  baseImageTitle : $('#gambarSlider').cropper('getCroppedCanvas').toDataURL(),
           },
           url: url+'&tipe=saveLowonganKerja',
             success: function(data) {
@@ -227,7 +227,7 @@ function saveEditLowonganKerja(idEdit){
                   salaryMaximum : $("#salaryMaximum").val(),
                   spesifikasi : $("#spesifikasi").val(),
                   deskripsiLowongan : getEditorContent(),
-                  baseImageTitle : crop,
+                  baseImageTitle : $('#gambarSlider').cropper('getCroppedCanvas').toDataURL(),
                   idEdit : idEdit
           },
           url: url+'&tipe=saveEditLowonganKerja',
@@ -292,11 +292,59 @@ function imageChanged(){
     fileReader.onload = function(fileLoadedEvent)
     {
       $("#gambarSlider").attr('src',fileLoadedEvent.target.result);
-      resizeableImage($('#gambarSlider'));
-      $('.component').show();
+      $('#gambarSlider').cropper('destroy');
+      $("#gambarSlider").cropper({
+          aspectRatio: 1392/880,
+          minCropBoxWidth: 1392,
+          minCropBoxHeight: 880,
+          resizable: true,
+          autoCropArea: 0,
+          strict: false,
+          guides: false,
+          highlight: false,
+          dragCrop: false,
+          cropBoxMovable: true,
+          cropBoxResizable: false,
+          dragMode: 'move',
+      });
       $("#statusKosong").val('1');
     };
 
     fileReader.readAsDataURL(fileToLoad);
   }
+}
+
+function upUrutan(id){
+  $.ajax({
+    type:'POST',
+    data : {
+            id : id
+    },
+    url: url+'&tipe=upUrutan',
+      success: function(data) {
+      var resp = eval('(' + data + ')');
+        if(resp.err==''){
+          $(".active-tick").click();
+        }else{
+          errorAlert(resp.err);
+        }
+      }
+  });
+}
+function downUrutan(id){
+  $.ajax({
+    type:'POST',
+    data : {
+            id : id
+    },
+    url: url+'&tipe=downUrutan',
+      success: function(data) {
+      var resp = eval('(' + data + ')');
+        if(resp.err==''){
+          $(".active-tick").click();
+        }else{
+          errorAlert(resp.err);
+        }
+      }
+  });
 }

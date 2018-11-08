@@ -112,11 +112,11 @@ switch($tipe){
           }
 
       }
-      if (!empty($sorter)) {
-        $kondisiSort = "ORDER BY $sorter $ascending";
-      }
-      $getData = sqlQuery("select * from $tableName $kondisi $kondisiSort order by jumlah_viewer desc $queryLimit");
-      $cek = "select * from $tableName $kondisi $queryLimit";
+      // if (!empty($sorter)) {
+        // $kondisiSort = "ORDER BY jumlah_viewer desc";
+      // }
+      $getData = sqlQuery("select * from $tableName $kondisi order by jumlah_viewer desc $queryLimit");
+      $cek = "select * from $tableName $kondisi order by jumlah_viewer desc $queryLimit";
       $nomor = 1;
       $nomorCB = 0;
       while($dataUser = sqlArray($getData)){

@@ -265,14 +265,8 @@ switch($tipe){
        $err = "Isi tanggal acara mulai";
    }elseif(empty($tanggalAcaraSelesai)){
        $err = "Isi tanggal acara selesai";
-   }elseif(empty(removeExtJam($jamAcara)) || removeExtJam($jamAcara) == ':'){
-       $err = "Isi jam acara mulai";
-   }elseif(empty(removeExtJam($jamAcaraSelesai)) || removeExtJam($jamAcaraSelesai) == ':'){
-       $err = "Isi jam acara selesai";
    }elseif(empty($kuotaAcara)){
        $err = "Isi kuota acara";
-   }elseif(empty(removeExtHarga($hargaTiket))){
-       $err = "Isi harga partisipasi";
    }elseif(empty($deadlinePembayaran)){
        $err = "Isi lama deadline pembayaran";
    }elseif(empty($lokasiAcara)){
@@ -327,14 +321,8 @@ switch($tipe){
        $err = "Isi tanggal acara mulai";
    }elseif(empty($tanggalAcaraSelesai)){
        $err = "Isi tanggal acara selesai";
-   }elseif(empty(removeExtJam($jamAcara)) || removeExtJam($jamAcara) == ':'){
-       $err = "Isi jam acara mulai";
-   }elseif(empty(removeExtJam($jamAcaraSelesai)) || removeExtJam($jamAcaraSelesai) == ':'){
-       $err = "Isi jam acara selesai";
    }elseif(empty($kuotaAcara)){
        $err = "Isi kuota acara";
-   }elseif(empty(removeExtHarga($hargaTiket))){
-       $err = "Isi harga partisipasi";
    }elseif(empty($deadlinePembayaran)){
        $err = "Isi lama deadline pembayaran";
    }elseif(empty($lokasiAcara)){
@@ -355,6 +343,7 @@ switch($tipe){
 
      $imageTitle = baseToImage($baseImageTitle,"images/acara/".md5(date("Y-m-d")).md5(date("H:i:s")));
      $undangan = baseToImage($baseUndangan,"images/acara/".md5(date("Y-m-d")).md5(date("H:i:s")).".pdf");
+
      $data = array(
                'nama_acara' => $namaAcara,
                'tanggal' => generateDate($tanggalAcara),
@@ -377,6 +366,37 @@ switch($tipe){
      $query = sqlUpdate("acara",$data,"id = '$idEdit'");
      sqlQuery($query);
      $cek = $query;
+       if($statusPublish !='1'){
+         sqlQuery("update acara set nomor_urut = '' where id='$idEdit'");
+       }
+     }
+     echo generateAPI($cek,$err,$content);
+   break;
+   }
+   case 'upUrutan':{
+     $getData = sqlArray(sqlQuery("select * from acara where id = '$id'"));
+     if($getData['nomor_urut'] == 1){
+        $err = "Urutan sudah teratas";
+     }
+     if(empty($err)){
+       $nomorUrut = $getData['nomor_urut'] - 1;
+       $getDataUrutSebelumnya = sqlArray(sqlQuery("select * from acara where nomor_urut='$nomorUrut'"));
+       sqlQuery("update acara set nomor_urut = '$nomorUrut' where id ='$id'");
+       sqlQuery("update acara set nomor_urut = '".$getData['nomor_urut']."' where id ='".$getDataUrutSebelumnya['id']."'");
+     }
+     echo generateAPI($cek,$err,$content);
+   break;
+   }
+   case 'downUrutan':{
+     $getData = sqlArray(sqlQuery("select * from acara where id = '$id'"));
+     if($getData['nomor_urut'] == sqlNumRow(sqlQuery("select * from acara where publish='1'"))){
+        $err = "Urutan sudah terbawah";
+     }
+     if(empty($err)){
+       $nomorUrut = $getData['nomor_urut'] + 1;
+       $getDataUrutSebelumnya = sqlArray(sqlQuery("select * from acara where nomor_urut='$nomorUrut'"));
+       sqlQuery("update acara set nomor_urut = '$nomorUrut' where id ='$id'");
+       sqlQuery("update acara set nomor_urut = '".$getData['nomor_urut']."' where id ='".$getDataUrutSebelumnya['id']."'");
      }
      echo generateAPI($cek,$err,$content);
    break;
@@ -576,9 +596,11 @@ switch($tipe){
             $$key = $value;
         }
         if($status_pendaftaran == '2'){
-          $statusPendaftaran = "DITUTUP";
+          $statusPendaftaran = "CLOSE";
+        }elseif($status_pendaftaran == '3'){
+          $statusPendaftaran = "NEXT";
         }else{
-          $statusPendaftaran = "DIBUKA";
+          $statusPendaftaran = "OPEN";
         }
         if(str_replace('-','',$tanggal_selesai) < str_replace("-","",date("Y-m-d"))){
             $status = "SELESAI ";
@@ -593,7 +615,8 @@ switch($tipe){
         }elseif($publish == '2'){
             $statusPublish = "TIDAK";
         }
-
+        $iconUp  = "<i class='fa fa-angle-double-up' style='cursor:pointer;' onclick=upUrutan($id);></i>";
+        $iconDown  = "<i class='fa fa-angle-double-down' style='cursor:pointer;' onclick=downUrutan($id);></i>";
         $data .= "     <tr>
                           <td class='text-center' width='20px;'  style='vertical-align:middle;'>$nomor</td>
                           <td class='text-center' width='20px;'  style='vertical-align:middle;'>
@@ -613,6 +636,7 @@ switch($tipe){
                           <td class='text-center' style='vertical-align:middle;'>$statusPublish</td>
                           <td class='text-center' style='vertical-align:middle;'>$status</td>
                           <td class='text-center' style='vertical-align:middle;'>$statusPendaftaran</td>
+                          <td class='text-center' style='vertical-align:middle;'>$iconUp &nbsp $iconDown</td>
                           <td class='text-center' style='vertical-align:middle;'><div class='demo-icon-hover' style='cursor:pointer;' onclick=pendaftaran($id);>
         											<i class='md md-launch'></i>
         										</div></td>
@@ -646,6 +670,7 @@ switch($tipe){
             <th class='col-lg-1 text-center'>Status</th>
             <th class='col-lg-1 text-center'>Pendaftaran</th>
             <th class='col-lg-1 text-center'>Action</th>
+            <th class='col-lg-1 text-center'>Urutan</th>
           </tr>
         </thead>
         <tbody>
@@ -731,6 +756,7 @@ switch($tipe){
                                 <li id='reversed' onclick=sortData(this);><a href='#' style='width: 100%;' >Pendaftaran</a></li>
                                 <li id='kuota' onclick=sortData(this);><a href='#' style='width: 100%;' >Kuota</a></li>
                                 <li id='status' onclick=sortData(this);><a href='#' style='width: 100%;' >Status</a></li>
+                                <li id='nomor_urut' onclick=sortData(this);><a href='#' style='width: 100%;' >Nomor Urut</a></li>
                                 <li id='naik' class='active-tick2' onclick=ascChanged();><a href='#' style='width: 100%; border-top: 2px solid #0aa89e; font-weight: bold;'>Naik</a></li>
                                 <li id='turun' onclick=descChanged();><a href='#' style='width: 100%; font-weight: bold;'>Turun</a></li>
                                 <input type='hidden' id='ascHidden' name='ascHidden'>
@@ -768,7 +794,7 @@ switch($tipe){
                     hapus
                   </button>
                 </div>
-                <div class='col-sm-3'>
+                <div class='col-sm-3 col-xs-3 col-md-3 col-lg-3'>
                   <div class='btn-group'>
                     <button type='button' class='btn ink-reaction btn-flat dropdown-toggle' data-toggle='dropdown' style='color: #0aa89e;'>
                        <i class='fa fa-user text-default-light' style='color: #0aa89e;'></i> ".$getNama."
@@ -1112,11 +1138,12 @@ switch($tipe){
           }else{
               if($_GET['action'] == 'baru'){
                 ?>
+                <link rel="stylesheet" href="js/cropper/dist/cropper.css">
+                <script src="js/cropper/dist/cropper.js"></script>
+
                 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons" />
                 <script type="text/javascript" src="js/textboxio/textboxio.js"></script>
-                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/componentAcara.css" />
-                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demoAcara.css" />
-                <script src="js/ImageResizeCropCanvas/js/componentAcara.js"></script>
+
 
                 <div id="content">
           				<section>
@@ -1141,8 +1168,9 @@ switch($tipe){
       													<div class="form-group">
                                   <?php
                                     $arrayStatus = array(
-                                              array('1','PENDAFTARAN DIBUKA'),
-                                              array('2','PENDAFTARAN DI TUTUP'),
+                                              array('1','OPEN'),
+                                              array('3','NEXT'),
+                                              array('2','CLOSE'),
                                     );
                                     echo cmbArrayEmpty("statusPendaftaran","",$arrayStatus,"-- PENDAFTARAN --","class='form-control' ")
                                   ?>
@@ -1220,7 +1248,7 @@ switch($tipe){
                                     <div class="overlay-inner">
                                     </div>
                                   </div>
-                                  <img class="resize-image" id='gambarAcara' alt="image for resizing">
+                                  <img  id='gambarAcara' alt="image for resizing">
                                 </div>
                               </div>
                             </div>
@@ -1548,9 +1576,8 @@ switch($tipe){
                   $baseUndangan = imageToBase($getData['undangan']);
                   ?>
                   <script type="text/javascript" src="js/textboxio/textboxio.js"></script>
-                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/componentAcara.css" />
-                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demoAcara.css" />
-                  <script src="js/ImageResizeCropCanvas/js/componentAcara.js"></script>
+                  <link rel="stylesheet" href="js/cropper/dist/cropper.css">
+                  <script src="js/cropper/dist/cropper.js"></script>
                   <div id="content">
             				<section>
             					<div class="section-body contain-lg">
@@ -1574,8 +1601,9 @@ switch($tipe){
         													<div class="form-group">
                                     <?php
                                       $arrayStatus = array(
-                                                array('1','PENDAFTARAN DIBUKA'),
-                                                array('2','PENDAFTARAN DI TUTUP'),
+                                                    array('1','OPEN'),
+                                                    array('3','NEXT'),
+                                                    array('2','CLOSE'),
                                       );
                                       echo cmbArrayEmpty("statusPendaftaran",$getData['status_pendaftaran'],$arrayStatus,"-- PENDAFTARAN --","class='form-control' ")
                                     ?>
@@ -1955,7 +1983,20 @@ switch($tipe){
                   <script type="text/javascript">
                     $(document).ready(function() {
                         setMenuEdit('baru');
-                        resizeableImage($('#gambarAcara'));
+                        $("#gambarAcara").cropper({
+                            aspectRatio: 1392/880,
+                            minCropBoxWidth: 1392,
+                            minCropBoxHeight: 880,
+                            resizable: true,
+                            autoCropArea: 0,
+                            strict: false,
+                            guides: false,
+                            highlight: false,
+                            dragCrop: false,
+                            cropBoxMovable: true,
+                            cropBoxResizable: false,
+                            dragMode: 'move',
+                        });
                         $('.component').show();
                         $("#pageTitle").text("ACARA");
                         $('.date').datepicker({

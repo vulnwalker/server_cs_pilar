@@ -13,21 +13,48 @@ if(!empty($tipe)){
 
 
 switch($tipe){
-
+  case 'upUrutan':{
+    $getData = sqlArray(sqlQuery("select * from team where id = '$id'"));
+    if($getData['nomor_urut'] == 1){
+       $err = "Urutan sudah teratas";
+    }
+    if(empty($err)){
+      $nomorUrut = $getData['nomor_urut'] - 1;
+      $getDataUrutSebelumnya = sqlArray(sqlQuery("select * from team where nomor_urut='$nomorUrut'"));
+      sqlQuery("update team set nomor_urut = '$nomorUrut' where id ='$id'");
+      sqlQuery("update team set nomor_urut = '".$getData['nomor_urut']."' where id ='".$getDataUrutSebelumnya['id']."'");
+    }
+    echo generateAPI($cek,$err,$content);
+  break;
+  }
+  case 'downUrutan':{
+    $getData = sqlArray(sqlQuery("select * from team where id = '$id'"));
+    if($getData['nomor_urut'] == sqlNumRow(sqlQuery("select * from team where status='1'"))){
+       $err = "Urutan sudah terbawah";
+    }
+    if(empty($err)){
+      $nomorUrut = $getData['nomor_urut'] + 1;
+      $getDataUrutSebelumnya = sqlArray(sqlQuery("select * from team where nomor_urut='$nomorUrut'"));
+      sqlQuery("update team set nomor_urut = '$nomorUrut' where id ='$id'");
+      sqlQuery("update team set nomor_urut = '".$getData['nomor_urut']."' where id ='".$getDataUrutSebelumnya['id']."'");
+    }
+    echo generateAPI($cek,$err,$content);
+  break;
+  }
     case 'saveTeam':{
-      if(empty($namaLengkap)){
-          $err = "Isi nama lengkap";
-      }elseif(empty($posisiTeam)){
-          $err = "Pilih jabatan";
-      }elseif(empty($tempatLahir)){
-          $err = "Isi tempat lahir";
-      }elseif(empty($tanggalLahir)){
-          $err = "Isi tanggal lahir ";
-      }elseif(empty($tentang)){
-          $err = "Isi tentang ";
-      }elseif(empty($statusPublish)){
-          $err = "Pilih status publish";
-      }
+      // if(empty($namaLengkap)){
+      //     $err = "Isi nama lengkap";
+      // }elseif(empty($posisiTeam)){
+      //     $err = "Pilih jabatan";
+      // }elseif(empty($tempatLahir)){
+      //     $err = "Isi tempat lahir";
+      // }elseif(empty($tanggalLahir)){
+      //     $err = "Isi tanggal lahir ";
+      // }elseif(empty($tentang)){
+      //     $err = "Isi tentang ";
+      // }elseif(empty($statusPublish)){
+      //     $err = "Pilih status publish";
+      // }
 
       if(empty($err)){
         $arraySosmed = array(
@@ -38,15 +65,19 @@ switch($tipe){
               'googlePlus'=> $googlePlus,
         );
         baseToImage($baseFotoTeam,"images/team/$namaLengkap.jpg");
+          $getMaxNomorUrut = sqlArray(sqlQuery("select max(nomor_urut) from team"));
+          $maxNomorUrut = $getMaxNomorUrut['max(nomor_urut)'] + 1;
           $data = array(
                 'nama' => $namaLengkap,
                 'tempat_lahir' => $tempatLahir,
                 'tanggal_lahir' => generateDate($tanggalLahir),
                 'posisi' => $posisiTeam,
+                'email' => $email,
                 'foto' => "images/team/$namaLengkap.jpg",
                 'tentang' =>  base64_encode($tentang),
                 'sosial_media' =>  json_encode($arraySosmed),
                 'publish' => $statusPublish,
+                'nomor_urut' => $maxNomorUrut,
           );
           $query = sqlInsert($tableName,$data);
           sqlQuery($query);
@@ -58,19 +89,19 @@ switch($tipe){
     }
 
     case 'saveEditTeam':{
-      if(empty($namaLengkap)){
-          $err = "Isi nama lengkap";
-      }elseif(empty($posisiTeam)){
-          $err = "Pilih jabatan";
-      }elseif(empty($tempatLahir)){
-          $err = "Isi tempat lahir";
-      }elseif(empty($tanggalLahir)){
-          $err = "Isi tanggal lahir ";
-      }elseif(empty($tentang)){
-          $err = "Isi tentang ";
-      }elseif(empty($statusPublish)){
-          $err = "Pilih status publish";
-      }
+      // if(empty($namaLengkap)){
+      //     $err = "Isi nama lengkap";
+      // }elseif(empty($posisiTeam)){
+      //     $err = "Pilih jabatan";
+      // }elseif(empty($tempatLahir)){
+      //     $err = "Isi tempat lahir";
+      // }elseif(empty($tanggalLahir)){
+      //     $err = "Isi tanggal lahir ";
+      // }elseif(empty($tentang)){
+      //     $err = "Isi tentang ";
+      // }elseif(empty($statusPublish)){
+      //     $err = "Pilih status publish";
+      // }
 
       if(empty($err)){
         $arraySosmed = array(
@@ -86,6 +117,7 @@ switch($tipe){
                 'tempat_lahir' => $tempatLahir,
                 'tanggal_lahir' => generateDate($tanggalLahir),
                 'posisi' => $posisiTeam,
+                'email' => $email,
                 'foto' => "images/team/$namaLengkap.jpg",
                 'tentang' =>  base64_encode($tentang),
                 'sosial_media' =>  json_encode($arraySosmed),
@@ -146,6 +178,8 @@ switch($tipe){
       }
       if (!empty($sorter)) {
         $kondisiSort = "ORDER BY $sorter $ascending";
+      }else{
+        $kondisiSort = "ORDER BY nomor_urut";
       }
       $getData = sqlQuery("select * from $tableName $kondisi $kondisiSort $queryLimit");
       $cek = "select * from $tableName $kondisi $queryLimit";
@@ -162,6 +196,8 @@ switch($tipe){
         }else{
             $statusPublish = "TIDAK";
         }
+        $iconUp  = "<i class='fa fa-angle-double-up' style='cursor:pointer;' onclick=upUrutan($id);></i>";
+        $iconDown  = "<i class='fa fa-angle-double-down' style='cursor:pointer;' onclick=downUrutan($id);></i>";
         $data .= "     <tr>
                           <td class='text-center'>$nomor</td>
                           <td class='text-center'>
@@ -177,6 +213,8 @@ switch($tipe){
                           <td>$tempat_lahir</td>
                           <td style='text-align:center;'>$statusPublish</td>
                           <td>".generateDate($tanggal_lahir)."</td>
+                          <td class='text-center' style='vertical-align:middle;'>$iconUp &nbsp $iconDown</td>
+
                           <td class='text-center'><img src='$foto' onclick = imageClicked(this); alt='$nama' class='materialboxed' style='width:100px;height:100px;cursor:pointer;'></img></td>
                        </tr>
                     ";
@@ -200,8 +238,9 @@ switch($tipe){
             <th class='col-lg-5'>Nama</th>
             <th class='col-lg-2'>Jabatan</th>
             <th class='col-lg-2'>Tempat Lahir</th>
-            <th class='col-lg-2'>Tanggal Lahir</th>
             <th class='col-lg-1 text-center'>Publish</th>
+            <th class='col-lg-2'>Tanggal Lahir</th>
+            <th class='col-lg-2'>Urutan</th>
             <th class='col-lg-1 text-center'>Foto</th>
           </tr>
         </thead>
@@ -285,6 +324,7 @@ switch($tipe){
                                 <li id='posisi' onclick=sortData(this);><a href='#' style='width: 100%;' >Jabatan</a></li>
                                 <li id='tempat_lahir' onclick=sortData(this);><a href='#' style='width: 100%;' >Tempat Lahir</a></li>
                                 <li id='tanggal_lahir' onclick=sortData(this);><a href='#' style='width: 100%;' >Tanggal Lahir</a></li>
+                                <li id='nomor_urut' onclick=sortData(this);><a href='#' style='width: 100%;' >Nomor Urut</a></li>
                                 <li id='naik' class='active-tick2' onclick=ascChanged();><a href='#' style='width: 100%; border-top: 2px solid #0aa89e; font-weight: bold;'>Naik</a></li>
                                 <li id='turun' onclick=descChanged();><a href='#' style='width: 100%; font-weight: bold;'>Turun</a></li>
                                 <input type='hidden' id='ascHidden' name='ascHidden'>
@@ -322,7 +362,7 @@ switch($tipe){
                     hapus
                   </button>
                 </div>
-                <div class='col-sm-3'>
+                <div class='col-sm-3 col-xs-3 col-md-3 col-lg-3'>
                   <div class='btn-group'>
                     <button type='button' class='btn ink-reaction btn-flat dropdown-toggle' data-toggle='dropdown' style='color: #0aa89e;'>
                        <i class='fa fa-user text-default-light' style='color: #0aa89e;'></i> ".$getNama."
@@ -626,12 +666,11 @@ switch($tipe){
           }else{
               if($_GET['action'] == 'baru'){
                 ?>
-                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/componentTeam.css" />
-                <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demoTeam.css" />
-                <script src="js/ImageResizeCropCanvas/js/componentTeam.js"></script>
+                <link rel="stylesheet" href="js/cropper/dist/cropper.css">
+                <script src="js/cropper/dist/cropper.js"></script>
                 <script type="text/javascript">
                   $(document).ready(function() {
-                      $(".component").hide();
+
                       setMenuEdit('baru');
                       $("#pageTitle").text("TEAM");
                       $("#tanggalLahir").inputmask('dd-mm-yyyy', {placeholder: ''});
@@ -640,7 +679,7 @@ switch($tipe){
                 <div id="content">
           				<section>
           					<div class="section-body contain-lg">
-                      <form class="form" id='formProduk'>
+                      <form class="form" id='formteam'>
       									<div class="card">
       										<div class="card-body floating-label">
 
@@ -686,57 +725,66 @@ switch($tipe){
       											<div class="row">
       												<div class="col-sm-4">
                                 <span class="btn ink-reaction btn-raised btn-primary">
-                                  <span class="fileinput-exists" onclick='$("#imageProduk").click();'>Pilih Gambar</span>
+                                  <span class="fileinput-exists" onclick='$("#imageteam").click();'>Pilih Gambar</span>
                                   <input type="hidden" id='statusKosong' name='statusKosong'>
-                                  <input style="display:none;" type="file" accept='image/x-png,image/gif,image/jpeg' onchange="imageChanged();" id='imageProduk' name="imageProduk">
+                                  <input style="display:none;" type="file" accept='image/x-png,image/gif,image/jpeg' onchange="imageChanged();" id='imageteam' name="imageteam">
                                 </span>
       												</div>
       											</div>
       											<div class="row">
-      												<div class="col-sm-2">
+      												<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
                                 <div class="form-group">
       														<input type="text" class="form-control" id="tempatLahir" name='tempatLahir'>
       														<label for="tempatLahir">Tempat Lahir</label>
       													</div>
       												</div>
-                              <div class="col-sm-1">
+                              <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
                                 <div class="form-group">
           												<input type="text" id='tanggalLahir' name='tanggalLahir' class="form-control" data-inputmask="'alias': 'date'">
           												<label>Tanggal Lahir</label>
           											</div>
       												</div>
-                              <div class="col-sm-2">
+                              <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
                                 <div class="form-group">
           												<input type="text" id='googlePlus' name='googlePlus' class="form-control" >
           												<label>Google Plus</label>
           											</div>
       												</div>
-                              <div class="col-sm-2">
+                              <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
                                 <div class="form-group">
           												<input type="text" id='twiter' name='twiter' class="form-control" >
           												<label>Twiter</label>
           											</div>
       												</div>
-                              <div class="col-sm-2">
-                                <div class="form-group">
-          												<input type="text" id='instagram' name='instagram' class="form-control" >
-          												<label>Instagram</label>
-          											</div>
-      												</div>
-
-                              <div class="col-sm-2">
-                                <div class="form-group">
-          												<input type="text" id='linkedIn' name='linkedIn' class="form-control" >
-          												<label>Linked In</label>
-          											</div>
-      												</div>
-                              <div class="col-sm-1">
-                                <div class="form-group">
-          												<input type="text" id='faceBook' name='faceBook' class="form-control" >
-          												<label>Facebook</label>
-          											</div>
-      												</div>
       											</div>
+                            <div class="row">
+                              <div class="col-sm-3">
+                                <div class="form-group">
+                                  <input type="text" id='instagram' name='instagram' class="form-control" >
+                                  <label>Instagram</label>
+                                </div>
+                              </div>
+                              <div class="col-sm-3">
+                                <div class="form-group">
+                                  <input type="text" id='linkedIn' name='linkedIn' class="form-control" >
+                                  <label>Linked In</label>
+                                </div>
+                              </div>
+                              <div class="col-sm-3">
+                                <div class="form-group">
+                                  <input type="text" id='faceBook' name='faceBook' class="form-control" >
+                                  <label>Facebook</label>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-sm-12">
+                                <div class="form-group">
+                                  <input type="text" name="email" id="email" class="form-control">
+                                  <label>Email</label>
+                                </div>
+                              </div>
+                            </div>
                             <div class="row">
                               <div class="col-sm-12">
                                 <div class="form-group">
@@ -768,12 +816,25 @@ switch($tipe){
                   $linkedIn = $dataSosmed->linkedIn;
                   $googlePlus = $dataSosmed->googlePlus;
                   ?>
-                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/componentTeam.css" />
-                  <link rel="stylesheet" type="text/css" href="js/ImageResizeCropCanvas/css/demoTeam.css" />
-                  <script src="js/ImageResizeCropCanvas/js/componentTeam.js"></script>
+                  <link rel="stylesheet" href="js/cropper/dist/cropper.css">
+                  <script src="js/cropper/dist/cropper.js"></script>
                   <script type="text/javascript">
                     $(document).ready(function() {
-                        resizeableImage($('#fotoTeam'));
+                        // resizeableImage($('#fotoTeam'));
+                        $("#fotoTeam").cropper({
+                            aspectRatio: 535/540,
+                            minCropBoxWidth: 535,
+                            minCropBoxHeight: 540,
+                            resizable: true,
+                            autoCropArea: 0,
+                            strict: false,
+                            guides: false,
+                            highlight: false,
+                            dragCrop: false,
+                            cropBoxMovable: true,
+                            cropBoxResizable: false,
+                            dragMode: 'move',
+                        });
                         setMenuEdit('baru');
                         $("#pageTitle").text("TEAM");
                         $("#tanggalLahir").inputmask('dd-mm-yyyy', {placeholder: ''});
@@ -782,7 +843,7 @@ switch($tipe){
                   <div id="content">
             				<section>
             					<div class="section-body contain-lg">
-                        <form class="form" id='formProduk'>
+                        <form class="form" id='formteam'>
         									<div class="card">
         										<div class="card-body floating-label">
         											<div class="row">
@@ -827,57 +888,66 @@ switch($tipe){
         											<div class="row">
         												<div class="col-sm-4">
                                   <span class="btn ink-reaction btn-raised btn-primary">
-                                    <span class="fileinput-exists" onclick='$("#imageProduk").click();'>Pilih Gambar</span>
+                                    <span class="fileinput-exists" onclick='$("#imageteam").click();'>Pilih Gambar</span>
                                     <input type="hidden" id='statusKosong' name='statusKosong' value='1'>
-                                    <input style="display:none;" type="file" accept='image/x-png,image/gif,image/jpeg' onchange="imageChanged();" id='imageProduk' name="imageProduk">
+                                    <input style="display:none;" type="file" accept='image/x-png,image/gif,image/jpeg' onchange="imageChanged();" id='imageteam' name="imageteam">
                                   </span>
         												</div>
         											</div>
         											<div class="row">
-        												<div class="col-sm-2">
+        												<div class="col-sm-3">
                                   <div class="form-group">
         														<input type="text" class="form-control" id="tempatLahir" name='tempatLahir' value="<?php echo $getData['tempat_lahir'] ?>">
         														<label for="tempatLahir">Tempat Lahir</label>
         													</div>
         												</div>
-                                <div class="col-sm-1">
+                                <div class="col-sm-3">
                                   <div class="form-group">
             												<input type="text" id='tanggalLahir' name='tanggalLahir' class="form-control" data-inputmask="'alias': 'date'" value="<?php echo generateDate($getData['tanggal_lahir']) ?>">
             												<label>Tanggal Lahir</label>
             											</div>
         												</div>
-                                <div class="col-sm-2">
+                                <div class="col-sm-3">
                                   <div class="form-group">
             												<input type="text" id='googlePlus' name='googlePlus' class="form-control" value="<?php echo $googlePlus ?>" >
             												<label>Google Plus</label>
             											</div>
         												</div>
-                                <div class="col-sm-2">
+                                <div class="col-sm-3">
                                   <div class="form-group">
             												<input type="text" id='twiter' name='twiter' class="form-control" value="<?php echo $twiter ?>" >
             												<label>Twiter</label>
             											</div>
         												</div>
-                                <div class="col-sm-2">
-                                  <div class="form-group">
-            												<input type="text" id='instagram' name='instagram' class="form-control" value="<?php echo $instagram ?>" >
-            												<label>Instagram</label>
-            											</div>
-        												</div>
-
-                                <div class="col-sm-2">
-                                  <div class="form-group">
-            												<input type="text" id='linkedIn' name='linkedIn' class="form-control" value="<?php echo $linkedIn ?>" >
-            												<label>Linked In</label>
-            											</div>
-        												</div>
-                                <div class="col-sm-1">
-                                  <div class="form-group">
-            												<input type="text" id='faceBook' name='faceBook' class="form-control" value="<?php echo $facebook ?>" >
-            												<label>Facebook</label>
-            											</div>
-        												</div>
         											</div>
+                              <div class="row">
+                                <div class="col-sm-3">
+                                  <div class="form-group">
+                                    <input type="text" id='instagram' name='instagram' class="form-control" value="<?php echo $instagram ?>" >
+                                    <label>Instagram</label>
+                                  </div>
+                                </div>
+                                <div class="col-sm-3">
+                                  <div class="form-group">
+                                    <input type="text" id='linkedIn' name='linkedIn' class="form-control" value="<?php echo $linkedIn ?>" >
+                                    <label>Linked In</label>
+                                  </div>
+                                </div>
+                                <div class="col-sm-3">
+                                  <div class="form-group">
+                                    <input type="text" id='faceBook' name='faceBook' class="form-control" value="<?php echo $facebook ?>" >
+                                    <label>Facebook</label>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-sm-12">
+                                  <div class="form-group">
+                                    <input type="text" name="email" id="email" class="form-control" value="<?php  echo $getData['email'] ?>">
+                                    <label>Email</label>
+                                  </div>
+                                </div>
+                              </div>
                               <div class="row">
                                 <div class="col-sm-12">
                                   <div class="form-group">

@@ -139,7 +139,7 @@ switch($tipe){
         $arrKondisi[] = "telepon like '%$searchData%' ";
         $arrKondisi[] = "jenis_user like '%$searchData%' ";
         $kondisi = join(" or ",$arrKondisi);
-        $kondisi = " where $kondisi ";
+        $kondisi = " $kondisi ";
       }
       if(!empty($limitTable)){
           if($pageKe == 1){
@@ -154,7 +154,7 @@ switch($tipe){
       if (!empty($sorter)) {
         $kondisiSort = "ORDER BY $sorter $ascending";
       }
-      $getData = sqlQuery("select * from $tableName $kondisi $kondisiSort $queryLimit");
+      $getData = sqlQuery("SELECT * from $tableName where jenis_user = '2' $kondisi $kondisiSort $queryLimit");
       // $cek = "select * from $tableName $kondisi $queryLimit $kondisiSort";
       $nomor = 1;
       $nomorCB = 0;
@@ -329,7 +329,7 @@ switch($tipe){
                     hapus
                   </button>
                 </div>
-                <div class='col-sm-3'>
+                <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
                   <div class='btn-group'>
                     <button type='button' class='btn ink-reaction btn-flat dropdown-toggle' data-toggle='dropdown' style='color: #0aa89e;'>
                        <i class='fa fa-user text-default-light' style='color: #0aa89e;'></i> ".$getNama."
@@ -626,7 +626,6 @@ switch($tipe){
                                 <div class="form-group floating-label">
                                   <?php
                                     $arrayStatus = array(
-                                              array('1','MEMBER'),
                                               array('2','ADMIN'),
                                     );
                                     echo cmbArrayEmpty("statusUser","",$arrayStatus,"-- TYPE USER --","class='form-control' ")
@@ -729,7 +728,6 @@ switch($tipe){
                                   <div class="form-group floating-label">
                                     <?php
                                       $arrayStatus = array(
-                                                array('1','MEMBER'),
                                                 array('2','ADMIN'),
                                       );
                                       echo cmbArrayEmpty("statusUser",$getData['jenis_user'],$arrayStatus,"-- TYPE USER --","class='form-control' ")

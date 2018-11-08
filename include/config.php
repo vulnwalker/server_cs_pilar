@@ -2,7 +2,7 @@
 error_reporting(0);
 $db_host='localhost';
 $db_user='root';
-$db_password='since1945';
+$db_password='12345';
 $db_name='pilar_web';
 
 mysql_connect($db_host,$db_user,$db_password);

@@ -144,7 +144,7 @@ function saveTeam(){
                 namaLengkap : $("#namaLengkap").val(),
                 posisiTeam : $("#posisiTeam").val(),
                 statusKosong : $("#statusKosong").val(),
-                baseFotoTeam : crop,
+                baseFotoTeam : $('#fotoTeam').cropper('getCroppedCanvas').toDataURL(),
                 tempatLahir : $("#tempatLahir").val(),
                 tanggalLahir : $("#tanggalLahir").val(),
                 googlePlus : $("#googlePlus").val(),
@@ -153,6 +153,7 @@ function saveTeam(){
                 linkedIn : $("#linkedIn").val(),
                 facebook : $("#faceBook").val(),
                 tentang : $("#tentang").val(),
+                email : $("#email").val(),
                 statusPublish : $("#statusPublish").val(),
           },
           url: url+'&tipe=saveTeam',
@@ -187,7 +188,7 @@ function saveEditTeam(idEdit){
                 namaLengkap : $("#namaLengkap").val(),
                 posisiTeam : $("#posisiTeam").val(),
                 statusKosong : $("#statusKosong").val(),
-                baseFotoTeam : crop,
+                baseFotoTeam : $('#fotoTeam').cropper('getCroppedCanvas').toDataURL(),
                 tempatLahir : $("#tempatLahir").val(),
                 tanggalLahir : $("#tanggalLahir").val(),
                 googlePlus : $("#googlePlus").val(),
@@ -196,6 +197,7 @@ function saveEditTeam(idEdit){
                 linkedIn : $("#linkedIn").val(),
                 facebook : $("#faceBook").val(),
                 tentang : $("#tentang").val(),
+                email : $("#email").val(),
                 statusPublish : $("#statusPublish").val(),
                 idEdit : idEdit
           },
@@ -259,7 +261,7 @@ function closeImage(){
 
 function imageChanged(){
   var me= this;
-  var filesSelected = document.getElementById("imageProduk").files;
+  var filesSelected = document.getElementById("imageteam").files;
   if (filesSelected.length > 0)
   {
     var fileToLoad = filesSelected[0];
@@ -267,11 +269,59 @@ function imageChanged(){
     fileReader.onload = function(fileLoadedEvent)
     {
       $("#fotoTeam").attr('src',fileLoadedEvent.target.result);
-      resizeableImage($('#fotoTeam'));
-      $('.component').show();
+      $('#fotoTeam').cropper('destroy');
+      $("#fotoTeam").cropper({
+          aspectRatio: 535/540,
+          minCropBoxWidth: 535,
+          minCropBoxHeight: 540,
+          resizable: true,
+          autoCropArea: 0,
+          strict: false,
+          guides: false,
+          highlight: false,
+          dragCrop: false,
+          cropBoxMovable: true,
+          cropBoxResizable: false,
+          dragMode: 'move',
+      });
       $("#statusKosong").val('1');
     };
 
     fileReader.readAsDataURL(fileToLoad);
   }
+}
+
+function upUrutan(id){
+  $.ajax({
+    type:'POST',
+    data : {
+            id : id
+    },
+    url: url+'&tipe=upUrutan',
+      success: function(data) {
+      var resp = eval('(' + data + ')');
+        if(resp.err==''){
+          $(".active-tick").click();
+        }else{
+          errorAlert(resp.err);
+        }
+      }
+  });
+}
+function downUrutan(id){
+  $.ajax({
+    type:'POST',
+    data : {
+            id : id
+    },
+    url: url+'&tipe=downUrutan',
+      success: function(data) {
+      var resp = eval('(' + data + ')');
+        if(resp.err==''){
+          $(".active-tick").click();
+        }else{
+          errorAlert(resp.err);
+        }
+      }
+  });
 }

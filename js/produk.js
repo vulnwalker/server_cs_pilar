@@ -148,8 +148,9 @@ function saveProduk(){
           data : {
                 namaProduk : $("#namaProduk").val(),
                 statusKosong : $("#statusKosong").val(),
-                baseGambarProduk : crop,
+                baseGambarProduk : $('#gambarProduk').cropper('getCroppedCanvas').toDataURL(),
                 statusPublish : $("#statusPublish").val(),
+                linkDemo : $("#linkDemo").val(),
                 deskripsiProduk : getEditorContent()
           },
           url: url+'&tipe=saveProduk',
@@ -165,7 +166,7 @@ function saveProduk(){
         });
       });
     // $("#LoadingImage").attr('style','display:block');
-    
+
   }
 function saveEditProduk(idEdit){
   swal({
@@ -184,8 +185,9 @@ function saveEditProduk(idEdit){
           data : {
                 namaProduk : $("#namaProduk").val(),
                 statusKosong : $("#statusKosong").val(),
-                baseGambarProduk : crop,
+                baseGambarProduk : $('#gambarProduk').cropper('getCroppedCanvas').toDataURL(),
                 statusPublish : $("#statusPublish").val(),
+                linkDemo : $("#linkDemo").val(),
                 deskripsiProduk : getEditorContent(),
                 idEdit : idEdit
           },
@@ -202,7 +204,7 @@ function saveEditProduk(idEdit){
         });
       });
   // $("#LoadingImage").attr('style','display:block');
-  
+
 }
 function setMenuEdit(statusMenu){
   $.ajax({
@@ -256,8 +258,22 @@ function imageChanged(){
     fileReader.onload = function(fileLoadedEvent)
     {
       $("#gambarProduk").attr('src',fileLoadedEvent.target.result);
-      resizeableImage($('#gambarProduk'));
-      $('.component').show();
+      $('#gambarProduk').cropper('destroy');
+      $("#gambarProduk").cropper({
+          aspectRatio: 1392/880,
+          minCropBoxWidth: 1392,
+          minCropBoxHeight: 880,
+          resizable: true,
+          autoCropArea: 0,
+          strict: false,
+          guides: false,
+          highlight: false,
+          dragCrop: false,
+          cropBoxMovable: true,
+          cropBoxResizable: false,
+          dragMode: 'move',
+      });
+
       $("#statusKosong").val('1');
     };
 
@@ -315,6 +331,41 @@ function saveDescSreenshot(namaFile){
         if(resp.err==''){
         }else{
           alert(resp.err);
+        }
+      }
+  });
+}
+
+function upUrutan(id){
+  $.ajax({
+    type:'POST',
+    data : {
+            id : id
+    },
+    url: url+'&tipe=upUrutan',
+      success: function(data) {
+      var resp = eval('(' + data + ')');
+        if(resp.err==''){
+          $(".active-tick").click();
+        }else{
+          errorAlert(resp.err);
+        }
+      }
+  });
+}
+function downUrutan(id){
+  $.ajax({
+    type:'POST',
+    data : {
+            id : id
+    },
+    url: url+'&tipe=downUrutan',
+      success: function(data) {
+      var resp = eval('(' + data + ')');
+        if(resp.err==''){
+          $(".active-tick").click();
+        }else{
+          errorAlert(resp.err);
         }
       }
   });

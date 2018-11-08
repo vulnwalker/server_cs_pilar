@@ -46,6 +46,10 @@ switch($page){
     include 'pages/team.php';
     break;
   }
+  case 'member':{
+    include 'pages/member.php';
+    break;
+  }
 
   default:{
 
